@@ -1,8 +1,9 @@
 var React = require('react');
+var interact = require('interact.js');
 
 module.exports = React.createClass({
   getInitialState: function() {
-    return {};
+    return {x: this.props.x, y: this.props.y};
   },
 
   getDefaultProps: function() {
@@ -14,12 +15,37 @@ module.exports = React.createClass({
     }
   },
 
+  componentDidMount: function() {
+    var self = this;
+
+    interact(self.getDOMNode())
+      .draggable({
+        snap: {
+          targets: [
+            interact.createSnapGrid({ x: 20 })
+          ],
+          range: Infinity,
+          elementOrigin: { x: 0, y: 0 }
+        },
+        inertia: true,
+        restrict: {
+          restriction: document.getElementById("svg"),
+          elementRect: { top: 0, left: 0, bottom: 1, right: 1 },
+          endOnly: false
+        }
+      })
+      .on('dragmove', function (event) {
+        console.log(event);
+        self.setState({x: event.pageX});
+      });
+  },
+
   render: function() {
     return (
       <g className="slider">
-        <circle className="circle" cx={this.props.x} cy={this.props.y} r={this.props.radius} />
-        <line x1={this.props.x} y1={this.props.y} x2={this.props.x} y2={this.props.y + this.props.lineHeight} stroke-width="2" stroke="black"/>
-        <circle className="circle" cx={this.props.x} cy={this.props.y + this.props.lineHeight} r={this.props.radius} />
+        <circle className="circle" cx={this.state.x} cy={this.state.y} r={this.props.radius} />
+        <line x1={this.state.x} y1={this.state.y} x2={this.state.x} y2={this.state.y + this.props.lineHeight} strokeWidth="2" stroke="black"/>
+        <circle className="circle" cx={this.state.x} cy={this.state.y + this.props.lineHeight} r={this.props.radius} />
       </g>
     )
   }
