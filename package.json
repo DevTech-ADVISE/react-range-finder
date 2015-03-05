@@ -1,0 +1,26 @@
+{
+  "name": "react-range-finder",
+  "version": "1.0.0",
+  "description": "",
+  "main": "range-finder.jsx",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/YeahButHats/react-range-finder.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/YeahButHats/react-range-finder/issues"
+  },
+  "homepage": "https://github.com/YeahButHats/react-range-finder",
+  "dependencies": {
+    "css-loader": "^0.9.1",
+    "interact.js": "^1.2.3",
+    "jsx-loader": "^0.12.2",
+    "react": "^0.12.2",
+    "style-loader": "^0.8.3"
+  }
+}
