@@ -10,7 +10,6 @@ module.exports = React.createClass({
     return {
       x: 20,
       y: 20,
-      snapSize: 20,
       height: 60,
       radius: 5
     };
@@ -22,24 +21,11 @@ module.exports = React.createClass({
     interact(self.getDOMNode())
       .draggable({
         snap: {
-          targets: [
-            interact.createSnapGrid({ x: this.props.snapSize })
-          ],
+          targets: this.props.snapGrid,
           range: Infinity,
-          offset: { x: self.props.x, y: self.props.y }
-        // },
-        // restrict: {
-        //   restriction: {
-        //     left: 0,
-        //     right: 0,
-        //     top: 0,
-        //     bottom: 0
-        //   }
-        //   endOnly: false
         }
       })
       .on('dragmove', function (event) {
-        console.log(event);
         self.setState({x: event.pageX});
       });
   },

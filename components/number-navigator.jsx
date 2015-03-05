@@ -23,20 +23,33 @@ module.exports = React.createClass({
     };
   },
 
-  makeTicks: function() {
+  getSnapGrid: function() {
     var start = this.props.start;
     var end = this.props.end;
 
     var stepCount = (end - start) / this.props.stepSize;
     var stepWidth = this.props.width / stepCount;
 
+    var snapTargets = [];
+
+    for(var i = 0; i <= stepCount; i++) {
+      var x = this.props.x + i * stepWidth;
+
+      snapTargets.push({ x: x });
+    }
+
+    return snapTargets;
+
+  },
+
+  makeTicks: function(snapGrid) {
     var y1 = this.props.y - tickBuffer;
     var y2 = y1 - tickSize;
 
     var ticks = [];
 
-    for(var i = 0; i <= stepCount; i++) {
-      var x = this.props.x + i * stepWidth;
+    for(var key in snapGrid) {
+      var x = snapGrid[key].x;
 
       ticks.push(<line x1={x} y1={y1} x2={x} y2={y2} strokeWidth="1" stroke="grey" />);
     }
@@ -44,31 +57,28 @@ module.exports = React.createClass({
     return ticks;
   },
 
-  makeSliders: function() {
+  makeSliders: function(snapGrid) {
     var leftX = this.props.x;
-    var leftY = this.props.y - 20;
+    var leftY = this.props.y - 12;
 
     var rightX = this.props.x + this.props.width;
     var rightY = leftY;
 
     var sliderHeight = 50;
 
-    var stepCount = (this.props.end - this.props.start) / this.props.stepSize;
-    var stepWidth = this.props.width / stepCount;
-
-    console.log(stepWidth);
-
     var sliders = [];
 
-    sliders.push(<Slider x={leftX} y={leftY} height={sliderHeight} snapSize={stepWidth} />);
-    sliders.push(<Slider x={rightX} y={rightY} height={sliderHeight} snapSize={stepWidth} />);
+    sliders.push(<Slider x={leftX} y={leftY} height={sliderHeight} snapGrid={snapGrid} />);
+    sliders.push(<Slider x={rightX} y={rightY} height={sliderHeight} snapGrid={snapGrid} />);
 
     return sliders;
   },
 
   render: function() {
-    var ticks = this.makeTicks();
-    var sliders = this.makeSliders();
+    var snapGrid = this.getSnapGrid();
+
+    var ticks = this.makeTicks(snapGrid);
+    var sliders = this.makeSliders(snapGrid);
 
     return (
       <g>

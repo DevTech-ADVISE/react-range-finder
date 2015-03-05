@@ -12,7 +12,7 @@ module.exports = React.createClass({
 
     return (
       <svg id="svg" width="400" height="400">
-        <NumberNav x={this.state.x} y={this.state.y} width={width} />
+        <NumberNav x={this.state.x} y={this.state.y} width={width} start={1971}/>
       </svg>
     )
   }
