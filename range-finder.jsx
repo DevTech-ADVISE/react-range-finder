@@ -5,7 +5,8 @@ var CoverageBar = require('./components/coverageBar.jsx');
 module.exports = React.createClass({
   getInitialState: function() {
     return {
-
+      start: this.props.start,
+      end: this.props.end
     };
   },
 
@@ -130,6 +131,21 @@ module.exports = React.createClass({
       valueLookup.byLocation[xLocation] = value;
     }
 
+    var startSnapGrid = [];
+    var endSnapGrid = [];
+
+    for (var key in snapGrid) {
+      var snapObject = snapGrid[key];
+      var x = snapObject.x;
+
+      if(x <= valueLookup.byValue[this.state.end]) {
+        startSnapGrid.push(snapObject);
+      }
+      if(x >= valueLookup.byValue[this.state.start]) {
+        endSnapGrid.push(snapObject);
+      }
+    }
+
     var sliders = [];
 
     sliders.push(
@@ -137,23 +153,33 @@ module.exports = React.createClass({
         x={leftX}
         y={leftY}
         height={sliderHeight}
-        snapGrid={snapGrid}
+        snapGrid={startSnapGrid}
         valueLookup={valueLookup}
         onDragMove={this.props.onStartDragMove}
-        onDragEnd={this.props.onStartDragEnd}/>
+        onDragEnd={this.onStartDragEnd}/>
     );
     sliders.push(
       <Slider
         x={rightX}
         y={rightY}
         height={sliderHeight}
-        snapGrid={snapGrid}
+        snapGrid={endSnapGrid}
         valueLookup={valueLookup}
         onDragMove={this.props.onEndDragMove}
-        onDragEnd={this.props.onEndDragEnd}/>
+        onDragEnd={this.onEndDragEnd}/>
     );
 
     return sliders;
+  },
+
+  onStartDragEnd: function(value) {
+    this.setState({start: value});
+    this.props.onStartDragEnd(value);
+  },
+
+  onEndDragEnd: function(value) {
+    this.setState({end: value});
+    this.props.onEndDragEnd(value);
   },
 
   makeCoverage: function() {

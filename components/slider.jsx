@@ -49,6 +49,18 @@ module.exports = React.createClass({
       });
   },
 
+  componentDidUpdate: function() {
+    var self = this;
+
+    interact(self.getDOMNode())
+      .draggable({
+        snap: {
+          targets: this.props.snapGrid,
+          range: Infinity,
+        }
+      });
+  },
+
   render: function() {
     var y = this.props.y;
     return (
