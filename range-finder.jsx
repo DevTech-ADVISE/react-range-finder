@@ -25,7 +25,11 @@ module.exports = React.createClass({
       barHeight: 10,
       coverageBarHeight: 8,
       stepSize: 1,
-      series: []
+      series: [],
+      onStartDragMove: function(value) {},
+      onStartDragEnd: function(value) {},
+      onEndDragMove: function(value) {},
+      onEndDragEnd: function(value) {}
     };
   },
 
@@ -52,7 +56,12 @@ module.exports = React.createClass({
           })
         ).isRequired
       })
-    )
+    ),
+
+    onStartDragMove: React.PropTypes.func,
+    onStartDragEnd: React.PropTypes.func,
+    onEndDragMove: React.PropTypes.func,
+    onEndDragEnd: React.PropTypes.func,
   },
 
   componentWillMount: function() {
@@ -123,8 +132,26 @@ module.exports = React.createClass({
 
     var sliders = [];
 
-    sliders.push(<Slider x={leftX} y={leftY} height={sliderHeight} snapGrid={snapGrid} valueLookup={valueLookup}/>);
-    sliders.push(<Slider x={rightX} y={rightY} height={sliderHeight} snapGrid={snapGrid} valueLookup={valueLookup}/>);
+    sliders.push(
+      <Slider
+        x={leftX}
+        y={leftY}
+        height={sliderHeight}
+        snapGrid={snapGrid}
+        valueLookup={valueLookup}
+        onDragMove={this.props.onStartDragMove}
+        onDragEnd={this.props.onStartDragEnd}/>
+    );
+    sliders.push(
+      <Slider
+        x={rightX}
+        y={rightY}
+        height={sliderHeight}
+        snapGrid={snapGrid}
+        valueLookup={valueLookup}
+        onDragMove={this.props.onEndDragMove}
+        onDragEnd={this.props.onEndDragEnd}/>
+    );
 
     return sliders;
   },

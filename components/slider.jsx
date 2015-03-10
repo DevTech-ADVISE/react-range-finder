@@ -18,7 +18,9 @@ module.exports = React.createClass({
       x: 20,
       y: 20,
       height: 60,
-      radius: 5
+      radius: 5,
+      onDragMove: function(value) {},
+      onDragEnd: function(value) {}
     };
   },
 
@@ -35,7 +37,15 @@ module.exports = React.createClass({
       .on('dragmove', function (event) {
         var x = event.clientX;
         var value = self.props.valueLookup.byLocation[x];
+
         self.setState({x: x, value: value});
+        self.props.onDragMove(value);
+      })
+      .on('dragend', function (event) {
+        var x = event.clientX;
+        var value = self.props.valueLookup.byLocation[x];
+
+        self.props.onDragEnd(value);
       });
   },
 

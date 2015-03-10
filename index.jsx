@@ -8,9 +8,36 @@ var colors = ["red", "orange", "green", "blue", "black", "grey"];
 
 var series = dataGenerator(start, end, colors);
 
+function onStartDragMove(value) {
+  console.log("start year: " + value);
+}
+
+function onEndDragMove(value) {
+  console.log("start year: " + value);
+}
+
+function reportRange()
+{
+  console.log("Date Range: " + start + "-" + end);
+}
+
+function onStartDragEnd(value) {
+  start = value;
+  reportRange();
+}
+
+function onEndDragEnd(value) {
+  end = value;
+  reportRange();
+}
+
 React.render(
   <RangeFinder 
     start={start}
     end={end}
-    series={series}/>,
+    series={series}
+    onStartDragMove={onStartDragMove}
+    onEndDragMove={onEndDragMove}
+    onStartDragEnd={onStartDragEnd}
+    onEndDragEnd={onEndDragEnd}/>,
   document.getElementById('content'));
