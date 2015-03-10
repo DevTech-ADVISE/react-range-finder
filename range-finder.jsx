@@ -153,6 +153,7 @@ module.exports = React.createClass({
         x={leftX}
         y={leftY}
         height={sliderHeight}
+        handleAnchor={1}
         snapGrid={startSnapGrid}
         valueLookup={valueLookup}
         onDragMove={this.props.onStartDragMove}
@@ -163,6 +164,7 @@ module.exports = React.createClass({
         x={rightX}
         y={rightY}
         height={sliderHeight}
+        handleAnchor={0}
         snapGrid={endSnapGrid}
         valueLookup={valueLookup}
         onDragMove={this.props.onEndDragMove}
@@ -226,9 +228,9 @@ module.exports = React.createClass({
     return (
       <svg width={width} height={height}>
         {ticks}
-        <text x={this.barX - this.consts.textMargin} y={this.barY} textAnchor="end">{this.props.start}</text>
+        <text x={this.barX - this.consts.textMargin} y={this.barY + this.props.barHeight} textAnchor="end">{this.props.start}</text>
         <rect x={this.barX} y={this.barY} width={this.props.barWidth} height={this.props.barHeight} fill="darkgreen" stroke="darkgreen"/>
-        <text x={this.barX + this.props.barWidth + this.consts.textMargin} y={this.barY} textAnchor="start">{this.props.end}</text>
+        <text x={this.barX + this.props.barWidth + this.consts.textMargin} y={this.barY + this.props.barHeight} textAnchor="start">{this.props.end}</text>
         {coverage}
         {sliders}
       </svg>

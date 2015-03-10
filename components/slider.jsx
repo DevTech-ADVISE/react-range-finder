@@ -15,10 +15,8 @@ module.exports = React.createClass({
 
   getDefaultProps: function() {
     return {
-      x: 20,
-      y: 20,
       height: 60,
-      radius: 5,
+      handleSize: 10,
       onDragMove: function(value) {},
       onDragEnd: function(value) {}
     };
@@ -62,13 +60,22 @@ module.exports = React.createClass({
   },
 
   render: function() {
+    var x = this.state.x 
     var y = this.props.y;
+    var height = this.props.height;
+    var handleSize = this.props.handleSize;
+    var handleAnchor = this.props.handleAnchor;
+    var textMargin = this.consts.textMargin;
+
+    var handleOffset = handleSize * handleAnchor;
+    var handleX = x - handleOffset;
+    var handleY = y - 0.5 * handleSize;
     return (
       <g className="slider">
-        <text x={this.state.x} y={y - this.props.radius - this.consts.textMargin} textAnchor="middle">{this.state.value}</text>
-        <circle className="circle" cx={this.state.x} cy={y} r={this.props.radius} />
-        <line x1={this.state.x} y1={y} x2={this.state.x} y2={y + this.props.height} strokeWidth="2" stroke="black"/>
-        <circle className="circle" cx={this.state.x} cy={y + this.props.height} r={this.props.radius} />
+        <text x={x} y={handleY - textMargin} textAnchor={handleAnchor === 0 ? "start" : "end"}>{this.state.value}</text>
+        <rect x={handleX} y={handleY} width={handleSize} height={handleSize} strokeWidth="2" stroke="black"/>
+        <line x1={x} y1={y} x2={x} y2={y + height} strokeWidth="2" stroke="black"/>
+        <rect x={handleX} y={handleY + height} width={handleSize} height={handleSize} strokeWidth="2" stroke="black"/>
       </g>
     )
   }
