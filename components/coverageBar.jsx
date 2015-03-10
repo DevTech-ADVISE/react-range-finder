@@ -65,10 +65,10 @@ module.exports = React.createClass({
     var x2 = this.props.x + this.props.width;
 
     var y = this.props.y + this.props.height/2;
-    
+
     return (
       <g>
-        <line x1={x1} y1={y} x2={x2} y2={y} strokeWidth="1" stroke={this.props.color}/>
+        <line x1={x1} y1={y} x2={x2} y2={y} strokeWidth="1" stroke={this.props.color} strokeDasharray="5, 5"/>
         {bars}
       </g>
     );
