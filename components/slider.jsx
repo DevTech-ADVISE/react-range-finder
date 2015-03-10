@@ -3,7 +3,14 @@ var interact = require('interact.js');
 
 module.exports = React.createClass({
   getInitialState: function() {
-    return {x: this.props.x, y: this.props.y};
+    var x = this.props.x;
+    var value = this.props.valueLookup.byLocation[x];
+
+    return { x: x, value: value };
+  },
+
+  consts: {
+    textMargin: 2
   },
 
   getDefaultProps: function() {
@@ -26,16 +33,20 @@ module.exports = React.createClass({
         }
       })
       .on('dragmove', function (event) {
-        self.setState({x: event.pageX});
+        var x = event.clientX;
+        var value = self.props.valueLookup.byLocation[x];
+        self.setState({x: x, value: value});
       });
   },
 
   render: function() {
+    var y = this.props.y;
     return (
       <g className="slider">
-        <circle className="circle" cx={this.state.x} cy={this.state.y} r={this.props.radius} />
-        <line x1={this.state.x} y1={this.state.y} x2={this.state.x} y2={this.state.y + this.props.height} strokeWidth="2" stroke="black"/>
-        <circle className="circle" cx={this.state.x} cy={this.state.y + this.props.height} r={this.props.radius} />
+        <text x={this.state.x} y={y - this.props.radius - this.consts.textMargin} textAnchor="middle">{this.state.value}</text>
+        <circle className="circle" cx={this.state.x} cy={y} r={this.props.radius} />
+        <line x1={this.state.x} y1={y} x2={this.state.x} y2={y + this.props.height} strokeWidth="2" stroke="black"/>
+        <circle className="circle" cx={this.state.x} cy={y + this.props.height} r={this.props.radius} />
       </g>
     )
   }
