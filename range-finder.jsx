@@ -24,7 +24,8 @@ module.exports = React.createClass({
       barWidth: 300,
       barHeight: 10,
       coverageBarHeight: 8,
-      stepSize: 1
+      stepSize: 1,
+      series: []
     };
   },
 

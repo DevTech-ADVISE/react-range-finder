@@ -1,7 +1,7 @@
 var React = require('react');
 var RangeFinder = require('./range-finder.jsx');
 
-var start = 1990;
+var start = 1915;
 var end = 2015;
 var colors = ["red", "orange", "green", "blue", "black", "grey"];
 
@@ -73,9 +73,11 @@ for(var i=0; i<colors.length; i++) {
   series.push(makeSeries(i));
 }
 
+console.log(series);
+
 React.render(
   <RangeFinder 
-    start={1990}
-    end={2015}
+    start={start}
+    end={end}
     series={series}/>,
   document.getElementById('content'));
