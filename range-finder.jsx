@@ -22,6 +22,8 @@ module.exports = React.createClass({
 
   getDefaultProps: function() {
     return {
+      start: 0,
+      end: 100,
       barWidth: 300,
       barHeight: 10,
       coverageBarHeight: 8,
@@ -39,25 +41,16 @@ module.exports = React.createClass({
     barHeight: React.PropTypes.number,
     coverageBarHeight: React.PropTypes.number,
 
-    start: React.PropTypes.number.isRequired,
-    end: React.PropTypes.number.isRequired,
+    start: React.PropTypes.number,
+    end: React.PropTypes.number,
 
     stepSize: React.PropTypes.number,
 
-    series: React.PropTypes.arrayOf(
-      React.PropTypes.shape({
-        color: React.PropTypes.string,
-
-        start: React.PropTypes.number.isRequired,
-        end: React.PropTypes.number.isRequired,
-        coverage: React.PropTypes.arrayOf(
-          React.PropTypes.shape({
-            start: React.PropTypes.number.isRequired,
-            end: React.PropTypes.number.isRequired
-          })
-        ).isRequired
-      })
-    ),
+    series: React.PropTypes.arrayOf(React.PropTypes.object),
+    schema: React.PropTypes.shape({
+      series: React.PropTypes.oneOfType([React.PropTypes.arrayOf(React.PropTypes.string), React.PropTypes.string]).isRequired,
+      value: React.PropTypes.string.isRequired
+    }),
 
     onStartDragMove: React.PropTypes.func,
     onStartDragEnd: React.PropTypes.func,
@@ -68,6 +61,142 @@ module.exports = React.createClass({
   componentWillMount: function() {
     this.barX = this.consts.barMargin;
     this.barY = this.consts.barMargin;
+
+    if(this.props.series.length === 0) {
+      return;
+    }
+
+    this.setValueRange();
+    this.setGroupedSeries();
+  },
+
+  setGroupedSeries: function() {
+    if(this.props.series.length === 0) {
+      return;
+    }
+
+    var series = this.props.series.slice(); //copies array
+
+    var seriesLabels = this.props.schema.series;
+    var valueLabel = this.props.schema.value;
+
+    if(typeof seriesLabels === "string") {
+      seriesLabels = [seriesLabels];
+    }
+
+    var sortFields = seriesLabels.slice();
+    sortFields.push(valueLabel);
+    
+    series.sort(this.getSortFunction(sortFields));
+
+    var seriesMapping = this.mapSeries(series);
+    console.log(seriesMapping);
+    this.seriesMapping = seriesMapping;
+  },
+
+  mapSeries: function(sortedSeries) {
+    var seriesLabels = this.props.schema.series;
+    var valueLabel = this.props.schema.value;
+
+    if(typeof seriesLabels === "string") {
+      seriesLabels = [seriesLabels];
+    }
+
+    var seriesMapping = [];
+
+    var coverage = [];
+    var currentSeries = null;
+    var start = null;
+    var end = null;
+
+    sortedSeries.forEach(function(item) {
+      var value = item[valueLabel];
+
+      if(currentSeries === null) {
+        currentSeries = item;
+        start = value;
+      } else if(!this.doesMatchSeries(item, currentSeries)) {
+        coverage.push({start: start, end: end});
+
+        var seriesNames = [];
+        seriesLabels.forEach(function(label) {
+          seriesNames.push(item[label]);
+        });
+
+        seriesMapping.push({seriesNames: seriesNames, coverage: coverage});
+
+        coverage = [];
+        currentSeries = item;
+        start = value;
+      } else if(value > end + this.props.stepSize) {
+        coverage.push({start: start, end: end});
+        start = value;
+      }
+      
+      end = value;
+    }, this);
+
+    return seriesMapping;
+  },
+
+  doesMatchSeries: function(series1, series2) {
+    var seriesLabels = this.props.schema.series;
+
+    if(typeof seriesLabels === "string") {
+      seriesLabels = [seriesLabels];
+    }
+
+    for (var key in seriesLabels) {
+      var label = seriesLabels[key];
+
+      if(series1[label] !== series2[label]) {
+        return false;
+      }
+    }
+
+    return true;
+  },
+
+  //Get sort function that sorts in order of array given.
+  getSortFunction: function(fieldList) {
+    return function(a, b) {
+      for(var key in fieldList) {
+        var sortField = fieldList[key];
+
+        if(a[sortField] > b[sortField]) {
+          return 1;
+        }
+
+        if(a[sortField] < b[sortField]) {
+          return -1;
+        }
+      }
+
+      return 0;
+    };
+  },
+
+  setValueRange: function() {
+    if(this.props.series.length === 0) {
+      return;
+    }
+
+    var start = null;
+    var end = null;
+
+    var value = this.props.schema.value;
+
+    this.props.series.forEach(function(item){
+      if(start === null || item[value] < start) {
+        start = item[value];
+      }
+
+      if(end === null || item[value] > end) {
+        end = item[value];
+      }
+    });
+
+    this.setState({start: start, end: end});
   },
 
   getSnapGrid: function() {
@@ -117,7 +246,7 @@ module.exports = React.createClass({
       this.consts.tickSize +
       this.consts.tickMargin +
       this.props.barHeight +
-      this.props.series.length * (this.props.coverageBarHeight + this.consts.coverageBarMargin);
+      this.seriesMapping.length * (this.props.coverageBarHeight + this.consts.coverageBarMargin);
 
     var valueLookup = {};
     valueLookup.byValue = {};
@@ -191,7 +320,9 @@ module.exports = React.createClass({
     var yearCount = (this.props.end - this.props.start) / this.props.stepSize;
     var dashSize = this.props.barWidth / yearCount;
 
-    return this.props.series.map(function(series, id) {
+
+
+    return this.seriesMapping.map(function(series, id) {
       var y = barBottom + id * (this.props.coverageBarHeight + this.consts.coverageBarMargin);
 
       return (
@@ -201,8 +332,8 @@ module.exports = React.createClass({
           width={this.props.barWidth}
           height={this.props.coverageBarHeight}
           color={series.color}
-          start={series.start}
-          end={series.end}
+          start={this.state.start}
+          end={this.state.end}
           coverage={series.coverage}
           dashSize={dashSize}/>
       );

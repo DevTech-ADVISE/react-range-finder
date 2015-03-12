@@ -4,9 +4,9 @@ var dataGenerator = require('./sampleDataGenerator');
 
 var start = 1915;
 var end = 2015;
-var colors = ["red", "orange", "green", "blue", "black", "grey"];
 
-var series = dataGenerator(start, end, colors);
+var series = dataGenerator.makeData(start, end);
+var schema = dataGenerator.makeSchema();
 
 function onStartDragMove(value) {
   console.log("start year: " + value);
@@ -36,6 +36,7 @@ React.render(
     start={start}
     end={end}
     series={series}
+    schema={schema}
     onStartDragMove={onStartDragMove}
     onEndDragMove={onEndDragMove}
     onStartDragEnd={onStartDragEnd}

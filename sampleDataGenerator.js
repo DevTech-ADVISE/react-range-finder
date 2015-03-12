@@ -1,15 +1,14 @@
 function random(min, max) {
+  max = max + 1;
   return Math.floor(Math.random() * (max - min)) + min;
 }
 
-function makeCoverageRange(start, end) {
+function makeYearRange(start, end) {
   if(start > end) {
     return null;
   }
 
   var coverage = {};
-
-  end += 1;
 
   var start1 = random(start, end);
   var start2 = random(start, end);
@@ -22,19 +21,13 @@ function makeCoverageRange(start, end) {
   return coverage;
 }
 
-function makeCoverage(start, end) {
+function makeYearSets(start, end) {
   var coverage = [];
 
-  var coverageBars = Math.floor(Math.random() * 5);
+  var coverageBarCount = random(1, 4);
 
-  if(coverageBars === 0) {
-    coverage.push({start: start, end: end});
-
-    return coverage;
-  }
-
-  while (coverageBars-- > 0) {
-    var coverageBar = makeCoverageRange(start, end);
+  while (coverageBarCount-- > 0) {
+    var coverageBar = makeYearRange(start, end);
 
     if(coverageBar === null) {
       return coverage;
@@ -48,26 +41,82 @@ function makeCoverage(start, end) {
   return coverage;
 }
 
-function makeSeries(start, end, color) {
-  var series = {};
-  series.start = start;
-  series.end = end;
+function makeMajorSeries() {
+  var seriesCount = random(2, 4);
 
-  series.color = color;
+  var majorSeries = [];
 
-  series.coverage = makeCoverage(start, end);
+  do {
+    majorSeries.push("MS_" + seriesCount);
+  } while (--seriesCount > 0);
 
-  return series;
+  return majorSeries;
 }
 
-function makeSeriesList(start, end, colors) {
-  var series = [];
+function makeMinorSeries() {
+  var seriesCount = random(2, 4);
 
-  for(var i=0; i<colors.length; i++) {
-    series.push(makeSeries(start, end, colors[i]));
+  var minorSeries = [];
+
+  do {
+    minorSeries.push("ms_" + seriesCount);
+  } while (--seriesCount > 0);
+
+  return minorSeries;
+}
+
+function clusterSeries(majorSeries, minorSeries) {
+  var seriesCluster = [];
+
+  for(var majorKey in majorSeries) {
+    for(var minorKey in minorSeries) {
+      var major = majorSeries[majorKey];
+      var minor = minorSeries[minorKey];
+
+      //add 10% chance minor series is not paired with major
+      if(random(1, 10) !== 1) {
+        seriesCluster.push({major: major, minor: minor});
+      }
+    }
   }
 
-  return series;
+  return seriesCluster;
 }
 
-module.exports = makeSeriesList;
+function addYearData(seriesCluster, start, end) {
+  var dataSet = [];
+
+  for (var key in seriesCluster) {
+    var seriesPair = seriesCluster[key];
+
+    var yearSets = makeYearSets(start, end);
+
+    for(var yearKey in yearSets) {
+      var yearSet = yearSets[yearKey];
+
+      for(var year = yearSet.start; year <= yearSet.end; year++) {
+        dataSet.push({major: seriesPair.major, minor: seriesPair.minor, year: year});
+      }
+    }
+  }
+
+  return dataSet;
+}
+
+function makeData(start, end) {
+  var majorSeries = makeMajorSeries();
+  var minorSeries = makeMinorSeries();
+
+  var seriesCluster = clusterSeries(majorSeries, minorSeries);
+
+  var fakeDataSet = addYearData(seriesCluster, start, end)
+
+  return fakeDataSet;
+}
+
+function makeSchema() {
+  return {series:['major', 'minor'], value:'year'};
+}
+
+module.exports.makeData = makeData;
+module.exports.makeSchema = makeSchema;
