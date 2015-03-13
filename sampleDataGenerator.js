@@ -75,13 +75,16 @@ function clusterSeries(majorSeries, minorSeries) {
 
   for(var majorKey in majorSeries) {
     for(var minorKey in minorSeries) {
-      var major = majorSeries[majorKey];
-      var minor = minorSeries[minorKey];
+      var series = {};
+      series.major = majorSeries[majorKey];
+      series.minor = minorSeries[minorKey];
 
       //add 10% chance minor series is not paired with major
-      if(random(1, 10) !== 1) {
-        seriesCluster.push({major: major, minor: minor});
+      if(random(1, 10) === 1) {
+        series.skip = true;
       }
+      
+      seriesCluster.push(series);
     }
   }
 
@@ -93,6 +96,11 @@ function addYearData(seriesCluster, start, end) {
 
   for (var key in seriesCluster) {
     var seriesPair = seriesCluster[key];
+
+    if(seriesPair.skip) {
+      dataSet.push({major: seriesPair.major, minor: seriesPair.minor, year: null});
+      continue;
+    }
 
     var yearSets = makeYearSets(start, end);
 
