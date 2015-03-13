@@ -49,7 +49,8 @@ module.exports = React.createClass({
     series: React.PropTypes.arrayOf(React.PropTypes.object),
     schema: React.PropTypes.shape({
       series: React.PropTypes.oneOfType([React.PropTypes.arrayOf(React.PropTypes.string), React.PropTypes.string]).isRequired,
-      value: React.PropTypes.string.isRequired
+      value: React.PropTypes.string.isRequired,
+      colorScheme: React.PropTypes.array
     }),
 
     onStartDragMove: React.PropTypes.func,
@@ -90,7 +91,6 @@ module.exports = React.createClass({
     series.sort(this.getSortFunction(sortFields));
 
     var seriesMapping = this.mapSeries(series);
-    console.log(seriesMapping);
     this.seriesMapping = seriesMapping;
   },
 
@@ -109,21 +109,39 @@ module.exports = React.createClass({
     var start = null;
     var end = null;
 
+    var colorIndeces = [];
+    seriesLabels.forEach(function() { colorIndeces.push(0); });
+
     sortedSeries.forEach(function(item) {
       var value = item[valueLabel];
 
       if(currentSeries === null) {
         currentSeries = item;
         start = value;
-      } else if(!this.doesMatchSeries(item, currentSeries)) {
+        end = value;
+
+        return;
+      }
+      
+      var mismatchedIndex = this.getMismatchedIndex(item, currentSeries);
+
+      if(mismatchedIndex !== -1) {
         coverage.push({start: start, end: end});
 
         var seriesNames = [];
         seriesLabels.forEach(function(label) {
-          seriesNames.push(item[label]);
+          seriesNames.push(currentSeries[label]);
         });
 
-        seriesMapping.push({seriesNames: seriesNames, coverage: coverage});
+        seriesMapping.push({seriesNames: seriesNames, coverage: coverage, colorIndeces: colorIndeces});
+
+
+        colorIndeces = colorIndeces.slice(); //Copy array by value
+        colorIndeces[mismatchedIndex] += 1;
+
+        for(var i = mismatchedIndex + 1; i < colorIndeces.length; i++) {
+          colorIndeces[i] = 0;
+        }
 
         coverage = [];
         currentSeries = item;
@@ -136,25 +154,35 @@ module.exports = React.createClass({
       end = value;
     }, this);
 
+    //cleanup the last one
+    coverage.push({start: start, end: end});
+
+    var seriesNames = [];
+    seriesLabels.forEach(function(label) {
+      seriesNames.push(currentSeries[label]);
+    });
+
+    seriesMapping.push({seriesNames: seriesNames, coverage: coverage, colorIndeces: colorIndeces});
+
     return seriesMapping;
   },
 
-  doesMatchSeries: function(series1, series2) {
+  getMismatchedIndex: function(series1, series2) {
     var seriesLabels = this.props.schema.series;
 
     if(typeof seriesLabels === "string") {
       seriesLabels = [seriesLabels];
     }
 
-    for (var key in seriesLabels) {
-      var label = seriesLabels[key];
+    for (var i = 0; i < seriesLabels.length; i++) {
+      var label = seriesLabels[i];
 
       if(series1[label] !== series2[label]) {
-        return false;
+        return i;
       }
     }
 
-    return true;
+    return -1;
   },
 
   //Get sort function that sorts in order of array given.
@@ -320,7 +348,7 @@ module.exports = React.createClass({
     var yearCount = (this.props.end - this.props.start) / this.props.stepSize;
     var dashSize = this.props.barWidth / yearCount;
 
-
+    var colors = this.makeColors();
 
     return this.seriesMapping.map(function(series, id) {
       var y = barBottom + id * (this.props.coverageBarHeight + this.consts.coverageBarMargin);
@@ -331,13 +359,45 @@ module.exports = React.createClass({
           y={y}
           width={this.props.barWidth}
           height={this.props.coverageBarHeight}
-          color={series.color}
+          color={colors[id]}
           start={this.state.start}
           end={this.state.end}
           coverage={series.coverage}
           dashSize={dashSize}/>
       );
     }, this);
+  },
+
+  makeColors: function() {
+    var colors = this.props.schema.colors || ["black", "gray"];
+    var seriesMapping = this.seriesMapping;
+
+    if(typeof colors === "string") {
+      return seriesMapping.map(function(item) {
+        return colors;
+      });
+    }
+
+    return seriesMapping.map(function(item) {
+      var colorIndeces = item.colorIndeces;
+      var selectedColor = colors;
+
+      for(var i = 0; i < colorIndeces.length; i++) {
+        var colorIndex = colorIndeces[i];
+
+        if(typeof selectedColor === "string") {
+          return selectedColor;
+        }
+
+        selectedColor = selectedColor[colorIndex % selectedColor.length];
+      }
+
+      while(typeof selectedColor !== "string") {
+        selectedColor = selectedColor[0];
+      }
+
+      return selectedColor;
+    });
   },
 
   render: function() {

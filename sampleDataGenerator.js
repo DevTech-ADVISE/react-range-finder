@@ -24,7 +24,12 @@ function makeYearRange(start, end) {
 function makeYearSets(start, end) {
   var coverage = [];
 
-  var coverageBarCount = random(1, 4);
+  var coverageBarCount = random(0, 4);
+
+  if(coverageBarCount === 0) {
+    coverage.push({start: start, end: end});
+    return coverage;
+  }
 
   while (coverageBarCount-- > 0) {
     var coverageBar = makeYearRange(start, end);
@@ -42,7 +47,7 @@ function makeYearSets(start, end) {
 }
 
 function makeMajorSeries() {
-  var seriesCount = random(2, 4);
+  var seriesCount = random(4, 8);
 
   var majorSeries = [];
 
@@ -54,7 +59,7 @@ function makeMajorSeries() {
 }
 
 function makeMinorSeries() {
-  var seriesCount = random(2, 4);
+  var seriesCount = random(3, 6);
 
   var minorSeries = [];
 
@@ -115,7 +120,13 @@ function makeData(start, end) {
 }
 
 function makeSchema() {
-  return {series:['major', 'minor'], value:'year'};
+  var colors = [
+    ['red', 'darkred'],
+    ['limegreen', 'darkgreen'],
+    ['dodgerblue', 'darkblue']
+  ];
+
+  return {series:['major', 'minor'], value:'year', colors: colors};
 }
 
 module.exports.makeData = makeData;
