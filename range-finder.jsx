@@ -360,8 +360,8 @@ module.exports = React.createClass({
           width={this.props.barWidth}
           height={this.props.coverageBarHeight}
           color={colors[id]}
-          start={this.state.start}
-          end={this.state.end}
+          start={this.props.start}
+          end={this.props.end}
           coverage={series.coverage}
           dashSize={dashSize}/>
       );
