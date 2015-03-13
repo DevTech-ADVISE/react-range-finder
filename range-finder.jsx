@@ -2,7 +2,7 @@ var React = require('react');
 var Slider = require('./components/slider.jsx');
 var CoverageBar = require('./components/coverageBar.jsx');
 
-module.exports = React.createClass({
+var RangeFinder = React.createClass({
   getInitialState: function() {
     return {
       start: this.props.start,
@@ -22,8 +22,6 @@ module.exports = React.createClass({
 
   getDefaultProps: function() {
     return {
-      start: 0,
-      end: 100,
       barWidth: 300,
       barHeight: 10,
       coverageBarHeight: 8,
@@ -41,8 +39,8 @@ module.exports = React.createClass({
     barHeight: React.PropTypes.number,
     coverageBarHeight: React.PropTypes.number,
 
-    start: React.PropTypes.number,
-    end: React.PropTypes.number,
+    start: React.PropTypes.number.isRequired,
+    end: React.PropTypes.number.isRequired,
 
     stepSize: React.PropTypes.number,
 
@@ -255,7 +253,7 @@ module.exports = React.createClass({
     for(var key in snapGrid) {
       var x = snapGrid[key].x;
 
-      ticks.push(<line x1={x} y1={y1} x2={x} y2={y2} strokeWidth="1" stroke="grey" />);
+      ticks.push(<line key={"tick"+key} x1={x} y1={y1} x2={x} y2={y2} strokeWidth="1" stroke="grey" />);
     }
 
     return ticks;
@@ -307,6 +305,7 @@ module.exports = React.createClass({
 
     sliders.push(
       <Slider
+        key="leftSlider"
         x={leftX}
         y={leftY}
         height={sliderHeight}
@@ -318,6 +317,7 @@ module.exports = React.createClass({
     );
     sliders.push(
       <Slider
+        key="rightSlider"
         x={rightX}
         y={rightY}
         height={sliderHeight}
@@ -355,6 +355,7 @@ module.exports = React.createClass({
 
       return (
         <CoverageBar
+          key={"coverage" + id}
           x={x}
           y={y}
           width={this.props.barWidth}
@@ -428,3 +429,5 @@ module.exports = React.createClass({
     )
   }
 });
+
+module.exports = RangeFinder

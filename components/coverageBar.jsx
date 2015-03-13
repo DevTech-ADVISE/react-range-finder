@@ -1,7 +1,7 @@
 var React = require('react');
 
 
-module.exports = React.createClass({
+var CoverageBar = React.createClass({
   getInitialState: function() {
     return {};
   },
@@ -17,8 +17,8 @@ module.exports = React.createClass({
     end: React.PropTypes.number.isRequired,
     coverage: React.PropTypes.arrayOf(
       React.PropTypes.shape({
-        start: React.PropTypes.number.isRequired,
-        end: React.PropTypes.number.isRequired
+        start: React.PropTypes.number,
+        end: React.PropTypes.number
       })
     ).isRequired
   },
@@ -30,7 +30,7 @@ module.exports = React.createClass({
     };
   },
 
-  makeCoverageBar: function(barStart, barEnd) {
+  makeCoverageBar: function(barStart, barEnd, id) {
     var start = this.props.start;
     var end = this.props.end;
     var width = this.props.width;
@@ -44,6 +44,7 @@ module.exports = React.createClass({
 
     return (
       <rect
+        key={"coverageBar" + id}
         x={barX}
         y={this.props.y}
         width={barWidth}
@@ -53,8 +54,8 @@ module.exports = React.createClass({
   },
 
   makeCoverageBars: function() {
-    return this.props.coverage.map(function (item) {
-      return this.makeCoverageBar(item.start, item.end);
+    return this.props.coverage.map(function (item, id) {
+      return this.makeCoverageBar(item.start, item.end, id);
     }, this);
   },
 
@@ -74,3 +75,5 @@ module.exports = React.createClass({
     );
   }
 });
+
+module.exports = CoverageBar
