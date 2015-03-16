@@ -52,7 +52,7 @@ function makeMajorSeries() {
   var majorSeries = [];
 
   do {
-    majorSeries.push("MS_" + seriesCount);
+    majorSeries.push("Series Category " + seriesCount);
   } while (--seriesCount > 0);
 
   return majorSeries;
@@ -64,7 +64,7 @@ function makeMinorSeries() {
   var minorSeries = [];
 
   do {
-    minorSeries.push("ms_" + seriesCount);
+    minorSeries.push("Subseries " + seriesCount);
   } while (--seriesCount > 0);
 
   return minorSeries;

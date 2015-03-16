@@ -11,8 +11,12 @@ var RangeFinder = React.createClass({
   },
 
   consts: {
-    barMargin: 50,
-    coverageBarMargin: 5,
+    barMarginTop: 50,
+    barMarginLeft: 150,
+    barMarginRight: 50,
+    barMarginBottom: 20,
+    coverageBarMargin: 10,
+    labelCharacterLimit: 10,
     tickMargin: 2,
     tickSize: 5,
     sliderRadius: 5,
@@ -58,8 +62,8 @@ var RangeFinder = React.createClass({
   },
 
   componentWillMount: function() {
-    this.barX = this.consts.barMargin;
-    this.barY = this.consts.barMargin;
+    this.barX = this.consts.barMarginLeft;
+    this.barY = this.consts.barMarginTop;
 
     if(this.props.series.length === 0) {
       return;
@@ -342,8 +346,8 @@ var RangeFinder = React.createClass({
   },
 
   makeCoverage: function() {
-    var x = this.consts.barMargin;
-    var barBottom = this.consts.barMargin + this.props.barHeight + this.consts.coverageBarMargin;
+    var x = this.barX;
+    var barBottom = this.barY + this.props.barHeight + this.consts.coverageBarMargin;
 
     var yearCount = (this.props.end - this.props.start) / this.props.stepSize;
     var dashSize = this.props.barWidth / yearCount;
@@ -352,19 +356,31 @@ var RangeFinder = React.createClass({
 
     return this.seriesMapping.map(function(series, id) {
       var y = barBottom + id * (this.props.coverageBarHeight + this.consts.coverageBarMargin);
+      var text = series.seriesNames[series.seriesNames.length - 1];
+      var seriesText = series.seriesNames.join("\n");
 
       return (
-        <CoverageBar
-          key={"coverage" + id}
-          x={x}
-          y={y}
-          width={this.props.barWidth}
-          height={this.props.coverageBarHeight}
-          color={colors[id]}
-          start={this.props.start}
-          end={this.props.end}
-          coverage={series.coverage}
-          dashSize={dashSize}/>
+        <g>
+          <title>{seriesText}</title>
+          <text
+            x={x - this.consts.textMargin}
+            y={y + this.props.coverageBarHeight}
+            height={this.props.coverageBarHeight}
+            textAnchor="end">
+              {this.truncateText(text, this.consts.labelCharacterLimit)}
+          </text>
+          <CoverageBar
+            key={"coverage" + id}
+            x={x}
+            y={y}
+            width={this.props.barWidth}
+            height={this.props.coverageBarHeight}
+            color={colors[id]}
+            start={this.props.start}
+            end={this.props.end}
+            coverage={series.coverage}
+            dashSize={dashSize}/>
+        </g>
       );
     }, this);
   },
@@ -401,6 +417,23 @@ var RangeFinder = React.createClass({
     });
   },
 
+  makeGroupedCoverageLabels: function() {
+    var seriesKeys = this.props.schema.series;
+    if(typeof seriesKeys === "string" || seriesKeys.length === 1)
+    {
+      return [];
+    }
+
+    return [];
+  },
+
+  truncateText: function(text, charLimit) {
+    if(text.length <= charLimit + 3) { // +3 for the dots.
+      return text;
+    }
+    return text.substring(0, charLimit) + "...";
+  },
+
   render: function() {
     var snapGrid = this.getSnapGrid();
 
@@ -409,9 +442,16 @@ var RangeFinder = React.createClass({
 
     var coverage = this.makeCoverage();
 
-    var width = this.props.barWidth + 2 * this.consts.barMargin;
+    var groupedCoverageLabels = this.makeGroupedCoverageLabels();
+
+    var width =
+      this.props.barWidth +
+      this.consts.barMarginLeft +
+      this.consts.barMarginRight;
+
     var height = 
-      2 * this.consts.barMargin +
+      this.consts.barMarginTop +
+      this.consts.barMarginBottom +
       this.consts.tickSize +
       this.consts.tickMargin +
       this.props.barHeight +
@@ -421,7 +461,7 @@ var RangeFinder = React.createClass({
       <svg width={width} height={height}>
         {ticks}
         <text x={this.barX - this.consts.textMargin} y={this.barY + this.props.barHeight} textAnchor="end">{this.props.start}</text>
-        <rect x={this.barX} y={this.barY} width={this.props.barWidth} height={this.props.barHeight} fill="darkgreen" stroke="darkgreen"/>
+        <rect x={this.barX} y={this.barY} width={this.props.barWidth} height={this.props.barHeight} fill="darkgreen" stroke="darkgreen"></rect>
         <text x={this.barX + this.props.barWidth + this.consts.textMargin} y={this.barY + this.props.barHeight} textAnchor="start">{this.props.end}</text>
         {coverage}
         {sliders}
