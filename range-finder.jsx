@@ -417,16 +417,6 @@ var RangeFinder = React.createClass({
     });
   },
 
-  makeGroupedCoverageLabels: function() {
-    var seriesKeys = this.props.schema.series;
-    if(typeof seriesKeys === "string" || seriesKeys.length === 1)
-    {
-      return [];
-    }
-
-    return [];
-  },
-
   truncateText: function(text, charLimit) {
     if(text.length <= charLimit + 3) { // +3 for the dots.
       return text;
@@ -441,8 +431,6 @@ var RangeFinder = React.createClass({
     var sliders = this.makeSliders(snapGrid);
 
     var coverage = this.makeCoverage();
-
-    var groupedCoverageLabels = this.makeGroupedCoverageLabels();
 
     var width =
       this.props.barWidth +
