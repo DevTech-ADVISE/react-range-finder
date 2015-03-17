@@ -96,6 +96,41 @@ var RangeFinder = React.createClass({
 
     var seriesMapping = this.mapSeries(series);
     this.seriesMapping = seriesMapping;
+
+    var seriesGrouping = [];
+
+    if(seriesLabels.length === 1) {
+      this.seriesGrouping = null;
+      return;
+    }
+
+    var categoryStartIndex = 0;
+    var seriesNames = seriesMapping[0].seriesNames;
+    var currentCategory = seriesNames[seriesNames.length - 2];
+
+    for(var i=1; i < seriesMapping.length; i++) {
+      seriesNames = seriesMapping[i].seriesNames;
+      var newCategory = seriesNames[seriesNames.length - 2];
+
+      if(newCategory !== currentCategory) {
+        seriesGrouping.push({
+          categoryName: currentCategory,
+          startIndex: categoryStartIndex,
+          count: i - categoryStartIndex
+        });
+
+        currentCategory = newCategory;
+        categoryStartIndex = i;
+      }
+    }
+
+    seriesGrouping.push({
+      categoryName: currentCategory,
+      startIndex: categoryStartIndex,
+      count: seriesMapping.length - categoryStartIndex
+    });
+
+    this.seriesGrouping = seriesGrouping;
   },
 
   mapSeries: function(sortedSeries) {
@@ -374,10 +409,9 @@ var RangeFinder = React.createClass({
       var seriesText = series.seriesNames.join("\n");
 
       return (
-        <g>
+        <g key={"coverage" + id}>
           <title>{seriesText}</title>
           <CoverageBar
-            key={"coverage" + id}
             x={x}
             y={y}
             width={this.props.barWidth}
@@ -438,6 +472,43 @@ var RangeFinder = React.createClass({
     return text.substring(0, charLimit) + "...";
   },
 
+  makeCoverageGrouping: function() {
+    if(this.seriesGrouping === null) {
+      return null;
+    }
+
+    return this.seriesGrouping.map(function(grouping, id) {
+      var name = this.truncateText(grouping.categoryName, this.consts.labelCharacterLimit);
+      var barBottom = this.barY + this.props.barHeight + this.consts.coverageBarMargin;
+
+      var barSpacing = this.consts.coverageBarMargin + this.props.coverageBarHeight;
+
+      var startY = barBottom + grouping.startIndex * barSpacing;
+      var endY = startY + grouping.count * barSpacing - this.consts.coverageBarMargin;
+      var rightX = this.barX;
+      var leftX = rightX - this.consts.textMargin;
+      var textY = startY + (endY - startY) / 2;
+      var textX = leftX - this.consts.textMargin;
+
+      var points = this.makePointList(leftX, rightX, startY, endY);
+
+      return (
+        <g key={"grouping" + id}>
+          <title>{grouping.categoryName}</title>
+          <text x={textX} y={textY} textAnchor="end">{name}</text>
+          <polyline fill="none" stroke="black" strokeWidth="1" points={points} />
+        </g>
+      );
+    }, this);
+  },
+
+  makePointList: function(leftX, rightX, startY, endY) {
+    return rightX + ',' + startY + ' ' +
+           leftX + ',' + startY + ' ' +
+           leftX + ',' + endY + ' ' +
+           rightX + ',' + endY;
+  },
+
   render: function() {
     var snapGrid = this.getSnapGrid();
 
@@ -445,6 +516,7 @@ var RangeFinder = React.createClass({
     var sliders = this.makeSliders(snapGrid);
 
     var coverage = this.makeCoverage();
+    var coverageGrouping = this.makeCoverageGrouping();
 
     var width =
       this.props.barWidth +
@@ -466,6 +538,7 @@ var RangeFinder = React.createClass({
         <rect x={this.barX} y={this.barY} width={this.props.barWidth} height={this.props.barHeight} fill="darkgreen" stroke="darkgreen"></rect>
         <text x={this.barX + this.props.barWidth + this.consts.textMargin} y={this.barY + this.props.barHeight} textAnchor="start">{this.props.end}</text>
         {coverage}
+        {coverageGrouping}
         {sliders}
       </svg>
     )
