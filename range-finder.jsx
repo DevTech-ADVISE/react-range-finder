@@ -12,8 +12,8 @@ var RangeFinder = React.createClass({
 
   consts: {
     barMarginTop: 50,
-    barMarginLeft: 150,
-    barMarginRight: 50,
+    barMarginLeft: 120,
+    barMarginRight: 120,
     barMarginBottom: 20,
     coverageBarMargin: 10,
     labelCharacterLimit: 10,
@@ -356,19 +356,12 @@ var RangeFinder = React.createClass({
 
     return this.seriesMapping.map(function(series, id) {
       var y = barBottom + id * (this.props.coverageBarHeight + this.consts.coverageBarMargin);
-      var text = series.seriesNames[series.seriesNames.length - 1];
+      var label = series.seriesNames[series.seriesNames.length - 1];
       var seriesText = series.seriesNames.join("\n");
 
       return (
         <g>
           <title>{seriesText}</title>
-          <text
-            x={x - this.consts.textMargin}
-            y={y + this.props.coverageBarHeight}
-            height={this.props.coverageBarHeight}
-            textAnchor="end">
-              {this.truncateText(text, this.consts.labelCharacterLimit)}
-          </text>
           <CoverageBar
             key={"coverage" + id}
             x={x}
@@ -380,6 +373,13 @@ var RangeFinder = React.createClass({
             end={this.props.end}
             coverage={series.coverage}
             dashSize={dashSize}/>
+          <text
+            x={x + this.props.barWidth + this.consts.textMargin}
+            y={y + this.props.coverageBarHeight}
+            height={this.props.coverageBarHeight}
+            textAnchor="start">
+              {this.truncateText(label, this.consts.labelCharacterLimit)}
+          </text>
         </g>
       );
     }, this);
