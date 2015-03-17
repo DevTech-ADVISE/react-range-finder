@@ -9,11 +9,15 @@ var series = dataGenerator.makeData(start, end);
 var schema = dataGenerator.makeSchema();
 
 function onStartDragMove(value) {
-  console.log("start year: " + value);
+  console.log("Current start year: " + value);
 }
 
 function onEndDragMove(value) {
-  console.log("start year: " + value);
+  console.log("Current end year: " + value);
+}
+
+function onDragMove(start, end) {
+  console.log("Current year set:", start, end);
 }
 
 function reportRange()
@@ -22,13 +26,15 @@ function reportRange()
 }
 
 function onStartDragEnd(value) {
-  start = value;
-  reportRange();
+  console.log("Selected start year: " + value);
 }
 
 function onEndDragEnd(value) {
-  end = value;
-  reportRange();
+  console.log("Selected end year: " + value);
+}
+
+function onDragEnd(start, end) {
+  console.log("Date Range: " + start + "-" + end + ", " + (end - start + 1) + " years selected");
 }
 
 React.render(
@@ -39,6 +45,8 @@ React.render(
     schema={schema}
     onStartDragMove={onStartDragMove}
     onEndDragMove={onEndDragMove}
+    onDragMove={onDragMove}
     onStartDragEnd={onStartDragEnd}
-    onEndDragEnd={onEndDragEnd}/>,
+    onEndDragEnd={onEndDragEnd}
+    onDragEnd={onDragEnd}/>,
   document.getElementById('content'));

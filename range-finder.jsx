@@ -33,8 +33,10 @@ var RangeFinder = React.createClass({
       series: [],
       onStartDragMove: function(value) {},
       onStartDragEnd: function(value) {},
+      onDragMove: function(start, end) {},
       onEndDragMove: function(value) {},
-      onEndDragEnd: function(value) {}
+      onEndDragEnd: function(value) {},
+      onDragEnd: function(start, end) {},
     };
   },
 
@@ -316,7 +318,7 @@ var RangeFinder = React.createClass({
         handleAnchor={1}
         snapGrid={startSnapGrid}
         valueLookup={valueLookup}
-        onDragMove={this.props.onStartDragMove}
+        onDragMove={this.onStartDragMove}
         onDragEnd={this.onStartDragEnd}/>
     );
     sliders.push(
@@ -328,21 +330,33 @@ var RangeFinder = React.createClass({
         handleAnchor={0}
         snapGrid={endSnapGrid}
         valueLookup={valueLookup}
-        onDragMove={this.props.onEndDragMove}
+        onDragMove={this.onEndDragMove}
         onDragEnd={this.onEndDragEnd}/>
     );
 
     return sliders;
   },
 
-  onStartDragEnd: function(value) {
-    this.setState({start: value});
-    this.props.onStartDragEnd(value);
+  onStartDragMove: function(start) {
+    this.props.onStartDragMove(start);
+    this.props.onDragMove(start, this.state.end);
   },
 
-  onEndDragEnd: function(value) {
-    this.setState({end: value});
-    this.props.onEndDragEnd(value);
+  onEndDragMove: function(end) {
+    this.props.onEndDragMove(end);
+    this.props.onDragMove(this.state.start, end);
+  },
+
+  onStartDragEnd: function(start) {
+    this.setState({start: start});
+    this.props.onStartDragEnd(start);
+    this.props.onDragEnd(start, this.state.end);
+  },
+
+  onEndDragEnd: function(end) {
+    this.setState({end: end});
+    this.props.onEndDragEnd(end);
+    this.props.onDragEnd(this.state.start, end);
   },
 
   makeCoverage: function() {
