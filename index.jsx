@@ -2,6 +2,9 @@ var React = require('react');
 var RangeFinder = require('./range-finder.jsx');
 var dataGenerator = require('./sampleDataGenerator');
 
+var Tooltip = require('react-bootstrap/lib/Tooltip');
+var OverlayTrigger = require('react-bootstrap/lib/OverlayTrigger');
+
 var start = 1915;
 var end = 2015;
 
@@ -39,6 +42,7 @@ function onDragEnd(start, end) {
 
 React.render(
   <RangeFinder 
+    id="yearSelector"
     start={start}
     end={end}
     series={series}
