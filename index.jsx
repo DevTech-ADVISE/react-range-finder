@@ -39,6 +39,7 @@ function onDragEnd(start, end) {
 
 React.render(
   <RangeFinder 
+    id="yearSelector"
     start={start}
     end={end}
     series={series}
