@@ -45,6 +45,8 @@ var CoverageBar = React.createClass({
     return (
       <rect
         key={"coverageBar" + id}
+        data-ot={barStart + " to " + barEnd}
+        data-ot-show-effect-duration="0"
         x={barX}
         y={this.props.y}
         width={barWidth}

@@ -1,10 +1,10 @@
 var React = require('react');
 var Slider = require('./components/slider.jsx');
 var CoverageBar = require('./components/coverageBar.jsx');
-var Tooltip = require('react-bootstrap/lib/Tooltip');
-var OverlayTrigger = require('react-bootstrap/lib/OverlayTrigger');
 
-require('./tooltip.css');
+
+require('opentip');
+require('opentip/css/opentip.css');
 
 var RangeFinder = React.createClass({
   getInitialState: function() {
@@ -412,10 +412,6 @@ var RangeFinder = React.createClass({
       var label = series.seriesNames[series.seriesNames.length - 1];
       var seriesText = series.seriesNames.join("<br/>");
 
-      var seriesText = <span dangerouslySetInnerHTML={{__html: seriesText}}></span>
-
-      var tooltip = (<Tooltip arrowOffsetLeft="30%" arrowOffsetTop={-5}>{seriesText}</Tooltip>);
-
       return (
           <g key={"coverage" + id}>
             <CoverageBar
@@ -428,15 +424,14 @@ var RangeFinder = React.createClass({
               end={this.props.end}
               coverage={series.coverage}
               dashSize={dashSize}/>
-            <OverlayTrigger placement="bottom" overlay={tooltip}>
-              <text
-                x={x + this.props.barWidth + this.consts.textMargin}
-                y={y + this.props.coverageBarHeight}
-                height={this.props.coverageBarHeight}
-                textAnchor="start">
-                  {this.truncateText(label, this.consts.labelCharacterLimit)}
-              </text>
-            </OverlayTrigger>
+            <text
+              data-ot={seriesText}
+              x={x + this.props.barWidth + this.consts.textMargin}
+              y={y + this.props.coverageBarHeight}
+              height={this.props.coverageBarHeight}
+              textAnchor="start">
+                {this.truncateText(label, this.consts.labelCharacterLimit)}
+            </text>
           </g>
       );
     }, this);
@@ -501,13 +496,15 @@ var RangeFinder = React.createClass({
 
       var points = this.makePointList(leftX, rightX, startY, endY);
 
-      var tooltip = <Tooltip arrowOffsetLeft="30%" arrowOffsetTop={-5}>{grouping.categoryName}</Tooltip>
-
       return (
         <g key={"grouping" + id}>
-          <OverlayTrigger placement="bottom" overlay={tooltip}>
-            <text x={textX} y={textY} textAnchor="end">{name}</text>
-          </OverlayTrigger>
+          <text
+            data-ot={grouping.categoryName}
+            x={textX}
+            y={textY}
+            textAnchor="end">
+            {name}
+          </text>
           <polyline fill="none" stroke="black" strokeWidth="1" points={points} />
         </g>
       );
