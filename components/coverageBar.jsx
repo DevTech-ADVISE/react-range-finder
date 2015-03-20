@@ -13,6 +13,10 @@ var CoverageBar = React.createClass({
     height: React.PropTypes.number,
     color: React.PropTypes.string,
 
+    textMargin: React.PropTypes.number,
+    label: React.PropTypes.string,
+    tooltip: React.PropTypes.string,
+
     start: React.PropTypes.number.isRequired,
     end: React.PropTypes.number.isRequired,
     coverage: React.PropTypes.arrayOf(
@@ -26,6 +30,7 @@ var CoverageBar = React.createClass({
   getDefaultProps: function() {
     return {
       height: 5,
+      textMargin: 5,
       color: "black"
     };
   },
@@ -51,7 +56,8 @@ var CoverageBar = React.createClass({
         y={this.props.y}
         width={barWidth}
         height={this.props.height}
-        fill={this.props.color}/>
+        fill={this.props.color}
+        className="rf-coverage-bar"/>
     );
   },
 
@@ -70,9 +76,26 @@ var CoverageBar = React.createClass({
     var y = this.props.y + this.props.height/2;
 
     return (
-      <g>
-        <line x1={x1} y1={y} x2={x2} y2={y} strokeWidth="1" stroke={this.props.color} strokeDasharray="5, 5"/>
+      <g className="rf-coverage">
+        <line
+          x1={x1} y1={y}
+          x2={x2} y2={y}
+          strokeWidth="1"
+          stroke={this.props.color}
+          strokeDasharray="5, 5"
+          className="rf-coverage-line"/>
+
         {bars}
+
+        <text
+          data-ot={this.props.tooltip}
+          x={x2 + this.props.textMargin}
+          y={y + this.props.height}
+          height={this.props.height}
+          textAnchor="start"
+          className="rf-label rf-coverage-label">
+            {this.props.label}
+        </text>
       </g>
     );
   }

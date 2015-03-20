@@ -71,11 +71,31 @@ module.exports = React.createClass({
     var handleX = x - handleOffset;
     var handleY = y - 0.5 * handleSize;
     return (
-      <g className="slider">
-        <text x={x} y={handleY - textMargin} textAnchor={handleAnchor === 0 ? "start" : "end"}>{this.state.value}</text>
-        <rect x={handleX} y={handleY} width={handleSize} height={handleSize} strokeWidth="2" stroke="black"/>
-        <line x1={x} y1={y} x2={x} y2={y + height} strokeWidth="2" stroke="black"/>
-        <rect x={handleX} y={handleY + height} width={handleSize} height={handleSize} strokeWidth="2" stroke="black"/>
+      <g className="rf-slider">
+        <text
+          x={x} y={handleY - textMargin}
+          textAnchor={handleAnchor === 0 ? "start" : "end"}
+          className="rf-label rf-slider-label">
+          {this.state.value}
+        </text>
+        <rect
+          x={handleX} y={handleY}
+          width={handleSize} height={handleSize}
+          strokeWidth="2"
+          stroke="black"
+          className="rf-slider-handle"/>
+        <line
+          x1={x} y1={y}
+          x2={x} y2={y + height}
+          strokeWidth="2"
+          stroke="black"
+          className="rf-slider-bar"/>
+        <rect
+          x={handleX} y={handleY + height}
+          width={handleSize} height={handleSize}
+          strokeWidth="2"
+          stroke="black"
+          className="rf-slider-handle"/>
       </g>
     )
   }

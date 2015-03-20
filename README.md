@@ -3,6 +3,8 @@ react-range-finder
 
 Range Finder is a tool that allows you to select a numeric range bewtween a start and an end point. Optionally, you can pass a data set ("series") to show coverage for that range.
 
+[Click here for a live demo](http://yeahbuthats.github.io/react-range-finder/)
+
 Properties
 ==========
 
