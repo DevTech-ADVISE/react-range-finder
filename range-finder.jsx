@@ -409,31 +409,24 @@ var RangeFinder = React.createClass({
 
     return this.seriesMapping.map(function(series, id) {
       var y = barBottom + id * (this.props.coverageBarHeight + this.consts.coverageBarMargin);
+
       var label = series.seriesNames[series.seriesNames.length - 1];
       var seriesText = series.seriesNames.join("<br/>");
 
       return (
-          <g key={"coverage" + id}>
-            <CoverageBar
-              x={x}
-              y={y}
-              width={this.props.barWidth}
-              height={this.props.coverageBarHeight}
-              color={colors[id]}
-              start={this.props.start}
-              end={this.props.end}
-              coverage={series.coverage}
-              dashSize={dashSize}/>
-            <text
-              data-ot={seriesText}
-              x={x + this.props.barWidth + this.consts.textMargin}
-              y={y + this.props.coverageBarHeight}
-              height={this.props.coverageBarHeight}
-              textAnchor="start"
-              className="rf-label rf-coverage-label">
-                {this.truncateText(label, this.consts.labelCharacterLimit)}
-            </text>
-          </g>
+        <CoverageBar
+          key={"coverage" + id}
+          x={x}
+          y={y}
+          width={this.props.barWidth}
+          height={this.props.coverageBarHeight}
+          color={colors[id]}
+          start={this.props.start}
+          end={this.props.end}
+          coverage={series.coverage}
+          dashSize={dashSize}
+          label={this.truncateText(label, this.consts.labelCharacterLimit)}
+          tooltip={seriesText}/>
       );
     }, this);
   },
