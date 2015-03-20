@@ -505,7 +505,7 @@ var RangeFinder = React.createClass({
             stroke="black"
             strokeWidth="1"
             points={points}
-            coverage="rf-category-grouping" />
+            className="rf-category-grouping" />
         </g>
       );
     }, this);
@@ -554,7 +554,8 @@ var RangeFinder = React.createClass({
           x={this.barX} y={this.barY}
           width={this.props.barWidth} height={this.props.barHeight} 
           fill="darkgreen"
-          stroke="darkgreen"/>
+          stroke="darkgreen"
+          className="rf-range-bar"/>
         <text
           x={this.barX + this.props.barWidth + this.consts.textMargin}
           y={this.barY + this.props.barHeight}
