@@ -51,7 +51,8 @@ var CoverageBar = React.createClass({
         y={this.props.y}
         width={barWidth}
         height={this.props.height}
-        fill={this.props.color}/>
+        fill={this.props.color}
+        className="rf-coverage-bar"/>
     );
   },
 
@@ -70,8 +71,14 @@ var CoverageBar = React.createClass({
     var y = this.props.y + this.props.height/2;
 
     return (
-      <g>
-        <line x1={x1} y1={y} x2={x2} y2={y} strokeWidth="1" stroke={this.props.color} strokeDasharray="5, 5"/>
+      <g className="rf-coverage">
+        <line
+          x1={x1} y1={y}
+          x2={x2} y2={y}
+          strokeWidth="1"
+          stroke={this.props.color}
+          strokeDasharray="5, 5"
+          className="rf-coverage-line"/>
         {bars}
       </g>
     );

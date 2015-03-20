@@ -429,7 +429,8 @@ var RangeFinder = React.createClass({
               x={x + this.props.barWidth + this.consts.textMargin}
               y={y + this.props.coverageBarHeight}
               height={this.props.coverageBarHeight}
-              textAnchor="start">
+              textAnchor="start"
+              className="rf-label rf-coverage-label">
                 {this.truncateText(label, this.consts.labelCharacterLimit)}
             </text>
           </g>
@@ -497,15 +498,21 @@ var RangeFinder = React.createClass({
       var points = this.makePointList(leftX, rightX, startY, endY);
 
       return (
-        <g key={"grouping" + id}>
+        <g key={"grouping" + id} className="rf-category">
           <text
             data-ot={grouping.categoryName}
             x={textX}
             y={textY}
-            textAnchor="end">
+            textAnchor="end"
+            className="rf-label rf-category-label">
             {name}
           </text>
-          <polyline fill="none" stroke="black" strokeWidth="1" points={points} />
+          <polyline
+            fill="none"
+            stroke="black"
+            strokeWidth="1"
+            points={points}
+            coverage="rf-category-grouping" />
         </g>
       );
     }, this);
@@ -541,11 +548,27 @@ var RangeFinder = React.createClass({
       coverage.length * (this.props.coverageBarHeight + this.consts.coverageBarMargin);
 
     return (
-      <svg id={this.props.id} width={width} height={height}>
-        <g>{ticks}</g>
-        <text x={this.barX - this.consts.textMargin} y={this.barY + this.props.barHeight} textAnchor="end">{this.props.start}</text>
-        <rect x={this.barX} y={this.barY} width={this.props.barWidth} height={this.props.barHeight} fill="darkgreen" stroke="darkgreen"></rect>
-        <text x={this.barX + this.props.barWidth + this.consts.textMargin} y={this.barY + this.props.barHeight} textAnchor="start">{this.props.end}</text>
+      <svg id={this.props.id} width={width} height={height} className="range-finder">
+        <g className="rf-ticks">{ticks}</g>
+        <text
+          x={this.barX - this.consts.textMargin}
+          y={this.barY + this.props.barHeight}
+          textAnchor="end"
+          className="rf-label rf-value-label">
+          {this.props.start}
+        </text>
+        <rect
+          x={this.barX} y={this.barY}
+          width={this.props.barWidth} height={this.props.barHeight} 
+          fill="darkgreen"
+          stroke="darkgreen"/>
+        <text
+          x={this.barX + this.props.barWidth + this.consts.textMargin}
+          y={this.barY + this.props.barHeight}
+          textAnchor="start"
+          className="rf-label rf-value-label">
+          {this.props.end}
+        </text>
         {coverage}
         {coverageGrouping}
         {sliders}
