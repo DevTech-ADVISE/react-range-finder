@@ -96,24 +96,30 @@ var ComponentMakerMixin = {
     return sliders;
   },
 
-  onStartDragMove: function(start) {
+  onStartDragMove: function(start, xLocation) {
+    this.setState({startSliderX: xLocation});
+
     this.props.onStartDragMove(start);
     this.props.onDragMove(start, this.state.end);
   },
 
-  onEndDragMove: function(end) {
+  onEndDragMove: function(end, xLocation) {
+    this.setState({endSliderX: xLocation});
+
     this.props.onEndDragMove(end);
     this.props.onDragMove(this.state.start, end);
   },
 
   onStartDragEnd: function(start) {
     this.setState({start: start});
+
     this.props.onStartDragEnd(start);
     this.props.onDragEnd(start, this.state.end);
   },
 
   onEndDragEnd: function(end) {
     this.setState({end: end});
+
     this.props.onEndDragEnd(end);
     this.props.onDragEnd(this.state.start, end);
   },
@@ -236,6 +242,42 @@ var ComponentMakerMixin = {
            leftX + ',' + startY + ' ' +
            leftX + ',' + endY + ' ' +
            rightX + ',' + endY;
+  },
+
+  makeUnselectedOverlay: function() {
+    var startX = this.barX;
+    var endX = this.state.endSliderX;
+    var y = this.barY;
+
+    var startWidth = this.state.startSliderX - this.barX;
+    var endWidth = this.barX + this.props.barWidth - this.state.endSliderX;
+
+    var height = 
+      this.props.barHeight +
+      this.seriesMapping.length *
+        (this.consts.coverageBarMargin + this.props.coverageBarHeight);
+
+    var unselectedRanges = [];
+
+    unselectedRanges.push(
+      <rect
+        key="unselectedStart"
+        x={startX} y={y}
+        width={startWidth} height={height}
+        fill="black" opacity="0.5"
+        className="rf-unselected"/>
+    );
+
+    unselectedRanges.push(
+      <rect
+        key="unselectedEnd"
+        x={endX} y={y}
+        width={endWidth} height={height}
+        fill="black" opacity="0.5"
+        className="rf-unselected"/>
+    );
+
+    return unselectedRanges;
   },
 };
 

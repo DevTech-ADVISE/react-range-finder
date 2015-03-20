@@ -10,7 +10,9 @@ var RangeFinder = React.createClass({
   getInitialState: function() {
     return {
       start: this.props.start,
-      end: this.props.end
+      end: this.props.end,
+      startSliderX: this.consts.barMarginLeft,
+      endSliderX: this.consts.barMarginLeft + this.props.barWidth
     };
   },
 
@@ -108,6 +110,7 @@ var RangeFinder = React.createClass({
 
     var coverage = this.makeCoverage();
     var coverageGrouping = this.makeCoverageGrouping();
+    var unselected = this.makeUnselectedOverlay();
 
     var width =
       this.props.barWidth +
@@ -148,6 +151,7 @@ var RangeFinder = React.createClass({
         {coverage}
         {coverageGrouping}
         {sliders}
+        {unselected}
       </svg>
     )
   }
