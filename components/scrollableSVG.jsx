@@ -36,7 +36,8 @@ var ScrollableSVG = React.createClass({
         }
       })
       .on('dragmove', function (event) {
-        self.scrollElement(event.dy);
+        var scrollFactor = self.props.height / self.props.maxDisplayedHeight;
+        self.scrollElement(scrollFactor * event.dy);
       });
   },
 
