@@ -39,6 +39,8 @@ var ComponentMakerMixin = {
       if(this.props.maxCoverageHeight < coverageHeight) {
         coverageHeight = this.props.maxCoverageHeight;
       }
+
+      coverageHeight += Math.ceil(this.consts.coverageBarMargin/2);
     }
 
     var sliderHeight = 
@@ -140,7 +142,7 @@ var ComponentMakerMixin = {
     }
 
     var x = this.barX;
-    var startY = this.consts.coverageBarMargin;//this.barY + this.props.barHeight + this.consts.coverageBarMargin;
+    var startY = Math.floor(this.consts.coverageBarMargin/2);
 
     var yearCount = (this.props.end - this.props.start) / this.props.stepSize;
     var dashSize = this.props.barWidth / yearCount;
@@ -226,7 +228,7 @@ var ComponentMakerMixin = {
 
     return this.seriesGrouping.map(function(grouping, id) {
       var name = this.truncateText(grouping.categoryName, this.consts.labelCharacterLimit);
-      var barBottom = this.consts.coverageBarMargin;
+      var barBottom = Math.floor(this.consts.coverageBarMargin/2);
 
       var barSpacing = this.consts.coverageBarMargin + this.props.coverageBarHeight;
 
@@ -284,6 +286,8 @@ var ComponentMakerMixin = {
       if(coverageHeight > this.props.maxCoverageHeight) {
         coverageHeight = this.props.maxCoverageHeight;
       }
+
+      coverageHeight += Math.ceil(this.consts.coverageBarMargin/2);
     }
 
     var height = 

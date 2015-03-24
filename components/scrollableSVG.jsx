@@ -27,6 +27,14 @@ var ScrollableSVG = React.createClass({
   },
 
   componentDidMount: function() {
+    this.setInteraction();
+  },
+  
+  setInteraction: function() {
+    if(this.props.height <= this.props.maxDisplayedHeight) {
+      return;
+    }
+
     var self = this;
 
     interact(this.refs.scrollBar.getDOMNode())
@@ -40,18 +48,6 @@ var ScrollableSVG = React.createClass({
         self.scrollElement(scrollFactor * event.dy);
       });
   },
-
-  // componentDidUpdate: function() {
-  //   var self = this;
-
-  //   interact(this.refs.scrollBar.getDOMNode())
-  //     .draggable({
-  //       restrict: {
-  //         targets: this.props.snapGrid,
-  //         range: Infinity,
-  //       }
-  //     });
-  // },
 
   makeViewBox: function() {
     var height = this.props.maxDisplayedHeight < this.props.height
@@ -75,8 +71,15 @@ var ScrollableSVG = React.createClass({
   },
 
   render: function() {
-    if(this.props.maxDisplayedHeight > this.props.height) {
-      return <g className={this.props.className}>{this.props.children}</g>;
+    if(this.props.maxDisplayedHeight >= this.props.height) {
+      return (
+        <svg
+          x={this.props.x} y={this.props.y}
+          width={actualWidth} height={actualHeight}
+          className={this.props.className}>
+          {this.props.children}
+        </svg>
+      );
     }
 
     var actualWidth = this.props.width;

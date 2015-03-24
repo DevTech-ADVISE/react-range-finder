@@ -32,7 +32,7 @@ var RangeFinder = React.createClass({
     tickSize: 5,
     sliderRadius: 5,
     sliderMargin: 5,
-    textMargin: 5
+    textMargin: 5,
   },
 
   getDefaultProps: function() {
@@ -140,13 +140,13 @@ var RangeFinder = React.createClass({
 
       height += coverageHeight;
 
-      var barBottom = this.barY + this.props.barHeight;
+      var barBottom = this.barY + this.props.barHeight + Math.ceil(this.consts.coverageBarMargin/2);
 
       coverageDetails = (
         <ScrollableSVG
           y={barBottom}
           width={width} height={fullCoverageHeight}
-          maxDisplayedHeight={coverageHeight}
+          maxDisplayedHeight={this.props.maxCoverageHeight}
           className="rf-coverage-section">
           {coverage}
           {coverageGrouping}
