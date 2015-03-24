@@ -1,8 +1,1 @@
 node_modules
-components
-
-*.jsx
-*.css
-sampleDataGenerator.js
-webpack.config.js
-package.json
