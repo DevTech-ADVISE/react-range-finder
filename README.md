@@ -82,6 +82,10 @@ In the case of there being too many coverage bars, the `rf-coverage-section` is 
                 <text class="rf-label rf-coverage-label"/> //right hand label
             </g>...
         </svg>
+        <polyline class="rf-scroll-arrow" />
+        <rect class="rf-scroll-button" />
         <rect class="rf-scroll-area" />
         <rect class="rf-scroll-bar" />
+        <polyline class="rf-scroll-arrow" />
+        <rect class="rf-scroll-button" />
     </g>
