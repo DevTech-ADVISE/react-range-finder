@@ -105,6 +105,10 @@ var ScrollableSVG = React.createClass({
           width={actualWidth} height={actualHeight}
           viewBox={this.makeViewBox()}
           onWheel={this.onWheel}>
+          <rect //Fixes mouse wheel scrolling on blank parts
+            x={this.props.x} y={this.props.y}
+            width={actualWidth} height={this.props.height}
+            opacity="0"/>
           {this.props.children}
         </svg>
         <rect ref="scrollArea"
