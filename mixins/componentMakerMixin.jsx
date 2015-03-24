@@ -302,6 +302,7 @@ var ComponentMakerMixin = {
         x={startX} y={y}
         width={startWidth} height={height}
         fill="black" opacity="0.5"
+        stroke="black" strokeWidth="1"
         className="rf-unselected"/>
     );
 
@@ -311,6 +312,7 @@ var ComponentMakerMixin = {
         x={endX} y={y}
         width={endWidth} height={height}
         fill="black" opacity="0.5"
+        stroke="black" strokeWidth="1"
         className="rf-unselected"/>
     );
 
