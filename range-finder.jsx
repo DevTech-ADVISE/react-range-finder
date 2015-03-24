@@ -2,6 +2,8 @@ var React = require('react');
 var SetupMixin = require('./mixins/rangeFinderSetupMixin.jsx');
 var MakerMixin = require('./mixins/componentMakerMixin.jsx');
 
+var ScrollableSVG = require('./components/scrollableSVG.jsx');
+
 
 require('opentip');
 require('opentip/css/opentip.css');
@@ -12,7 +14,8 @@ var RangeFinder = React.createClass({
       start: this.props.start,
       end: this.props.end,
       startSliderX: this.consts.barMarginLeft,
-      endSliderX: this.consts.barMarginLeft + this.props.barWidth
+      endSliderX: this.consts.barMarginLeft + this.props.barWidth,
+      coverageOffset: 0
     };
   },
 
@@ -37,6 +40,7 @@ var RangeFinder = React.createClass({
       barWidth: 300,
       barHeight: 10,
       coverageBarHeight: 8,
+      maxCoverageHeight: 300,
       stepSize: 1,
       series: [],
       onStartDragMove: function(value) {},
@@ -52,6 +56,7 @@ var RangeFinder = React.createClass({
     barWidth: React.PropTypes.number,
     barHeight: React.PropTypes.number,
     coverageBarHeight: React.PropTypes.number,
+    maxCoverageHeight: React.PropTypes.number,
 
     start: React.PropTypes.number.isRequired,
     end: React.PropTypes.number.isRequired,
@@ -122,8 +127,34 @@ var RangeFinder = React.createClass({
       this.consts.barMarginBottom +
       this.consts.tickSize +
       this.consts.tickMargin +
-      this.props.barHeight +
-      coverage.length * (this.props.coverageBarHeight + this.consts.coverageBarMargin);
+      this.props.barHeight;
+
+    var coverageDetails = null;
+
+    if(coverage.length > 0) {
+      var fullCoverageHeight = this.seriesMapping.length * (this.props.coverageBarHeight + this.consts.coverageBarMargin);
+
+      var coverageHeight = fullCoverageHeight > this.props.maxCoverageHeight
+        ? this.props.maxCoverageHeight
+        : fullCoverageHeight;
+
+      height += coverageHeight;
+
+      var barBottom = this.barY + this.props.barHeight;
+
+      coverageDetails = (
+        <ScrollableSVG
+          y={barBottom}
+          width={width} height={fullCoverageHeight}
+          maxDisplayedHeight={coverageHeight}
+          className="rf-coverage-section">
+          {coverage}
+          {coverageGrouping}
+        </ScrollableSVG>
+      )
+    }
+
+    console.log(height);
 
     return (
       <svg id={this.props.id} width={width} height={height} className="range-finder">
@@ -148,8 +179,7 @@ var RangeFinder = React.createClass({
           className="rf-label rf-value-label">
           {this.props.end}
         </text>
-        {coverage}
-        {coverageGrouping}
+        {coverageDetails}
         {sliders}
         {unselected}
       </svg>

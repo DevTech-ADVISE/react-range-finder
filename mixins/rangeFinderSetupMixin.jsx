@@ -1,6 +1,9 @@
 var SetupMixin = {
 
   setGroupedSeries: function() {
+    this.seriesMapping = [];
+    this.seriesGrouping = [];
+    
     if(this.props.series.length === 0) {
       return;
     }
@@ -25,7 +28,6 @@ var SetupMixin = {
     var seriesGrouping = [];
 
     if(seriesLabels.length === 1) {
-      this.seriesGrouping = null;
       return;
     }
 

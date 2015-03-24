@@ -31,13 +31,23 @@ var ComponentMakerMixin = {
     var rightX = this.barX + this.props.barWidth;
     var rightY = leftY;
 
+    var coverageHeight = 0;
+
+    if(this.seriesMapping) {
+      coverageHeight = this.seriesMapping.length * (this.props.coverageBarHeight + this.consts.coverageBarMargin);
+      
+      if(this.props.maxCoverageHeight < coverageHeight) {
+        coverageHeight = this.props.maxCoverageHeight;
+      }
+    }
+
     var sliderHeight = 
       2 * this.consts.sliderRadius +
       2 * this.consts.sliderMargin +
       this.consts.tickSize +
       this.consts.tickMargin +
       this.props.barHeight +
-      this.seriesMapping.length * (this.props.coverageBarHeight + this.consts.coverageBarMargin);
+      coverageHeight;
 
     var valueLookup = {};
     valueLookup.byValue = {};
@@ -125,8 +135,12 @@ var ComponentMakerMixin = {
   },
 
   makeCoverage: function() {
+    if(!this.seriesMapping) {
+      return [];
+    }
+
     var x = this.barX;
-    var barBottom = this.barY + this.props.barHeight + this.consts.coverageBarMargin;
+    var startY = this.consts.coverageBarMargin;//this.barY + this.props.barHeight + this.consts.coverageBarMargin;
 
     var yearCount = (this.props.end - this.props.start) / this.props.stepSize;
     var dashSize = this.props.barWidth / yearCount;
@@ -134,7 +148,7 @@ var ComponentMakerMixin = {
     var colors = this.makeColors();
 
     return this.seriesMapping.map(function(series, id) {
-      var y = barBottom + id * (this.props.coverageBarHeight + this.consts.coverageBarMargin);
+      var y = startY + id * (this.props.coverageBarHeight + this.consts.coverageBarMargin);
 
       var label = series.seriesNames[series.seriesNames.length - 1];
       var seriesText = series.seriesNames.join("<br/>");
@@ -158,7 +172,16 @@ var ComponentMakerMixin = {
   },
 
   makeColors: function() {
-    var colors = this.props.schema.colors || ["black", "gray"];
+    var colors = ["black", "gray"];
+
+    if(!this.seriesMapping) {
+      return colors;
+    }
+
+    if(this.props.schema && this.props.schema.colors) {
+      colors = this.props.schema.colors;
+    }
+
     var seriesMapping = this.seriesMapping;
 
     if(typeof colors === "string") {
@@ -197,13 +220,13 @@ var ComponentMakerMixin = {
   },
 
   makeCoverageGrouping: function() {
-    if(this.seriesGrouping === null) {
-      return null;
+    if(!this.seriesGrouping) {
+      return [];
     }
 
     return this.seriesGrouping.map(function(grouping, id) {
       var name = this.truncateText(grouping.categoryName, this.consts.labelCharacterLimit);
-      var barBottom = this.barY + this.props.barHeight + this.consts.coverageBarMargin;
+      var barBottom = 0;//this.barY + this.props.barHeight + this.consts.coverageBarMargin;
 
       var barSpacing = this.consts.coverageBarMargin + this.props.coverageBarHeight;
 
@@ -252,10 +275,20 @@ var ComponentMakerMixin = {
     var startWidth = this.state.startSliderX - this.barX;
     var endWidth = this.barX + this.props.barWidth - this.state.endSliderX;
 
+    var coverageHeight = 0;
+
+    if(this.seriesMapping) {
+      coverageHeight = this.seriesMapping.length *
+        (this.consts.coverageBarMargin + this.props.coverageBarHeight);
+
+      if(coverageHeight > this.props.maxCoverageHeight) {
+        coverageHeight = this.props.maxCoverageHeight;
+      }
+    }
+
     var height = 
       this.props.barHeight +
-      this.seriesMapping.length *
-        (this.consts.coverageBarMargin + this.props.coverageBarHeight);
+      coverageHeight;
 
     var unselectedRanges = [];
 

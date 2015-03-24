@@ -60,7 +60,7 @@ module.exports = React.createClass({
   },
 
   render: function() {
-    var x = this.state.x 
+    var x = this.state.x;
     var y = this.props.y;
     var height = this.props.height;
     var handleSize = this.props.handleSize;
