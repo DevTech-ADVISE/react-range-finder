@@ -8,6 +8,8 @@ var ScrollableSVG = require('./components/scrollableSVG.jsx');
 require('opentip');
 require('opentip/css/opentip.css');
 
+require('./styles/rangeFinderStyles.css');
+
 var RangeFinder = React.createClass({
   getInitialState: function() {
     return {
