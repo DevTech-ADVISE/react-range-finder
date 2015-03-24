@@ -154,8 +154,6 @@ var RangeFinder = React.createClass({
       )
     }
 
-    console.log(height);
-
     return (
       <svg id={this.props.id} width={width} height={height} className="range-finder">
         <g className="rf-ticks">{ticks}</g>
