@@ -226,7 +226,7 @@ var ComponentMakerMixin = {
 
     return this.seriesGrouping.map(function(grouping, id) {
       var name = this.truncateText(grouping.categoryName, this.consts.labelCharacterLimit);
-      var barBottom = 0;//this.barY + this.props.barHeight + this.consts.coverageBarMargin;
+      var barBottom = this.consts.coverageBarMargin;
 
       var barSpacing = this.consts.coverageBarMargin + this.props.coverageBarHeight;
 
