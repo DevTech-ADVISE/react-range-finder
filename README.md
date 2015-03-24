@@ -3,7 +3,7 @@ react-range-finder
 
 Range Finder is a tool that allows you to select a numeric range bewtween a start and an end point. Optionally, you can pass a data set ("series") to show coverage for that range.
 
-[Live Demo](http://bi.github.io/react-range-finder/)
+[Click here for a live demo](http://yeahbuthats.github.io/react-range-finder/)
 
 Properties
 ==========
@@ -40,3 +40,48 @@ Optional
     * **schema.value**: (String) This is the key to draw the coverage of values from. The data using this key must be either numeric or null.
     * **schema.colors**: (multidimensional array of strings which are CSS colors) This is your color scheme. Simplest case: You have series: "series_name" and colors: ["red", "blue"]. The first coverage bar will be red, the second blue, the third red, the fourth blue, etc. The colors will loop.  
     If you want to color each series separately but have a color scheme for each series set (e.g. series: ["series_category", "series_name"]) you can pass in a multidemensional color array.
+
+Styles
+======
+
+Below is a diagram of the structure. If you see `...` after an element, it means that element can be repeated. Changing the width or height of things (especially any rects) is not recommended.
+
+    <svg class="range-finder">
+    <g class="rf-ticks"> //tick marks on top
+        <line/>... //each tick mark
+    </g>
+    <text class="rf-label rf-value-label"/> //start label
+    <rect class="rf-range-bar"/> //main range bar
+    <text class="rf-label rf-value-label"/> //end label
+    <g class="rf-coverage-section">
+        <g class="rf-coverage"> //coverage bars: see below
+            <line class="rf-coverage-line"/> //dashed line
+            <rect class="rf-coverage-bar"/>... //coverage bars
+            <text class="rf-label rf-coverage-label"/> //right hand label
+        </g>...
+    </g>
+    <g class="rf-category"> //left hand category label and grouping lines
+        <text class="rf-label rf-category-label"/> //label
+        <polyline class="rf-category-grouping"/> //grouping line
+    </g>...
+    <g class="rf-slider">
+        <text class="rf-label rf-slider-label"/>
+        <rect class="rf-slider-handle"/>
+        <line class="rf-slider-bar"/>
+        <rect class="rf-slider-handle"/>
+    </g> (*2)
+    </svg>
+
+In the case of there being too many coverage bars, the `rf-coverage-section` is replaces as follows:
+
+    <g class="rf-coverage-section">
+        <svg>
+            <g class="rf-coverage"> //coverage bars: see below
+                <line class="rf-coverage-line"/> //dashed line
+                <rect class="rf-coverage-bar"/>... //coverage bars
+                <text class="rf-label rf-coverage-label"/> //right hand label
+            </g>...
+        </svg>
+        <rect class="rf-scroll-area" />
+        <rect class="rf-scroll-bar" />
+    </g>
