@@ -24,7 +24,7 @@ var RangeFinder = React.createClass({
   mixins: [SetupMixin, MakerMixin],
 
   consts: {
-    barMarginTop: 50,
+    barMarginTop: 60,
     barMarginLeft: 120,
     barMarginRight: 120,
     barMarginBottom: 50,
@@ -35,6 +35,7 @@ var RangeFinder = React.createClass({
     sliderRadius: 5,
     sliderMargin: 5,
     textMargin: 5,
+    densityBadgeMargin: 45,
   },
 
   getDefaultProps: function() {
@@ -88,6 +89,7 @@ var RangeFinder = React.createClass({
 
     this.setValueRange();
     this.setGroupedSeries();
+    this.setYearValues();
   },
 
   makeSnapGrid: function() {
@@ -107,6 +109,20 @@ var RangeFinder = React.createClass({
     }
 
     return snapTargets;
+  },
+
+  calculateCoverage: function(start, end) {
+    var totalSeries = this.seriesMapping.length;
+
+    var seriesDensity = this.seriesDensity;
+
+    var sum = 0;
+
+    for(var i = start; i <= end; i++) {
+      sum += seriesDensity[i];
+    }
+
+    return sum / (totalSeries * (end - start + 1));
   },
 
   render: function() {
@@ -131,7 +147,13 @@ var RangeFinder = React.createClass({
       this.consts.tickMargin +
       this.props.barHeight;
 
-    var coverageDetails = null;
+    var density = this.calculateCoverage(this.state.start, this.state.end)
+    var densityLabel = Math.floor(100 * density) + "% coverage";
+
+    var startX = this.valueLookup.byValue[this.state.start];
+    var endX = this.valueLookup.byValue[this.state.end];
+
+    var densityX = startX + (endX - startX) / 2;
 
     if(coverage.length > 0) {
       var fullCoverageHeight = this.seriesMapping.length * (this.props.coverageBarHeight + this.consts.coverageBarMargin);
@@ -178,6 +200,13 @@ var RangeFinder = React.createClass({
           textAnchor="start"
           className="rf-label rf-value-label">
           {this.props.end}
+        </text>
+        <text
+          x={densityX}
+          y={this.barY - this.consts.densityBadgeMargin}
+          textAnchor="middle"
+          className="rf-label rf-density-label">
+          {densityLabel}
         </text>
         {coverageDetails}
         {sliders}

@@ -1,5 +1,4 @@
 var SetupMixin = {
-
   setGroupedSeries: function() {
     this.seriesMapping = [];
     this.seriesGrouping = [];
@@ -168,6 +167,29 @@ var SetupMixin = {
 
       return 0;
     };
+  },
+
+  setYearValues: function() {
+    var totalSeries = this.seriesMapping.length;
+    var valueKey = this.props.schema.value;
+
+    var seriesDensity = []; //slicing becomes way easier with arrays.
+
+    this.props.series.forEach(function(item) {
+      var value = item[valueKey];
+
+      if(value === null) {
+        return;
+      }
+
+      if(!seriesDensity[value]) {
+        seriesDensity[value] = 0;
+      }
+
+      seriesDensity[value] += 1;
+    }, this);
+
+    this.seriesDensity = seriesDensity;
   },
 
   setValueRange: function() {

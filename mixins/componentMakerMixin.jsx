@@ -63,6 +63,8 @@ var ComponentMakerMixin = {
       valueLookup.byLocation[xLocation] = value;
     }
 
+    this.valueLookup = valueLookup;
+
     var startSnapGrid = [];
     var endSnapGrid = [];
 
