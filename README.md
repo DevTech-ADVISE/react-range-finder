@@ -53,11 +53,13 @@ Below is a diagram of the structure. If you see `...` after an element, it means
     <text class="rf-label rf-value-label"/> //start label
     <rect class="rf-range-bar"/> //main range bar
     <text class="rf-label rf-value-label"/> //end label
-    <g class="rf-coverage"> //coverage bars
-        <line class="rf-coverage-line"/> //dashed line
-        <rect class="rf-coverage-bar"/>... //coverage bars
-        <text class="rf-label rf-coverage-label"/> //right hand label
-    </g>...
+    <svg class="rf-coverage-section">
+        <g class="rf-coverage"> //coverage bars: see below
+            <line class="rf-coverage-line"/> //dashed line
+            <rect class="rf-coverage-bar"/>... //coverage bars
+            <text class="rf-label rf-coverage-label"/> //right hand label
+        </g>...
+    </svg>
     <g class="rf-category"> //left hand category label and grouping lines
         <text class="rf-label rf-category-label"/> //label
         <polyline class="rf-category-grouping"/> //grouping line
@@ -69,3 +71,21 @@ Below is a diagram of the structure. If you see `...` after an element, it means
         <rect class="rf-slider-handle"/>
     </g> (*2)
     </svg>
+
+In the case of there being too many coverage bars, the `rf-coverage-section` is replaces as follows:
+
+    <g class="rf-coverage-section">
+        <svg>
+            <g class="rf-coverage"> //coverage bars: see below
+                <line class="rf-coverage-line"/> //dashed line
+                <rect class="rf-coverage-bar"/>... //coverage bars
+                <text class="rf-label rf-coverage-label"/> //right hand label
+            </g>...
+        </svg>
+        <polyline class="rf-scroll-arrow" />
+        <rect class="rf-scroll-button" />
+        <rect class="rf-scroll-area" />
+        <rect class="rf-scroll-bar" />
+        <polyline class="rf-scroll-arrow" />
+        <rect class="rf-scroll-button" />
+    </g>

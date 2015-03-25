@@ -1,3 +1,9 @@
+var minMajor = 3;
+var maxMajor = 5;
+var minMinor = 4;
+var maxMinor = 6;
+
+
 function random(min, max) {
   max = max + 1;
   return Math.floor(Math.random() * (max - min)) + min;
@@ -47,7 +53,7 @@ function makeYearSets(start, end) {
 }
 
 function makeMajorSeries() {
-  var seriesCount = random(4, 8);
+  var seriesCount = random(minMajor, maxMajor);
 
   var majorSeries = [];
 
@@ -59,7 +65,7 @@ function makeMajorSeries() {
 }
 
 function makeMinorSeries() {
-  var seriesCount = random(3, 6);
+  var seriesCount = random(minMinor, maxMinor);
 
   var minorSeries = [];
 

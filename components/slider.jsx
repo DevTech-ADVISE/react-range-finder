@@ -37,7 +37,7 @@ module.exports = React.createClass({
         var value = self.props.valueLookup.byLocation[x];
 
         self.setState({x: x, value: value});
-        self.props.onDragMove(value);
+        self.props.onDragMove(value, x);
       })
       .on('dragend', function (event) {
         var x = event.clientX;
@@ -60,7 +60,7 @@ module.exports = React.createClass({
   },
 
   render: function() {
-    var x = this.state.x 
+    var x = this.state.x;
     var y = this.props.y;
     var height = this.props.height;
     var handleSize = this.props.handleSize;
