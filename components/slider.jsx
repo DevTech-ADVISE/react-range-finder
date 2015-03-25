@@ -70,6 +70,19 @@ module.exports = React.createClass({
     var handleOffset = handleSize * handleAnchor;
     var handleX = x - handleOffset;
     var handleY = y - 0.5 * handleSize;
+
+    var ghostSizeModifier = 4;
+    var ghostSize = ghostSizeModifier * handleSize;
+    var ghostXOffset = ghostSize * handleAnchor;
+
+    var ghostYOffsetFactor = 0.65
+    var ghostHeightOffsetFactor = 2 * ghostYOffsetFactor - 1;
+
+    var ghostX = x - ghostXOffset + (2*handleAnchor-1) * (handleSize/2);
+    var ghostY = y - ghostYOffsetFactor * ghostSize;
+    var ghostOpacity = 0;
+
+    var ghostBarOffset = (1 - handleAnchor) * handleSize/2;
     return (
       <g className="rf-slider">
         <text
@@ -96,6 +109,18 @@ module.exports = React.createClass({
           strokeWidth="2"
           stroke="black"
           className="rf-slider-handle"/>
+        <rect
+          x={ghostX} y={ghostY}
+          width={ghostSize} height={ghostSize}
+          opacity={ghostOpacity}/>
+        <rect
+          x={ghostX} y={ghostY + height + ghostHeightOffsetFactor * ghostSize}
+          width={ghostSize} height={ghostSize}
+          opacity={ghostOpacity}/>
+        <rect
+          x={handleX - ghostBarOffset} y={handleY + handleSize}
+          width={handleSize + handleSize/2} height={height}
+          opacity={ghostOpacity}/>
       </g>
     )
   }
