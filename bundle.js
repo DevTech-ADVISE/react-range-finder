@@ -138,7 +138,7 @@
 	    barMarginTop: 50,
 	    barMarginLeft: 120,
 	    barMarginRight: 120,
-	    barMarginBottom: 20,
+	    barMarginBottom: 50,
 	    coverageBarMargin: 10,
 	    labelCharacterLimit: 10,
 	    tickMargin: 2,
@@ -987,7 +987,7 @@
 /***/ function(module, exports, __webpack_require__) {
 
 	var react = __webpack_require__(1);
-	var interact = __webpack_require__(17);
+	var interact = __webpack_require__(16);
 	
 	var ScrollableSVG = React.createClass({displayName: "ScrollableSVG",
 	  getInitialState: function() {
@@ -1003,7 +1003,7 @@
 	  },
 	
 	  consts: {
-	    scrollWidth: 10,
+	    scrollWidth: 15,
 	    scrollButtonMargin: 3,
 	  },
 	
@@ -1090,6 +1090,24 @@
 	    );
 	  },
 	
+	  onTouchStart: function(event) {
+	    var initialTouch = event.targetTouches[0];
+	
+	    this.touchY = initialTouch.pageY;
+	  },
+	
+	  onTouchMove: function(event) {
+	    var newTouch = event.targetTouches[0];
+	
+	    this.scrollElement(this.touchY - newTouch.pageY);
+	
+	    this.touchY = newTouch.pageY;
+	  },
+	
+	  onTouchEnd: function(event) {
+	    //console.log("end", event);
+	  },
+	
 	  render: function() {
 	    if(this.props.maxDisplayedHeight >= this.props.height) {
 	      return (
@@ -1132,7 +1150,10 @@
 	          x: this.props.x, y: this.props.y, 
 	          width: actualWidth, height: actualHeight, 
 	          viewBox: this.makeViewBox(), 
-	          onWheel: this.onWheel}, 
+	          onWheel: this.onWheel, 
+	          onTouchStart: this.onTouchStart, 
+	          onTouchMove: this.onTouchMove, 
+	          onTouchEnd: this.onTouchEnd}, 
 	          React.createElement("rect", {//Fixes mouse wheel scrolling on blank parts
 	            x: this.props.x, y: this.props.y, 
 	            width: actualWidth, height: this.props.height, 
@@ -1184,7 +1205,7 @@
 	var Opentip = __webpack_require__(15);
 	
 	
-	var Adapter = __webpack_require__(16);
+	var Adapter = __webpack_require__(19);
 	
 	// Add the adapter to the list
 	Opentip.addAdapter(new Adapter());
@@ -1207,8 +1228,8 @@
 	// Hot Module Replacement
 	if(false) {
 		// When the styles change, update the <style> tags
-		module.hot.accept("!!/Users/stephensmith/Desktop/gitRepos/react-range-finder/node_modules/css-loader/index.js!/Users/stephensmith/Desktop/gitRepos/react-range-finder/styles/rangeFinderStyles.css", function() {
-			var newContent = require("!!/Users/stephensmith/Desktop/gitRepos/react-range-finder/node_modules/css-loader/index.js!/Users/stephensmith/Desktop/gitRepos/react-range-finder/styles/rangeFinderStyles.css");
+		module.hot.accept("!!C:\\Users\\sns12_000\\Documents\\react-range-finder\\node_modules\\css-loader\\index.js!C:\\Users\\sns12_000\\Documents\\react-range-finder\\styles\\rangeFinderStyles.css", function() {
+			var newContent = require("!!C:\\Users\\sns12_000\\Documents\\react-range-finder\\node_modules\\css-loader\\index.js!C:\\Users\\sns12_000\\Documents\\react-range-finder\\styles\\rangeFinderStyles.css");
 			if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
 			update(newContent);
 		});
@@ -1220,8 +1241,8 @@
 /* 9 */
 /***/ function(module, exports, __webpack_require__) {
 
-	exports = module.exports = __webpack_require__(18)();
-	exports.push([module.id, ".rf-unselected {\n    pointer-events: none;\n}", ""]);
+	exports = module.exports = __webpack_require__(17)();
+	exports.push([module.id, ".rf-unselected {\r\n    pointer-events: none;\r\n}", ""]);
 
 /***/ },
 /* 10 */
@@ -1237,8 +1258,8 @@
 	// Hot Module Replacement
 	if(false) {
 		// When the styles change, update the <style> tags
-		module.hot.accept("!!/Users/stephensmith/Desktop/gitRepos/react-range-finder/node_modules/css-loader/index.js!/Users/stephensmith/Desktop/gitRepos/react-range-finder/node_modules/opentip/css/opentip.css", function() {
-			var newContent = require("!!/Users/stephensmith/Desktop/gitRepos/react-range-finder/node_modules/css-loader/index.js!/Users/stephensmith/Desktop/gitRepos/react-range-finder/node_modules/opentip/css/opentip.css");
+		module.hot.accept("!!C:\\Users\\sns12_000\\Documents\\react-range-finder\\node_modules\\css-loader\\index.js!C:\\Users\\sns12_000\\Documents\\react-range-finder\\node_modules\\opentip\\css\\opentip.css", function() {
+			var newContent = require("!!C:\\Users\\sns12_000\\Documents\\react-range-finder\\node_modules\\css-loader\\index.js!C:\\Users\\sns12_000\\Documents\\react-range-finder\\node_modules\\opentip\\css\\opentip.css");
 			if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
 			update(newContent);
 		});
@@ -1250,7 +1271,7 @@
 /* 11 */
 /***/ function(module, exports, __webpack_require__) {
 
-	exports = module.exports = __webpack_require__(18)();
+	exports = module.exports = __webpack_require__(17)();
 	exports.push([module.id, ".opentip-container,\n.opentip-container * {\n  -webkit-box-sizing: border-box;\n  -moz-box-sizing: border-box;\n  box-sizing: border-box;\n}\n.opentip-container {\n  position: absolute;\n  max-width: 300px;\n  z-index: 100;\n  -webkit-transition: -webkit-transform 1s ease-in-out;\n  -moz-transition: -moz-transform 1s ease-in-out;\n  -o-transition: -o-transform 1s ease-in-out;\n  -ms-transition: -ms-transform 1s ease-in-out;\n  transition: transform 1s ease-in-out;\n  pointer-events: none;\n  -webkit-transform: translateX(0) translateY(0);\n  -moz-transform: translateX(0) translateY(0);\n  -o-transform: translateX(0) translateY(0);\n  -ms-transform: translateX(0) translateY(0);\n  transform: translateX(0) translateY(0);\n}\n.opentip-container.ot-fixed.ot-hidden.stem-top.stem-center,\n.opentip-container.ot-fixed.ot-going-to-show.stem-top.stem-center,\n.opentip-container.ot-fixed.ot-hiding.stem-top.stem-center {\n  -webkit-transform: translateY(-5px);\n  -moz-transform: translateY(-5px);\n  -o-transform: translateY(-5px);\n  -ms-transform: translateY(-5px);\n  transform: translateY(-5px);\n}\n.opentip-container.ot-fixed.ot-hidden.stem-top.stem-right,\n.opentip-container.ot-fixed.ot-going-to-show.stem-top.stem-right,\n.opentip-container.ot-fixed.ot-hiding.stem-top.stem-right {\n  -webkit-transform: translateY(-5px) translateX(5px);\n  -moz-transform: translateY(-5px) translateX(5px);\n  -o-transform: translateY(-5px) translateX(5px);\n  -ms-transform: translateY(-5px) translateX(5px);\n  transform: translateY(-5px) translateX(5px);\n}\n.opentip-container.ot-fixed.ot-hidden.stem-middle.stem-right,\n.opentip-container.ot-fixed.ot-going-to-show.stem-middle.stem-right,\n.opentip-container.ot-fixed.ot-hiding.stem-middle.stem-right {\n  -webkit-transform: translateX(5px);\n  -moz-transform: translateX(5px);\n  -o-transform: translateX(5px);\n  -ms-transform: translateX(5px);\n  transform: translateX(5px);\n}\n.opentip-container.ot-fixed.ot-hidden.stem-bottom.stem-right,\n.opentip-container.ot-fixed.ot-going-to-show.stem-bottom.stem-right,\n.opentip-container.ot-fixed.ot-hiding.stem-bottom.stem-right {\n  -webkit-transform: translateY(5px) translateX(5px);\n  -moz-transform: translateY(5px) translateX(5px);\n  -o-transform: translateY(5px) translateX(5px);\n  -ms-transform: translateY(5px) translateX(5px);\n  transform: translateY(5px) translateX(5px);\n}\n.opentip-container.ot-fixed.ot-hidden.stem-bottom.stem-center,\n.opentip-container.ot-fixed.ot-going-to-show.stem-bottom.stem-center,\n.opentip-container.ot-fixed.ot-hiding.stem-bottom.stem-center {\n  -webkit-transform: translateY(5px);\n  -moz-transform: translateY(5px);\n  -o-transform: translateY(5px);\n  -ms-transform: translateY(5px);\n  transform: translateY(5px);\n}\n.opentip-container.ot-fixed.ot-hidden.stem-bottom.stem-left,\n.opentip-container.ot-fixed.ot-going-to-show.stem-bottom.stem-left,\n.opentip-container.ot-fixed.ot-hiding.stem-bottom.stem-left {\n  -webkit-transform: translateY(5px) translateX(-5px);\n  -moz-transform: translateY(5px) translateX(-5px);\n  -o-transform: translateY(5px) translateX(-5px);\n  -ms-transform: translateY(5px) translateX(-5px);\n  transform: translateY(5px) translateX(-5px);\n}\n.opentip-container.ot-fixed.ot-hidden.stem-middle.stem-left,\n.opentip-container.ot-fixed.ot-going-to-show.stem-middle.stem-left,\n.opentip-container.ot-fixed.ot-hiding.stem-middle.stem-left {\n  -webkit-transform: translateX(-5px);\n  -moz-transform: translateX(-5px);\n  -o-transform: translateX(-5px);\n  -ms-transform: translateX(-5px);\n  transform: translateX(-5px);\n}\n.opentip-container.ot-fixed.ot-hidden.stem-top.stem-left,\n.opentip-container.ot-fixed.ot-going-to-show.stem-top.stem-left,\n.opentip-container.ot-fixed.ot-hiding.stem-top.stem-left {\n  -webkit-transform: translateY(-5px) translateX(-5px);\n  -moz-transform: translateY(-5px) translateX(-5px);\n  -o-transform: translateY(-5px) translateX(-5px);\n  -ms-transform: translateY(-5px) translateX(-5px);\n  transform: translateY(-5px) translateX(-5px);\n}\n.opentip-container.ot-fixed .opentip {\n  pointer-events: auto;\n}\n.opentip-container.ot-hidden {\n  display: none;\n}\n.opentip-container .opentip {\n  position: relative;\n  font-size: 13px;\n  line-height: 120%;\n  padding: 9px 14px;\n  color: #4f4b47;\n  text-shadow: -1px -1px 0px rgba(255,255,255,0.2);\n}\n.opentip-container .opentip .header {\n  margin: 0;\n  padding: 0;\n}\n.opentip-container .opentip .ot-close {\n  pointer-events: auto;\n  display: block;\n  position: absolute;\n  top: -12px;\n  left: 60px;\n  color: rgba(0,0,0,0.5);\n  background: rgba(0,0,0,0);\n  text-decoration: none;\n}\n.opentip-container .opentip .ot-close span {\n  display: none;\n}\n.opentip-container .opentip .ot-loading-indicator {\n  display: none;\n}\n.opentip-container.ot-loading .ot-loading-indicator {\n  width: 30px;\n  height: 30px;\n  font-size: 30px;\n  line-height: 30px;\n  font-weight: bold;\n  display: block;\n}\n.opentip-container.ot-loading .ot-loading-indicator span {\n  display: block;\n  -webkit-animation: otloading 2s linear infinite;\n  -moz-animation: otloading 2s linear infinite;\n  -o-animation: otloading 2s linear infinite;\n  -ms-animation: otloading 2s linear infinite;\n  animation: otloading 2s linear infinite;\n  text-align: center;\n}\n.opentip-container.style-dark .opentip,\n.opentip-container.style-alert .opentip {\n  color: #f8f8f8;\n  text-shadow: 1px 1px 0px rgba(0,0,0,0.2);\n}\n.opentip-container.style-glass .opentip {\n  padding: 15px 25px;\n  color: #317cc5;\n  text-shadow: 1px 1px 8px rgba(0,94,153,0.3);\n}\n.opentip-container.ot-hide-effect-fade {\n  -webkit-transition: -webkit-transform 0.5s ease-in-out, opacity 1s ease-in-out;\n  -moz-transition: -moz-transform 0.5s ease-in-out, opacity 1s ease-in-out;\n  -o-transition: -o-transform 0.5s ease-in-out, opacity 1s ease-in-out;\n  -ms-transition: -ms-transform 0.5s ease-in-out, opacity 1s ease-in-out;\n  transition: transform 0.5s ease-in-out, opacity 1s ease-in-out;\n  opacity: 1;\n  -ms-filter: none;\n  filter: none;\n}\n.opentip-container.ot-hide-effect-fade.ot-hiding {\n  opacity: 0;\n  filter: alpha(opacity=0);\n  -ms-filter: \"progid:DXImageTransform.Microsoft.Alpha(Opacity=0)\";\n}\n.opentip-container.ot-show-effect-appear.ot-going-to-show,\n.opentip-container.ot-show-effect-appear.ot-showing {\n  -webkit-transition: -webkit-transform 0.5s ease-in-out, opacity 1s ease-in-out;\n  -moz-transition: -moz-transform 0.5s ease-in-out, opacity 1s ease-in-out;\n  -o-transition: -o-transform 0.5s ease-in-out, opacity 1s ease-in-out;\n  -ms-transition: -ms-transform 0.5s ease-in-out, opacity 1s ease-in-out;\n  transition: transform 0.5s ease-in-out, opacity 1s ease-in-out;\n}\n.opentip-container.ot-show-effect-appear.ot-going-to-show {\n  opacity: 0;\n  filter: alpha(opacity=0);\n  -ms-filter: \"progid:DXImageTransform.Microsoft.Alpha(Opacity=0)\";\n}\n.opentip-container.ot-show-effect-appear.ot-showing {\n  opacity: 1;\n  -ms-filter: none;\n  filter: none;\n}\n.opentip-container.ot-show-effect-appear.ot-visible {\n  opacity: 1;\n  -ms-filter: none;\n  filter: none;\n}\n@-moz-keyframes otloading {\n  0% {\n    -webkit-transform: rotate(0deg);\n    -moz-transform: rotate(0deg);\n    -o-transform: rotate(0deg);\n    -ms-transform: rotate(0deg);\n    transform: rotate(0deg);\n  }\n\n  100% {\n    -webkit-transform: rotate(360deg);\n    -moz-transform: rotate(360deg);\n    -o-transform: rotate(360deg);\n    -ms-transform: rotate(360deg);\n    transform: rotate(360deg);\n  }\n}\n@-webkit-keyframes otloading {\n  0% {\n    -webkit-transform: rotate(0deg);\n    -moz-transform: rotate(0deg);\n    -o-transform: rotate(0deg);\n    -ms-transform: rotate(0deg);\n    transform: rotate(0deg);\n  }\n\n  100% {\n    -webkit-transform: rotate(360deg);\n    -moz-transform: rotate(360deg);\n    -o-transform: rotate(360deg);\n    -ms-transform: rotate(360deg);\n    transform: rotate(360deg);\n  }\n}\n@-o-keyframes otloading {\n  0% {\n    -webkit-transform: rotate(0deg);\n    -moz-transform: rotate(0deg);\n    -o-transform: rotate(0deg);\n    -ms-transform: rotate(0deg);\n    transform: rotate(0deg);\n  }\n\n  100% {\n    -webkit-transform: rotate(360deg);\n    -moz-transform: rotate(360deg);\n    -o-transform: rotate(360deg);\n    -ms-transform: rotate(360deg);\n    transform: rotate(360deg);\n  }\n}\n@-ms-keyframes otloading {\n  0% {\n    -webkit-transform: rotate(0deg);\n    -moz-transform: rotate(0deg);\n    -o-transform: rotate(0deg);\n    -ms-transform: rotate(0deg);\n    transform: rotate(0deg);\n  }\n\n  100% {\n    -webkit-transform: rotate(360deg);\n    -moz-transform: rotate(360deg);\n    -o-transform: rotate(360deg);\n    -ms-transform: rotate(360deg);\n    transform: rotate(360deg);\n  }\n}\n@keyframes otloading {\n  0% {\n    -webkit-transform: rotate(0deg);\n    -moz-transform: rotate(0deg);\n    -o-transform: rotate(0deg);\n    -ms-transform: rotate(0deg);\n    transform: rotate(0deg);\n  }\n\n  100% {\n    -webkit-transform: rotate(360deg);\n    -moz-transform: rotate(360deg);\n    -o-transform: rotate(360deg);\n    -ms-transform: rotate(360deg);\n    transform: rotate(360deg);\n  }\n}\n", ""]);
 
 /***/ },
@@ -1258,7 +1279,7 @@
 /***/ function(module, exports, __webpack_require__) {
 
 	var React = __webpack_require__(1);
-	var interact = __webpack_require__(17);
+	var interact = __webpack_require__(16);
 	
 	module.exports = React.createClass({displayName: "exports",
 	  getInitialState: function() {
@@ -1329,6 +1350,19 @@
 	    var handleOffset = handleSize * handleAnchor;
 	    var handleX = x - handleOffset;
 	    var handleY = y - 0.5 * handleSize;
+	
+	    var ghostSizeModifier = 4;
+	    var ghostSize = ghostSizeModifier * handleSize;
+	    var ghostXOffset = ghostSize * handleAnchor;
+	
+	    var ghostYOffsetFactor = 0.65
+	    var ghostHeightOffsetFactor = 2 * ghostYOffsetFactor - 1;
+	
+	    var ghostX = x - ghostXOffset + (2*handleAnchor-1) * (handleSize/2);
+	    var ghostY = y - ghostYOffsetFactor * ghostSize;
+	    var ghostOpacity = 0;
+	
+	    var ghostBarOffset = (1 - handleAnchor) * handleSize/2;
 	    return (
 	      React.createElement("g", {className: "rf-slider"}, 
 	        React.createElement("text", {
@@ -1354,7 +1388,19 @@
 	          width: handleSize, height: handleSize, 
 	          strokeWidth: "2", 
 	          stroke: "black", 
-	          className: "rf-slider-handle"})
+	          className: "rf-slider-handle"}), 
+	        React.createElement("rect", {
+	          x: ghostX, y: ghostY, 
+	          width: ghostSize, height: ghostSize, 
+	          opacity: ghostOpacity}), 
+	        React.createElement("rect", {
+	          x: ghostX, y: ghostY + height + ghostHeightOffsetFactor * ghostSize, 
+	          width: ghostSize, height: ghostSize, 
+	          opacity: ghostOpacity}), 
+	        React.createElement("rect", {
+	          x: handleX - ghostBarOffset, y: handleY + handleSize, 
+	          width: handleSize + handleSize/2, height: height, 
+	          opacity: ghostOpacity})
 	      )
 	    )
 	  }
@@ -3334,179 +3380,10 @@
 	  window.Opentip = Opentip;
 	}
 	
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(19)(module)))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(18)(module)))
 
 /***/ },
 /* 16 */
-/***/ function(module, exports, __webpack_require__) {
-
-	var $, Adapter, _ref,
-	  __slice = [].slice;
-	
-	$ = (_ref = window.jQuery) != null ? _ref : __webpack_require__(20);
-	
-	module.exports = Adapter = (function() {
-	  function Adapter() {}
-	
-	  Adapter.prototype.name = "component";
-	
-	  Adapter.prototype.domReady = function(callback) {
-	    return $(callback);
-	  };
-	
-	  Adapter.prototype.create = function(html) {
-	    return $(html);
-	  };
-	
-	  Adapter.prototype.wrap = function(element) {
-	    element = $(element);
-	    if (element.length > 1) {
-	      throw new Error("Multiple elements provided.");
-	    }
-	    return element;
-	  };
-	
-	  Adapter.prototype.unwrap = function(element) {
-	    return $(element)[0];
-	  };
-	
-	  Adapter.prototype.tagName = function(element) {
-	    return this.unwrap(element).tagName;
-	  };
-	
-	  Adapter.prototype.attr = function() {
-	    var args, element, _ref1;
-	
-	    element = arguments[0], args = 2 <= arguments.length ? __slice.call(arguments, 1) : [];
-	    return (_ref1 = $(element)).attr.apply(_ref1, args);
-	  };
-	
-	  Adapter.prototype.data = function() {
-	    var args, element, _ref1;
-	
-	    element = arguments[0], args = 2 <= arguments.length ? __slice.call(arguments, 1) : [];
-	    return (_ref1 = $(element)).data.apply(_ref1, args);
-	  };
-	
-	  Adapter.prototype.find = function(element, selector) {
-	    return $(element).find(selector)[0];
-	  };
-	
-	  Adapter.prototype.findAll = function(element, selector) {
-	    return $(element).find(selector);
-	  };
-	
-	  Adapter.prototype.update = function(element, content, escape) {
-	    element = $(element);
-	    if (escape) {
-	      return element.text(content);
-	    } else {
-	      return element.html(content);
-	    }
-	  };
-	
-	  Adapter.prototype.append = function(element, child) {
-	    return $(element).append(child);
-	  };
-	
-	  Adapter.prototype.remove = function(element) {
-	    return $(element).remove();
-	  };
-	
-	  Adapter.prototype.addClass = function(element, className) {
-	    return $(element).addClass(className);
-	  };
-	
-	  Adapter.prototype.removeClass = function(element, className) {
-	    return $(element).removeClass(className);
-	  };
-	
-	  Adapter.prototype.css = function(element, properties) {
-	    return $(element).css(properties);
-	  };
-	
-	  Adapter.prototype.dimensions = function(element) {
-	    return {
-	      width: $(element).outerWidth(),
-	      height: $(element).outerHeight()
-	    };
-	  };
-	
-	  Adapter.prototype.scrollOffset = function() {
-	    return [window.pageXOffset || document.documentElement.scrollLeft || document.body.scrollLeft, window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop];
-	  };
-	
-	  Adapter.prototype.viewportDimensions = function() {
-	    return {
-	      width: document.documentElement.clientWidth,
-	      height: document.documentElement.clientHeight
-	    };
-	  };
-	
-	  Adapter.prototype.mousePosition = function(e) {
-	    if (e == null) {
-	      return null;
-	    }
-	    return {
-	      x: e.pageX,
-	      y: e.pageY
-	    };
-	  };
-	
-	  Adapter.prototype.offset = function(element) {
-	    var offset;
-	
-	    offset = $(element).offset();
-	    return {
-	      left: offset.left,
-	      top: offset.top
-	    };
-	  };
-	
-	  Adapter.prototype.observe = function(element, eventName, observer) {
-	    return $(element).bind(eventName, observer);
-	  };
-	
-	  Adapter.prototype.stopObserving = function(element, eventName, observer) {
-	    return $(element).unbind(eventName, observer);
-	  };
-	
-	  Adapter.prototype.ajax = function(options) {
-	    var _ref1, _ref2;
-	
-	    if (options.url == null) {
-	      throw new Error("No url provided");
-	    }
-	    return $.ajax({
-	      url: options.url,
-	      type: (_ref1 = (_ref2 = options.method) != null ? _ref2.toUpperCase() : void 0) != null ? _ref1 : "GET"
-	    }).done(function(content) {
-	      return typeof options.onSuccess === "function" ? options.onSuccess(content) : void 0;
-	    }).fail(function(request) {
-	      return typeof options.onError === "function" ? options.onError("Server responded with status " + request.status) : void 0;
-	    }).always(function() {
-	      return typeof options.onComplete === "function" ? options.onComplete() : void 0;
-	    });
-	  };
-	
-	  Adapter.prototype.clone = function(object) {
-	    return $.extend({}, object);
-	  };
-	
-	  Adapter.prototype.extend = function() {
-	    var sources, target;
-	
-	    target = arguments[0], sources = 2 <= arguments.length ? __slice.call(arguments, 1) : [];
-	    return $.extend.apply($, [target].concat(__slice.call(sources)));
-	  };
-	
-	  return Adapter;
-	
-	})();
-
-
-/***/ },
-/* 17 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -9343,7 +9220,7 @@
 
 
 /***/ },
-/* 18 */
+/* 17 */
 /***/ function(module, exports, __webpack_require__) {
 
 	module.exports = function() {
@@ -9364,7 +9241,7 @@
 	}
 
 /***/ },
-/* 19 */
+/* 18 */
 /***/ function(module, exports, __webpack_require__) {
 
 	module.exports = function(module) {
@@ -9377,6 +9254,175 @@
 		}
 		return module;
 	}
+
+
+/***/ },
+/* 19 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var $, Adapter, _ref,
+	  __slice = [].slice;
+	
+	$ = (_ref = window.jQuery) != null ? _ref : __webpack_require__(20);
+	
+	module.exports = Adapter = (function() {
+	  function Adapter() {}
+	
+	  Adapter.prototype.name = "component";
+	
+	  Adapter.prototype.domReady = function(callback) {
+	    return $(callback);
+	  };
+	
+	  Adapter.prototype.create = function(html) {
+	    return $(html);
+	  };
+	
+	  Adapter.prototype.wrap = function(element) {
+	    element = $(element);
+	    if (element.length > 1) {
+	      throw new Error("Multiple elements provided.");
+	    }
+	    return element;
+	  };
+	
+	  Adapter.prototype.unwrap = function(element) {
+	    return $(element)[0];
+	  };
+	
+	  Adapter.prototype.tagName = function(element) {
+	    return this.unwrap(element).tagName;
+	  };
+	
+	  Adapter.prototype.attr = function() {
+	    var args, element, _ref1;
+	
+	    element = arguments[0], args = 2 <= arguments.length ? __slice.call(arguments, 1) : [];
+	    return (_ref1 = $(element)).attr.apply(_ref1, args);
+	  };
+	
+	  Adapter.prototype.data = function() {
+	    var args, element, _ref1;
+	
+	    element = arguments[0], args = 2 <= arguments.length ? __slice.call(arguments, 1) : [];
+	    return (_ref1 = $(element)).data.apply(_ref1, args);
+	  };
+	
+	  Adapter.prototype.find = function(element, selector) {
+	    return $(element).find(selector)[0];
+	  };
+	
+	  Adapter.prototype.findAll = function(element, selector) {
+	    return $(element).find(selector);
+	  };
+	
+	  Adapter.prototype.update = function(element, content, escape) {
+	    element = $(element);
+	    if (escape) {
+	      return element.text(content);
+	    } else {
+	      return element.html(content);
+	    }
+	  };
+	
+	  Adapter.prototype.append = function(element, child) {
+	    return $(element).append(child);
+	  };
+	
+	  Adapter.prototype.remove = function(element) {
+	    return $(element).remove();
+	  };
+	
+	  Adapter.prototype.addClass = function(element, className) {
+	    return $(element).addClass(className);
+	  };
+	
+	  Adapter.prototype.removeClass = function(element, className) {
+	    return $(element).removeClass(className);
+	  };
+	
+	  Adapter.prototype.css = function(element, properties) {
+	    return $(element).css(properties);
+	  };
+	
+	  Adapter.prototype.dimensions = function(element) {
+	    return {
+	      width: $(element).outerWidth(),
+	      height: $(element).outerHeight()
+	    };
+	  };
+	
+	  Adapter.prototype.scrollOffset = function() {
+	    return [window.pageXOffset || document.documentElement.scrollLeft || document.body.scrollLeft, window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop];
+	  };
+	
+	  Adapter.prototype.viewportDimensions = function() {
+	    return {
+	      width: document.documentElement.clientWidth,
+	      height: document.documentElement.clientHeight
+	    };
+	  };
+	
+	  Adapter.prototype.mousePosition = function(e) {
+	    if (e == null) {
+	      return null;
+	    }
+	    return {
+	      x: e.pageX,
+	      y: e.pageY
+	    };
+	  };
+	
+	  Adapter.prototype.offset = function(element) {
+	    var offset;
+	
+	    offset = $(element).offset();
+	    return {
+	      left: offset.left,
+	      top: offset.top
+	    };
+	  };
+	
+	  Adapter.prototype.observe = function(element, eventName, observer) {
+	    return $(element).bind(eventName, observer);
+	  };
+	
+	  Adapter.prototype.stopObserving = function(element, eventName, observer) {
+	    return $(element).unbind(eventName, observer);
+	  };
+	
+	  Adapter.prototype.ajax = function(options) {
+	    var _ref1, _ref2;
+	
+	    if (options.url == null) {
+	      throw new Error("No url provided");
+	    }
+	    return $.ajax({
+	      url: options.url,
+	      type: (_ref1 = (_ref2 = options.method) != null ? _ref2.toUpperCase() : void 0) != null ? _ref1 : "GET"
+	    }).done(function(content) {
+	      return typeof options.onSuccess === "function" ? options.onSuccess(content) : void 0;
+	    }).fail(function(request) {
+	      return typeof options.onError === "function" ? options.onError("Server responded with status " + request.status) : void 0;
+	    }).always(function() {
+	      return typeof options.onComplete === "function" ? options.onComplete() : void 0;
+	    });
+	  };
+	
+	  Adapter.prototype.clone = function(object) {
+	    return $.extend({}, object);
+	  };
+	
+	  Adapter.prototype.extend = function() {
+	    var sources, target;
+	
+	    target = arguments[0], sources = 2 <= arguments.length ? __slice.call(arguments, 1) : [];
+	    return $.extend.apply($, [target].concat(__slice.call(sources)));
+	  };
+	
+	  return Adapter;
+	
+	})();
 
 
 /***/ },
