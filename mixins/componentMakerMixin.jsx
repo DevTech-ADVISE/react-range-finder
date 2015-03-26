@@ -46,17 +46,26 @@ var ComponentMakerMixin = {
   makeGradient: function() {
     var seriesDensity = this.seriesDensity;
     var length = this.props.end - this.props.start;
+    var factor = 1/length;
     var count = 0;
 
     if(length === 0) {
       return null;
     }
 
-    var gradientInfo = this.seriesDensity.map(function(density, id) {
-      var color = this.calculateDensityColor(this.consts.densityFullColor, density);
-      var offset = 100 * count++ / length + "%";
+    var gradientInfo = [];
 
-      return <stop key={id} offset={offset} stopColor={color} />
+    this.seriesDensity.forEach(function(density, id) {
+      var color = this.calculateDensityColor(this.consts.densityFullColor, density);
+      var midOffset = count++ / length;
+      var prevOffset = midOffset - factor;
+      var nextOffset = midOffset + factor;
+console.log(midOffset);
+      var lowerOffset = 100 * Math.max((midOffset + prevOffset) / 2, 0) + "%";
+      var higherOffset = 100 * Math.min((nextOffset + midOffset) / 2, 1) + "%";
+
+      gradientInfo.push(<stop key={id + "l"} offset={lowerOffset} stopColor={color} />);
+      gradientInfo.push(<stop key={id + "h"} offset={higherOffset} stopColor={color} />);
     }, this);
 
     return (
