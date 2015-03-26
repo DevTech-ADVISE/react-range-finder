@@ -60,7 +60,7 @@ var ComponentMakerMixin = {
       var midOffset = count++ / length;
       var prevOffset = midOffset - factor;
       var nextOffset = midOffset + factor;
-console.log(midOffset);
+      
       var lowerOffset = 100 * Math.max((midOffset + prevOffset) / 2, 0) + "%";
       var higherOffset = 100 * Math.min((nextOffset + midOffset) / 2, 1) + "%";
 
