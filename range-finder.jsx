@@ -150,8 +150,8 @@ var RangeFinder = React.createClass({
     var density = this.calculateCoverage(this.state.start, this.state.end)
     var densityLabel = Math.floor(100 * density) + "% coverage";
 
-    var startX = this.valueLookup.byValue[this.state.start];
-    var endX = this.valueLookup.byValue[this.state.end];
+    var startX = this.state.startSliderX;
+    var endX = this.state.endSliderX;
 
     var densityX = startX + (endX - startX) / 2;
 

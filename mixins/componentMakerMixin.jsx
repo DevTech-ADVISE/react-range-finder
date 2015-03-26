@@ -63,8 +63,6 @@ var ComponentMakerMixin = {
       valueLookup.byLocation[xLocation] = value;
     }
 
-    this.valueLookup = valueLookup;
-
     var startSnapGrid = [];
     var endSnapGrid = [];
 
@@ -111,14 +109,14 @@ var ComponentMakerMixin = {
   },
 
   onStartDragMove: function(start, xLocation) {
-    this.setState({startSliderX: xLocation});
+    this.setState({start: start, startSliderX: xLocation});
 
     this.props.onStartDragMove(start);
     this.props.onDragMove(start, this.state.end);
   },
 
   onEndDragMove: function(end, xLocation) {
-    this.setState({endSliderX: xLocation});
+    this.setState({end: end, endSliderX: xLocation});
 
     this.props.onEndDragMove(end);
     this.props.onDragMove(this.state.start, end);
