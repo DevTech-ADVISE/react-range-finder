@@ -4,7 +4,6 @@ var MakerMixin = require('./mixins/componentMakerMixin.jsx');
 
 var ScrollableSVG = require('./components/scrollableSVG.jsx');
 
-
 require('opentip');
 require('opentip/css/opentip.css');
 
@@ -36,6 +35,8 @@ var RangeFinder = React.createClass({
     sliderMargin: 5,
     textMargin: 5,
     densityBadgeMargin: 45,
+    densityFullColor: {r: 255, g: 255, b: 255},
+    gradientId: "mainGradient",
   },
 
   getDefaultProps: function() {
@@ -87,7 +88,6 @@ var RangeFinder = React.createClass({
       return;
     }
 
-    this.setValueRange();
     this.setGroupedSeries();
     this.setYearValues();
   },
@@ -122,11 +122,12 @@ var RangeFinder = React.createClass({
       sum += seriesDensity[i];
     }
 
-    return sum / (totalSeries * (end - start + 1));
+    return sum / (end - start + 1);
   },
 
   render: function() {
     var snapGrid = this.makeSnapGrid();
+    var gradient = this.makeGradient();
 
     var ticks = this.makeTicks(snapGrid);
     var sliders = this.makeSliders(snapGrid);
@@ -180,6 +181,7 @@ var RangeFinder = React.createClass({
 
     return (
       <svg id={this.props.id} width={width} height={height} className="range-finder">
+        {gradient}
         <g className="rf-ticks">{ticks}</g>
         <text
           x={this.barX - this.consts.textMargin}
@@ -191,8 +193,8 @@ var RangeFinder = React.createClass({
         <rect
           x={this.barX} y={this.barY}
           width={this.props.barWidth} height={this.props.barHeight} 
-          fill="darkgreen"
-          stroke="darkgreen"
+          fill={"url(#" + this.consts.gradientId + ")"}
+          stroke="black"
           className="rf-range-bar"/>
         <text
           x={this.barX + this.props.barWidth + this.consts.textMargin}

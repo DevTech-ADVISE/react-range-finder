@@ -71,7 +71,7 @@ var ScrollableSVG = React.createClass({
 
   scrollElement: function(deltaY) {
     var newOffset = this.state.offsetY + deltaY;
-
+    
     newOffset = Math.min(newOffset, this.props.height - this.props.maxDisplayedHeight);
     newOffset = Math.max(newOffset, 0);
 

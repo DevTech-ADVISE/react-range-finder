@@ -189,31 +189,35 @@ var SetupMixin = {
       seriesDensity[value] += 1;
     }, this);
 
+    seriesDensity.forEach(function(count, id, list) {
+      list[id] = count/totalSeries;
+    });
+
     this.seriesDensity = seriesDensity;
   },
 
-  setValueRange: function() {
-    if(this.props.series.length === 0) {
-      return;
-    }
+  // setValueRange: function() {
+  //   if(this.props.series.length === 0) {
+  //     return;
+  //   }
 
-    var start = null;
-    var end = null;
+  //   var start = null;
+  //   var end = null;
 
-    var value = this.props.schema.value;
+  //   var value = this.props.schema.value;
 
-    this.props.series.forEach(function(item){
-      if(start === null || item[value] < start) {
-        start = item[value];
-      }
+  //   this.props.series.forEach(function(item){
+  //     if(start === null || item[value] < start) {
+  //       start = item[value];
+  //     }
 
-      if(end === null || item[value] > end) {
-        end = item[value];
-      }
-    });
+  //     if(end === null || item[value] > end) {
+  //       end = item[value];
+  //     }
+  //   });
 
-    this.setState({start: start, end: end});
-  },
+  //   this.setState({start: start, end: end});
+  // },
 };
 
 module.exports = SetupMixin;

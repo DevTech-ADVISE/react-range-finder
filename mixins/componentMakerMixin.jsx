@@ -24,6 +24,50 @@ var ComponentMakerMixin = {
     return ticks;
   },
 
+  clampColor: function(value, min, max) {
+    value = Math.min(value, max);
+    value = Math.max(value, min);
+
+    return Math.floor(value);
+  },
+
+  calculateColor: function(r, g, b, factor) {
+    r = this.clampColor(r * factor, 0, 255);
+    g = this.clampColor(g * factor, 0, 255);
+    b = this.clampColor(b * factor, 0, 255);
+
+    return "rgb(" + r + "," + g + "," + b + ")";
+  },
+
+  calculateDensityColor: function(color, factor) {
+    return this.calculateColor(color.r, color.g, color.b, factor);
+  },
+
+  makeGradient: function() {
+    var seriesDensity = this.seriesDensity;
+    var length = this.props.end - this.props.start;
+    var count = 0;
+
+    if(length === 0) {
+      return null;
+    }
+
+    var gradientInfo = this.seriesDensity.map(function(density, id) {
+      var color = this.calculateDensityColor(this.consts.densityFullColor, density);
+      var offset = 100 * count++ / length + "%";
+
+      return <stop key={id} offset={offset} stopColor={color} />
+    }, this);
+
+    return (
+      <defs>
+        <linearGradient id={this.consts.gradientId}>
+          {gradientInfo}
+        </linearGradient>
+      </defs>
+    );
+  },
+
   makeSliders: function(snapGrid) {
     var leftX = this.barX;
     var leftY = this.barY - this.consts.sliderRadius - this.consts.sliderMargin - this.consts.tickMargin - this.consts.tickSize;
