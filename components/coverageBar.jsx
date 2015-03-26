@@ -61,19 +61,23 @@ var CoverageBar = React.createClass({
     );
   },
 
-  makeCoverageBars: function() {
-    return this.props.coverage.map(function (item, id) {
-      return this.makeCoverageBar(item.start, item.end, id);
-    }, this);
-  },
-
   render: function() {
-    var bars = this.makeCoverageBars();
+    var dataDensity = 0;
+
+    var bars = this.props.coverage.map(function (item, id) {
+        dataDensity += item.end - item.start + 1;
+        return this.makeCoverageBar(item.start, item.end, id);
+      }, this);
+
+    dataDensity /= this.props.end - this.props.start + 1;
 
     var x1 = this.props.x;
     var x2 = this.props.x + this.props.width;
 
     var y = this.props.y + this.props.height/2;
+
+    var tooltip = this.props.tooltip;
+    tooltip += "<br/><br/>" + Math.floor(dataDensity * 100) + "% covered";
 
     return (
       <g className="rf-coverage">
@@ -88,7 +92,7 @@ var CoverageBar = React.createClass({
         {bars}
 
         <text
-          data-ot={this.props.tooltip}
+          data-ot={tooltip}
           x={x2 + this.props.textMargin}
           y={y + this.props.height/2}
           textAnchor="start"
