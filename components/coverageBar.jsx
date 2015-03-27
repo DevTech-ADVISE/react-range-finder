@@ -93,9 +93,9 @@ var CoverageBar = React.createClass({
 
         <text
           data-ot={tooltip}
-          x={x2 + this.props.textMargin}
+          x={x1 - this.props.textMargin}
           y={y + this.props.height/2}
-          textAnchor="start"
+          textAnchor="end"
           className="rf-label rf-coverage-label">
             {this.props.label}
         </text>
