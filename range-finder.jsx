@@ -4,10 +4,17 @@ var MakerMixin = require('./mixins/componentMakerMixin.jsx');
 
 var ScrollableSVG = require('./components/scrollableSVG.jsx');
 
-require('opentip');
+var Opentip = require('opentip');
 require('opentip/css/opentip.css');
 
 require('./styles/rangeFinderStyles.css');
+
+Opentip.styles.close = {
+  extends: "standard",
+  offset: [-3,-3],
+};
+
+Opentip.defaultStyle = "close";
 
 var RangeFinder = React.createClass({
   getInitialState: function() {
