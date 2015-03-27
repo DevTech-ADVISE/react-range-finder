@@ -67,6 +67,8 @@ var ScrollableSVG = React.createClass({
 
   onWheel: function(event) {
     this.scrollElement(event.deltaY);
+    event.preventDefault();
+    event.returnValue = false;
   },
 
   scrollElement: function(deltaY) {
@@ -114,6 +116,9 @@ var ScrollableSVG = React.createClass({
     this.scrollElement(this.touchY - newTouch.pageY);
 
     this.touchY = newTouch.pageY;
+
+    event.preventDefault();
+    event.returnValue = false;
   },
 
   onTouchEnd: function(event) {
@@ -164,8 +169,7 @@ var ScrollableSVG = React.createClass({
           viewBox={this.makeViewBox()}
           onWheel={this.onWheel}
           onTouchStart={this.onTouchStart}
-          onTouchMove={this.onTouchMove}
-          onTouchEnd={this.onTouchEnd}>
+          onTouchMove={this.onTouchMove}>
           <rect //Fixes mouse wheel scrolling on blank parts
             x={this.props.x} y={this.props.y}
             width={actualWidth} height={this.props.height}
