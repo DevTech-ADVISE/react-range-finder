@@ -27,7 +27,16 @@ var ComponentMakerMixin = {
   },
 
   calculateDensityColor: function(factor) {
-    var scale = 2 * 100 * factor;
+    var scale = 100 * factor;
+
+    var fromColor = tinyColor(this.props.densityLowColor);
+    var toColor = tinyColor(this.props.densityHighColor);
+
+    if(this.props.densityMidColor === null) {
+      return tinyColor.mix(fromColor, toColor, scale).toRgbString();
+    }
+
+    scale *= 2;
 
     switch(scale) {
       case 0:
@@ -37,9 +46,6 @@ var ComponentMakerMixin = {
       case 200:
         return tinyColor(this.props.densityHighColor).toRgbString();
     }
-
-    var fromColor;
-    var toColor;
 
     if(scale > 100) {
       scale -= 100;
