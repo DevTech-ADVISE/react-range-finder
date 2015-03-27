@@ -103,7 +103,9 @@ var ComponentMakerMixin = {
     var coverageHeight = 0;
 
     if(this.seriesMapping) {
-      coverageHeight = this.seriesMapping.length * (this.props.coverageBarHeight + this.consts.coverageBarMargin);
+      coverageHeight =
+        (this.seriesMapping.length + this.seriesGrouping.length) *
+        (this.props.coverageBarHeight + this.consts.coverageBarMargin);
       
       if(this.props.maxCoverageHeight < coverageHeight) {
         coverageHeight = this.props.maxCoverageHeight;
@@ -218,11 +220,27 @@ var ComponentMakerMixin = {
 
     var colors = this.makeColors();
 
-    return this.seriesMapping.map(function(series, id) {
-      var y = startY + id * (this.props.coverageBarHeight + this.consts.coverageBarMargin);
+    var previousCategory = null;
+    var yOffset = 0;
+    var fullHeight = this.props.coverageBarHeight + this.consts.coverageBarMargin;
 
+    return this.seriesMapping.map(function(series, id) {
       var label = series.seriesNames[series.seriesNames.length - 1];
       var seriesText = series.seriesNames.join("<br/>");
+
+      if(series.seriesNames.length > 1) {
+        var category = series.seriesNames[series.seriesNames.length - 2];
+
+        if(previousCategory !== category) {
+          previousCategory = category;
+          yOffset += fullHeight;
+        }
+      }
+
+      var y =
+        startY +
+        id * fullHeight +
+        yOffset;
 
       return (
         <CoverageBar
@@ -301,17 +319,17 @@ var ComponentMakerMixin = {
 
       var barSpacing = this.consts.coverageBarMargin + this.props.coverageBarHeight;
 
-      var startY = barBottom + grouping.startIndex * barSpacing;
+      var startY = barBottom + (grouping.startIndex + id) * barSpacing;
       var endY = startY + grouping.count * barSpacing - this.consts.coverageBarMargin;
       var rightX = this.barX;
       var leftX = rightX - this.consts.textMargin;
-      var textY = startY + (endY - startY) / 2;
+      var textY = startY + this.props.coverageBarHeight;
       var textX = leftX - this.consts.textMargin;
 
       var points = this.makePointList(leftX, rightX, startY, endY);
 
       return (
-        <g key={"grouping" + id} className="rf-category">
+        //<g key={"grouping" + id} className="rf-category">
           <text
             data-ot={grouping.categoryName}
             x={textX}
@@ -320,13 +338,13 @@ var ComponentMakerMixin = {
             className="rf-label rf-category-label">
             {name}
           </text>
-          <polyline
-            fill="none"
-            stroke="black"
-            strokeWidth="1"
-            points={points}
-            className="rf-category-grouping" />
-        </g>
+        //   <polyline
+        //     fill="none"
+        //     stroke="black"
+        //     strokeWidth="1"
+        //     points={points}
+        //     className="rf-category-grouping" />
+        // </g>
       );
     }, this);
   },
@@ -349,7 +367,7 @@ var ComponentMakerMixin = {
     var coverageHeight = 0;
 
     if(this.seriesMapping) {
-      coverageHeight = this.seriesMapping.length *
+      coverageHeight = (this.seriesMapping.length + this.seriesGrouping.length) *
         (this.consts.coverageBarMargin + this.props.coverageBarHeight);
 
       if(coverageHeight > this.props.maxCoverageHeight) {

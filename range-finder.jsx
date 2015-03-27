@@ -168,7 +168,9 @@ var RangeFinder = React.createClass({
     var densityX = startX + (endX - startX) / 2;
 
     if(coverage.length > 0) {
-      var fullCoverageHeight = this.seriesMapping.length * (this.props.coverageBarHeight + this.consts.coverageBarMargin);
+      var fullCoverageHeight =
+        (this.seriesMapping.length + this.seriesGrouping.length) *
+        (this.props.coverageBarHeight + this.consts.coverageBarMargin);
 
       var coverageHeight = fullCoverageHeight > this.props.maxCoverageHeight
         ? this.props.maxCoverageHeight
