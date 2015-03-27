@@ -121,10 +121,6 @@ var ScrollableSVG = React.createClass({
     event.returnValue = false;
   },
 
-  onTouchEnd: function(event) {
-    //console.log("end", event);
-  },
-
   render: function() {
     if(this.props.maxDisplayedHeight >= this.props.height) {
       return (
