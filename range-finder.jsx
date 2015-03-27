@@ -128,7 +128,9 @@ var RangeFinder = React.createClass({
     var sum = 0;
 
     for(var i = start; i <= end; i++) {
-      sum += seriesDensity[i];
+      if(seriesDensity[i]) {
+        sum += seriesDensity[i];
+      }
     }
 
     return sum / (end - start + 1);
