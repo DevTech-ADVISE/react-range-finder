@@ -42,7 +42,6 @@ var RangeFinder = React.createClass({
     sliderMargin: 5,
     textMargin: 5,
     densityBadgeMargin: 45,
-    densityFullColor: {r: 255, g: 255, b: 255},
     gradientId: "mainGradient",
   },
 
@@ -54,6 +53,9 @@ var RangeFinder = React.createClass({
       maxCoverageHeight: 300,
       stepSize: 1,
       series: [],
+      densityLowColor: {r: 0, g: 0, b: 255},
+      densityMidColor: {r: 255, g: 255, b: 255},
+      densityHighColor: {r: 255, g: 0, b: 0},
       onStartDragMove: function(value) {},
       onStartDragEnd: function(value) {},
       onDragMove: function(start, end) {},

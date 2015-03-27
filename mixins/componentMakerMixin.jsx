@@ -1,6 +1,8 @@
 var Slider = require('../components/slider.jsx');
 var CoverageBar = require('../components/coverageBar.jsx');
 
+var tinyColor = require('tinycolor2');
+
 var ComponentMakerMixin = {
   makeTicks: function(snapGrid) {
     var y1 = this.barY - this.consts.tickMargin;
@@ -24,23 +26,31 @@ var ComponentMakerMixin = {
     return ticks;
   },
 
-  clampColor: function(value, min, max) {
-    value = Math.min(value, max);
-    value = Math.max(value, min);
+  calculateDensityColor: function(factor) {
+    var scale = 2 * 100 * factor;
 
-    return Math.floor(value);
-  },
+    switch(scale) {
+      case 0:
+        return tinyColor(this.props.densityLowColor).toRgbString();
+      case 100:
+        return tinyColor(this.props.densityMidColor).toRgbString();
+      case 200:
+        return tinyColor(this.props.densityHighColor).toRgbString();
+    }
 
-  calculateColor: function(r, g, b, factor) {
-    r = this.clampColor(r * factor, 0, 255);
-    g = this.clampColor(g * factor, 0, 255);
-    b = this.clampColor(b * factor, 0, 255);
+    var fromColor;
+    var toColor;
 
-    return "rgb(" + r + "," + g + "," + b + ")";
-  },
+    if(scale > 100) {
+      scale -= 100;
+      fromColor = tinyColor(this.props.densityMidColor);
+      toColor = tinyColor(this.props.densityHighColor);
+    } else {
+      fromColor = tinyColor(this.props.densityLowColor);
+      toColor = tinyColor(this.props.densityMidColor);
+    }
 
-  calculateDensityColor: function(color, factor) {
-    return this.calculateColor(color.r, color.g, color.b, factor);
+    return tinyColor.mix(fromColor, toColor, scale).toRgbString();
   },
 
   makeGradient: function() {
@@ -56,7 +66,7 @@ var ComponentMakerMixin = {
     var gradientInfo = [];
 
     this.seriesDensity.forEach(function(density, id) {
-      var color = this.calculateDensityColor(this.consts.densityFullColor, density);
+      var color = this.calculateDensityColor(density);
       var midOffset = count++ / length;
       var prevOffset = midOffset - factor;
       var nextOffset = midOffset + factor;
