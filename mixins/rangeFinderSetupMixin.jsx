@@ -1,4 +1,13 @@
 var SetupMixin = {
+  componentWillMount: function() {
+    if(this.props.series.length === 0) {
+      return;
+    }
+
+    this.setGroupedSeries();
+    this.setYearValues();
+  },
+
   setGroupedSeries: function() {
     this.seriesMapping = [];
     this.seriesGrouping = [];

@@ -95,32 +95,7 @@ var ComponentMakerMixin = {
 
   makeSliders: function(snapGrid) {
     var leftX = this.barX;
-    var leftY = this.barY - this.consts.sliderRadius - this.consts.sliderMargin - this.consts.tickMargin - this.consts.tickSize;
-
     var rightX = this.barX + this.props.barWidth;
-    var rightY = leftY;
-
-    var coverageHeight = 0;
-
-    if(this.seriesMapping) {
-      coverageHeight =
-        (this.seriesMapping.length + this.seriesGrouping.length) *
-        (this.props.coverageBarHeight + this.consts.coverageBarMargin);
-      
-      if(this.props.maxCoverageHeight < coverageHeight) {
-        coverageHeight = this.props.maxCoverageHeight;
-      }
-
-      coverageHeight += Math.ceil(this.consts.coverageBarMargin/2);
-    }
-
-    var sliderHeight = 
-      2 * this.consts.sliderRadius +
-      2 * this.consts.sliderMargin +
-      this.consts.tickSize +
-      this.consts.tickMargin +
-      this.props.barHeight +
-      coverageHeight;
 
     var valueLookup = {};
     valueLookup.byValue = {};
@@ -155,8 +130,8 @@ var ComponentMakerMixin = {
       <Slider
         key="leftSlider"
         x={leftX}
-        y={leftY}
-        height={sliderHeight}
+        y={this.sliderY}
+        height={this.sliderHeight}
         handleAnchor={1}
         snapGrid={startSnapGrid}
         valueLookup={valueLookup}
@@ -167,8 +142,8 @@ var ComponentMakerMixin = {
       <Slider
         key="rightSlider"
         x={rightX}
-        y={rightY}
-        height={sliderHeight}
+        y={this.sliderY}
+        height={this.sliderHeight}
         handleAnchor={0}
         snapGrid={endSnapGrid}
         valueLookup={valueLookup}
@@ -215,14 +190,12 @@ var ComponentMakerMixin = {
     var x = this.barX;
     var startY = Math.floor(this.consts.coverageBarMargin/2);
 
-    var yearCount = (this.props.end - this.props.start) / this.props.stepSize;
-    var dashSize = this.props.barWidth / yearCount;
+    var dashSize = this.props.barWidth / this.stepCount;
 
     var colors = this.makeColors();
 
     var previousCategory = null;
     var yOffset = 0;
-    var fullHeight = this.props.coverageBarHeight + this.consts.coverageBarMargin;
 
     return this.seriesMapping.map(function(series, id) {
       var label = series.seriesNames[series.seriesNames.length - 1];
@@ -233,13 +206,13 @@ var ComponentMakerMixin = {
 
         if(previousCategory !== category) {
           previousCategory = category;
-          yOffset += fullHeight;
+          yOffset += this.coverageBarSpacing;
         }
       }
 
       var y =
         startY +
-        id * fullHeight +
+        id * this.coverageBarSpacing +
         yOffset;
 
       return (
@@ -317,43 +290,24 @@ var ComponentMakerMixin = {
       var name = this.truncateText(grouping.categoryName, this.consts.labelCharacterLimit);
       var barBottom = Math.floor(this.consts.coverageBarMargin/2);
 
-      var barSpacing = this.consts.coverageBarMargin + this.props.coverageBarHeight;
-
-      var startY = barBottom + (grouping.startIndex + id) * barSpacing;
-      var endY = startY + grouping.count * barSpacing - this.consts.coverageBarMargin;
+      var startY = barBottom + (grouping.startIndex + id) * this.coverageBarSpacing;
+      var endY = startY + grouping.count * this.coverageBarSpacing - this.consts.coverageBarMargin;
       var rightX = this.barX;
       var leftX = rightX - this.consts.textMargin;
       var textY = startY + this.props.coverageBarHeight;
       var textX = leftX - this.consts.textMargin;
 
-      var points = this.makePointList(leftX, rightX, startY, endY);
-
       return (
-        //<g key={"grouping" + id} className="rf-category">
-          <text
-            data-ot={grouping.categoryName}
-            x={textX}
-            y={textY}
-            textAnchor="end"
-            className="rf-label rf-category-label">
-            {name}
-          </text>
-        //   <polyline
-        //     fill="none"
-        //     stroke="black"
-        //     strokeWidth="1"
-        //     points={points}
-        //     className="rf-category-grouping" />
-        // </g>
+        <text
+          data-ot={grouping.categoryName}
+          x={textX}
+          y={textY}
+          textAnchor="end"
+          className="rf-label rf-category-label">
+          {name}
+        </text>
       );
     }, this);
-  },
-
-  makePointList: function(leftX, rightX, startY, endY) {
-    return rightX + ',' + startY + ' ' +
-           leftX + ',' + startY + ' ' +
-           leftX + ',' + endY + ' ' +
-           rightX + ',' + endY;
   },
 
   makeUnselectedOverlay: function() {
@@ -364,22 +318,9 @@ var ComponentMakerMixin = {
     var startWidth = this.state.startSliderX - this.barX;
     var endWidth = this.barX + this.props.barWidth - this.state.endSliderX;
 
-    var coverageHeight = 0;
-
-    if(this.seriesMapping) {
-      coverageHeight = (this.seriesMapping.length + this.seriesGrouping.length) *
-        (this.consts.coverageBarMargin + this.props.coverageBarHeight);
-
-      if(coverageHeight > this.props.maxCoverageHeight) {
-        coverageHeight = this.props.maxCoverageHeight;
-      }
-
-      coverageHeight += Math.ceil(this.consts.coverageBarMargin/2);
-    }
-
     var height = 
       this.props.barHeight +
-      coverageHeight;
+      this.coverageHeight;
 
     var unselectedRanges = [];
 

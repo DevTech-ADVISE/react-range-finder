@@ -1,6 +1,8 @@
 var React = require('react');
+
 var SetupMixin = require('./mixins/rangeFinderSetupMixin.jsx');
 var MakerMixin = require('./mixins/componentMakerMixin.jsx');
+var CalcMixin = require('./mixins/calculatedPropertyMixin.jsx');
 
 var ScrollableSVG = require('./components/scrollableSVG.jsx');
 
@@ -27,7 +29,7 @@ var RangeFinder = React.createClass({
     };
   },
 
-  mixins: [SetupMixin, MakerMixin],
+  mixins: [SetupMixin, MakerMixin, CalcMixin],
 
   consts: {
     barMarginTop: 60,
@@ -92,25 +94,17 @@ var RangeFinder = React.createClass({
   componentWillMount: function() {
     this.barX = this.consts.barMarginLeft;
     this.barY = this.consts.barMarginTop;
-
-    if(this.props.series.length === 0) {
-      return;
-    }
-
-    this.setGroupedSeries();
-    this.setYearValues();
   },
 
   makeSnapGrid: function() {
     var start = this.props.start;
     var end = this.props.end;
 
-    var stepCount = (end - start) / this.props.stepSize;
-    var stepWidth = this.props.barWidth / stepCount;
+    var stepWidth = this.props.barWidth / this.stepCount;
 
     var snapTargets = [];
 
-    for(var i = 0; i <= stepCount; i++) {
+    for(var i = 0; i <= this.stepCount; i++) {
       var x = this.barX + i * stepWidth;
       var value = start + i * this.props.stepSize;
 
@@ -147,19 +141,7 @@ var RangeFinder = React.createClass({
     var coverageGrouping = this.makeCoverageGrouping();
     var unselected = this.makeUnselectedOverlay();
 
-    var width =
-      this.props.barWidth +
-      this.consts.barMarginLeft +
-      this.consts.barMarginRight;
-
-    var height = 
-      this.consts.barMarginTop +
-      this.consts.barMarginBottom +
-      this.consts.tickSize +
-      this.consts.tickMargin +
-      this.props.barHeight;
-
-    var density = this.calculateCoverage(this.state.start, this.state.end)
+    var density = this.calculateCoverage(this.state.start, this.state.end);
     var densityLabel = Math.floor(100 * density) + "% coverage";
 
     var startX = this.state.startSliderX;
@@ -168,22 +150,12 @@ var RangeFinder = React.createClass({
     var densityX = startX + (endX - startX) / 2;
 
     if(coverage.length > 0) {
-      var fullCoverageHeight =
-        (this.seriesMapping.length + this.seriesGrouping.length) *
-        (this.props.coverageBarHeight + this.consts.coverageBarMargin);
-
-      var coverageHeight = fullCoverageHeight > this.props.maxCoverageHeight
-        ? this.props.maxCoverageHeight
-        : fullCoverageHeight;
-
-      height += coverageHeight;
-
       var barBottom = this.barY + this.props.barHeight + Math.ceil(this.consts.coverageBarMargin/2);
 
       coverageDetails = (
         <ScrollableSVG
           y={barBottom}
-          width={width} height={fullCoverageHeight}
+          width={this.componentWidth} height={this.fullCoverageHeight}
           maxDisplayedHeight={this.props.maxCoverageHeight}
           className="rf-coverage-section">
           {coverage}
@@ -193,7 +165,7 @@ var RangeFinder = React.createClass({
     }
 
     return (
-      <svg id={this.props.id} width={width} height={height} className="range-finder">
+      <svg id={this.props.id} width={this.componentWidth} height={this.componentHeight} className="range-finder">
         {gradient}
         <g className="rf-ticks">{ticks}</g>
         <text
