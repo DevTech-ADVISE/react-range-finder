@@ -5,7 +5,7 @@ var tinyColor = require('tinycolor2');
 
 var ComponentMakerMixin = {
   makeTicks: function(snapGrid) {
-    var y1 = this.barY - this.consts.tickMargin;
+    var y1 = this.barY + this.props.barHeight;
     var y2 = y1 - this.consts.tickSize;
 
     var ticks = [];
@@ -19,7 +19,7 @@ var ComponentMakerMixin = {
           x1={x} y1={y1}
           x2={x} y2={y2}
           strokeWidth="1"
-          stroke="grey" />
+          stroke="gray" />
       );
     }
 
@@ -254,6 +254,7 @@ var ComponentMakerMixin = {
 
     return seriesMapping.map(function(item) {
       var colorIndeces = item.colorIndeces;
+
       var selectedColor = colors;
 
       for(var i = 0; i < colorIndeces.length; i++) {
@@ -321,6 +322,7 @@ var ComponentMakerMixin = {
 
     var height = 
       this.props.barHeight +
+      Math.floor(this.consts.coverageBarMargin/2) +
       this.coverageHeight;
 
     var unselectedRanges = [];

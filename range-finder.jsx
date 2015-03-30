@@ -38,10 +38,11 @@ var RangeFinder = React.createClass({
     barMarginBottom: 50,
     coverageBarMargin: 10,
     labelCharacterLimit: 10,
-    tickMargin: 2,
-    tickSize: 5,
-    sliderRadius: 5,
+    tickSize: 15,
+    sliderHeight: 15,
+    sliderWidth: 5,
     sliderMargin: 5,
+    sliderRadius: 10,
     textMargin: 5,
     densityBadgeMargin: 45,
     gradientId: "mainGradient",
@@ -50,7 +51,7 @@ var RangeFinder = React.createClass({
   getDefaultProps: function() {
     return {
       barWidth: 300,
-      barHeight: 10,
+      barHeight: 30,
       coverageBarHeight: 8,
       maxCoverageHeight: 300,
       stepSize: 1,
@@ -132,7 +133,7 @@ var RangeFinder = React.createClass({
 
   render: function() {
     var snapGrid = this.makeSnapGrid();
-    var gradient = this.makeGradient();
+    var gradient = null; //this.makeGradient();
 
     var ticks = this.makeTicks(snapGrid);
     var sliders = this.makeSliders(snapGrid);
@@ -167,7 +168,6 @@ var RangeFinder = React.createClass({
     return (
       <svg id={this.props.id} width={this.componentWidth} height={this.componentHeight} className="range-finder">
         {gradient}
-        <g className="rf-ticks">{ticks}</g>
         <text
           x={this.barX - this.consts.textMargin}
           y={this.barY + this.props.barHeight}
@@ -178,7 +178,7 @@ var RangeFinder = React.createClass({
         <rect
           x={this.barX} y={this.barY}
           width={this.props.barWidth} height={this.props.barHeight} 
-          fill={"url(#" + this.consts.gradientId + ")"}
+          fill="#DDD"
           stroke="black"
           className="rf-range-bar"/>
         <text
@@ -195,6 +195,7 @@ var RangeFinder = React.createClass({
           className="rf-label rf-density-label">
           {densityLabel}
         </text>
+        <g className="rf-ticks">{ticks}</g>
         {coverageDetails}
         {sliders}
         {unselected}
