@@ -128,7 +128,7 @@ function makeData(start, end) {
 
   var seriesCluster = clusterSeries(majorSeries, minorSeries);
 
-  var fakeDataSet = addYearData(seriesCluster, start, end)
+  var fakeDataSet = addYearData(seriesCluster, start, end);
 
   return fakeDataSet;
 }

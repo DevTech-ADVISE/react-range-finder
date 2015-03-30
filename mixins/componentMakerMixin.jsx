@@ -132,7 +132,7 @@ var ComponentMakerMixin = {
         x={leftX}
         y={this.sliderY}
         height={this.sliderHeight}
-        handleAnchor={1}
+        handleSize={this.consts.sliderRadius}
         snapGrid={startSnapGrid}
         valueLookup={valueLookup}
         onDragMove={this.onStartDragMove}
@@ -144,7 +144,7 @@ var ComponentMakerMixin = {
         x={rightX}
         y={this.sliderY}
         height={this.sliderHeight}
-        handleAnchor={0}
+        handleSize={this.consts.sliderRadius}
         snapGrid={endSnapGrid}
         valueLookup={valueLookup}
         onDragMove={this.onEndDragMove}
@@ -315,13 +315,12 @@ var ComponentMakerMixin = {
   makeUnselectedOverlay: function() {
     var startX = this.barX;
     var endX = this.state.endSliderX;
-    var y = this.barY;
+    var y = this.barBottom;
 
     var startWidth = this.state.startSliderX - this.barX;
     var endWidth = this.barX + this.props.barWidth - this.state.endSliderX;
 
     var height = 
-      this.props.barHeight +
       Math.floor(this.consts.coverageBarMargin/2) +
       this.coverageHeight;
 

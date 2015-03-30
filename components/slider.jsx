@@ -1,5 +1,6 @@
 var React = require('react');
 var interact = require('interact.js');
+var Opentip = require('opentip');
 
 module.exports = React.createClass({
   getInitialState: function() {
@@ -38,12 +39,26 @@ module.exports = React.createClass({
 
         self.setState({x: x, value: value});
         self.props.onDragMove(value, x);
+        self.valueTooltip.setContent(value);
       })
       .on('dragend', function (event) {
         var x = event.clientX;
         var value = self.props.valueLookup.byLocation[x];
 
         self.props.onDragEnd(value);
+      });
+
+    this.valueTooltip =
+    new Opentip(
+      this.getDOMNode(),
+      this.state.value,
+      { target: this.refs.topSlider.getDOMNode(), 
+        tipJoint: "bottom",
+        offset: [this.props.handleSize,0],
+        showEffectDuration: 0,
+        hideEffectDuration: 0,
+        hideOn: "none",
+        showOn: "creation",
       });
   },
 
@@ -64,50 +79,47 @@ module.exports = React.createClass({
     var y = this.props.y;
     var height = this.props.height;
     var handleSize = this.props.handleSize;
-    var handleAnchor = this.props.handleAnchor;
+    //var handleAnchor = this.props.handleAnchor;
     var textMargin = this.consts.textMargin;
 
-    var handleOffset = handleSize * handleAnchor;
+    var handleOffset = handleSize;// * handleAnchor;
     var handleX = x - handleOffset;
-    var handleY = y - 0.5 * handleSize;
+    var handleY = y - handleSize;
 
     var ghostSizeModifier = 4;
     var ghostSize = ghostSizeModifier * handleSize;
-    var ghostXOffset = ghostSize * handleAnchor;
+    var ghostXOffset = ghostSize;// * handleAnchor;
 
-    var ghostYOffsetFactor = 0.65
+    var ghostYOffsetFactor = 0.65;
     var ghostHeightOffsetFactor = 2 * ghostYOffsetFactor - 1;
 
-    var ghostX = x - ghostXOffset + (2*handleAnchor-1) * (handleSize/2);
+    var ghostX = x - ghostXOffset;// + (2*handleAnchor-1) * (handleSize/2);
     var ghostY = y - ghostYOffsetFactor * ghostSize;
     var ghostOpacity = 0;
 
-    var ghostBarOffset = (1 - handleAnchor) * handleSize/2;
+    var ghostBarOffset = 0;//(1 - handleAnchor) * handleSize/2;
     return (
       <g className="rf-slider">
-        <text
-          x={x} y={handleY - textMargin}
-          textAnchor={handleAnchor === 0 ? "start" : "end"}
-          className="rf-label rf-slider-label">
-          {this.state.value}
-        </text>
-        <rect
-          x={handleX} y={handleY}
-          width={handleSize} height={handleSize}
-          strokeWidth="2"
-          stroke="black"
-          className="rf-slider-handle"/>
         <line
           x1={x} y1={y}
           x2={x} y2={y + height}
           strokeWidth="2"
           stroke="black"
           className="rf-slider-bar"/>
-        <rect
-          x={handleX} y={handleY + height}
-          width={handleSize} height={handleSize}
+        <circle
+          cx={x} cy={handleY}
+          r={handleSize}
           strokeWidth="2"
-          stroke="black"
+          stroke="blue"
+          fill="white"
+          ref="topSlider"
+          className="rf-slider-handle"/>
+        <circle
+          cx={x} cy={handleY + height}
+          r={handleSize}
+          strokeWidth="2"
+          stroke="blue"
+          fill="white"
           className="rf-slider-handle"/>
         <rect
           x={ghostX} y={ghostY}

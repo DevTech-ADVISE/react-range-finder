@@ -30,15 +30,13 @@ var PropertyCalculatorMixin = {
 
   //the starting Y position of the sliders
   calcSliderY: function() {
-    return this.consts.barMarginTop -
-      this.consts.sliderMargin;
+    return this.calcBarBottom() +
+      this.consts.sliderRadius;
   },
 
   //the height of each slider
   calcSliderHeight: function() {
-    return  2 * this.consts.sliderRadius +
-      2 * this.consts.sliderMargin +
-      this.props.barHeight +
+    return this.consts.sliderRadius +
       this.calcCoverageHeight();
   },
 
@@ -52,6 +50,11 @@ var PropertyCalculatorMixin = {
     return (this.props.end - this.props.start) / this.props.stepSize;
   },
 
+  calcBarBottom: function() {
+    return this.consts.barMarginTop +
+      this.props.barHeight;
+  },
+
   updateCalculations: function() {
     this.componentHeight = this.calcComponentHeight();
     this.componentWidth = this.calcComponentWidth();
@@ -61,6 +64,7 @@ var PropertyCalculatorMixin = {
     this.sliderHeight = this.calcSliderHeight();
     this.coverageBarSpacing = this.calcCoverageBarSpacing();
     this.stepCount = this.calcStepCount();
+    this.barBottom = this.calcBarBottom();
   },
 
   componentDidUpdate: function() {
