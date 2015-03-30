@@ -266,6 +266,7 @@ var ComponentMakerMixin = {
         selectedColor = selectedColor[colorIndex % selectedColor.length];
       }
 
+      //gets the first color if the color array is deeper than the mapping
       while(typeof selectedColor !== "string") {
         selectedColor = selectedColor[0];
       }

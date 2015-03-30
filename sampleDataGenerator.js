@@ -134,11 +134,15 @@ function makeData(start, end) {
 }
 
 function makeSchema() {
-  var colors = [
-    ['red', 'darkred'],
-    ['limegreen', 'darkgreen'],
-    ['dodgerblue', 'darkblue']
-  ];
+  // var colors = [
+  //   ['red', 'darkred'],
+  //   ['limegreen', 'darkgreen'],
+  //   ['dodgerblue', 'darkblue']
+  // ];
+  var colors =
+    ['red', 'darkred',
+    'limegreen', 'darkgreen',
+    'dodgerblue', 'darkblue'];
 
   return {series:['major', 'minor'], value:'year', colors: colors};
 }

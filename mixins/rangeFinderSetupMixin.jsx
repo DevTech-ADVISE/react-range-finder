@@ -136,7 +136,7 @@ var SetupMixin = {
       seriesNames.push(currentSeries[label]);
     });
 
-    seriesMapping.push({seriesNames: seriesNames, coverage: coverage, colorIndeces: colorIndeces});
+    seriesMapping.push({seriesNames: seriesNames, coverage: coverage, colorIndeces: colorIndeces.reverse()});
 
     return seriesMapping;
   },
