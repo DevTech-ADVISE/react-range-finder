@@ -1,6 +1,5 @@
 var React = require('react');
 var interact = require('interact.js');
-var Opentip = require('opentip');
 
 module.exports = React.createClass({
   getInitialState: function() {
@@ -11,7 +10,7 @@ module.exports = React.createClass({
   },
 
   consts: {
-    textMargin: 2
+    textMargin: 16
   },
 
   getDefaultProps: function() {
@@ -39,26 +38,12 @@ module.exports = React.createClass({
 
         self.setState({x: x, value: value});
         self.props.onDragMove(value, x);
-        self.valueTooltip.setContent(value);
       })
       .on('dragend', function (event) {
         var x = event.clientX;
         var value = self.props.valueLookup.byLocation[x];
 
         self.props.onDragEnd(value);
-      });
-
-    this.valueTooltip =
-    new Opentip(
-      this.getDOMNode(),
-      this.state.value,
-      { target: this.refs.topSlider.getDOMNode(), 
-        tipJoint: "bottom",
-        offset: [this.props.handleSize,0],
-        showEffectDuration: 0,
-        hideEffectDuration: 0,
-        hideOn: "none",
-        showOn: "creation",
       });
   },
 
@@ -74,30 +59,82 @@ module.exports = React.createClass({
       });
   },
 
+  makeLabel: function(x, y) {
+    var textPadding = 2;
+
+    var charCount = this.state.value.toString().length;
+    var charWidth = 6;
+    var heightAdjustment = 1;
+    var yAdjustment = -1;
+
+    var bgWidth = 6 * charCount + 2 * textPadding;
+    var bgHeight = 10 + 2 * textPadding + heightAdjustment;
+    var bgX = x - bgWidth/2;
+    var bgY = y - bgHeight + yAdjustment + this.props.fontSize/2;
+
+    var pointWidth = 6;
+    var pointHeight = 8;
+
+    var midX = x;
+    var leftX = x - pointWidth/2;
+    var rightX = x + pointWidth/2;
+
+    var topY = bgY + bgHeight;
+    var bottomY = topY + pointHeight;
+
+    var points =
+      leftX + "," + topY + " " +
+      midX + "," + bottomY + " " +
+      rightX + "," + topY + " ";
+
+    return (
+      <g>
+        <rect
+          x={bgX} y={bgY}
+          width={bgWidth} height={bgHeight}
+          fill="black"/>
+        <text
+          x={x} y={y}
+          textAnchor="middle"
+          fontSize={this.props.fontSize}
+          fill="white">
+          {this.state.value}
+        </text>
+        <polyline
+          fill="black"
+          stroke="black"
+          strokeWidth="1"
+          points={points} />
+      </g>
+    )
+  },
+
   render: function() {
     var x = this.state.x;
     var y = this.props.y;
     var height = this.props.height;
     var handleSize = this.props.handleSize;
-    //var handleAnchor = this.props.handleAnchor;
     var textMargin = this.consts.textMargin;
 
-    var handleOffset = handleSize;// * handleAnchor;
+    var handleOffset = handleSize;
     var handleX = x - handleOffset;
-    var handleY = y - handleSize;
+    var handleY = y;
 
     var ghostSizeModifier = 4;
     var ghostSize = ghostSizeModifier * handleSize;
-    var ghostXOffset = ghostSize;// * handleAnchor;
+    var ghostXOffset = ghostSize;
 
     var ghostYOffsetFactor = 0.65;
     var ghostHeightOffsetFactor = 2 * ghostYOffsetFactor - 1;
 
-    var ghostX = x - ghostXOffset;// + (2*handleAnchor-1) * (handleSize/2);
+    var ghostX = x - ghostXOffset;
     var ghostY = y - ghostYOffsetFactor * ghostSize;
     var ghostOpacity = 0;
 
-    var ghostBarOffset = 0;//(1 - handleAnchor) * handleSize/2;
+    var ghostBarOffset = 0;
+
+    var label = this.makeLabel(x, handleY - textMargin - handleSize);
+
     return (
       <g className="rf-slider">
         <line
@@ -121,6 +158,7 @@ module.exports = React.createClass({
           stroke="blue"
           fill="white"
           className="rf-slider-handle"/>
+        {label}
         <rect
           x={ghostX} y={ghostY}
           width={ghostSize} height={ghostSize}

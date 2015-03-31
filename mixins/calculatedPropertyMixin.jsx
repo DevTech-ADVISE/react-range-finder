@@ -30,8 +30,7 @@ var PropertyCalculatorMixin = {
 
   //the starting Y position of the sliders
   calcSliderY: function() {
-    return this.calcBarBottom() +
-      this.consts.sliderRadius;
+    return this.calcBarBottom();
   },
 
   //the height of each slider
