@@ -252,28 +252,51 @@ var ComponentMakerMixin = {
       });
     }
 
-    return seriesMapping.map(function(item) {
-      var colorIndeces = item.colorIndeces;
+  //   return seriesMapping.map(function(item) {
+  //     return colors[item.colorIndex];
+  //   });
+  // },
 
-      var selectedColor = colors;
+    return seriesMapping.map(this.findColor);
+  },
 
-      for(var i = 0; i < colorIndeces.length; i++) {
-        var colorIndex = colorIndeces[i];
+  //Old function for finding proper color
+  findColor: function(series) {
+    var colorIndeces = series.colorIndeces;
 
-        if(typeof selectedColor === "string") {
-          return selectedColor;
-        }
+    var selectedColor = this.props.schema.colors;
 
-        selectedColor = selectedColor[colorIndex % selectedColor.length];
+    var end = colorIndeces.length - 1;
+
+    //loop through color indeces, finding the correct color to apply
+    for(var i = 0; i < colorIndeces.length; i++) {
+      var colorIndex = colorIndeces[i];
+
+      //get the next color according to the color index
+      var newColor = selectedColor[colorIndex % selectedColor.length];
+
+      //CASE: color list is less deep than series/category list
+      //
+      //(except on the last loop, when we expect a string)
+      //if the new color is a string, instead of sending the new color,
+      //find the selected color from the last index in the indeces.
+      //This will solve the issue of exitting too early
+      if(i < end && typeof newColor === "string") {
+        return selectedColor[colorIndeces[end] % selectedColor.length];
       }
 
-      //gets the first color if the color array is deeper than the mapping
-      while(typeof selectedColor !== "string") {
-        selectedColor = selectedColor[0];
-      }
+      //assing the selected color  and re-iterate
+      selectedColor = newColor;
+    }
 
-      return selectedColor;
-    });
+    //CASE: The color list is deeper than the series/category list
+    //
+    //Get the first color we can find down in the heirarchy
+    while(typeof selectedColor !== "string") {
+      selectedColor = selectedColor[0];
+    }
+  
+    return selectedColor;
   },
 
   truncateText: function(text, charLimit) {
