@@ -10,7 +10,8 @@ module.exports = React.createClass({
   },
 
   consts: {
-    textMargin: 16
+    textMargin: 12,
+    borderRadius: 4,
   },
 
   getDefaultProps: function() {
@@ -60,6 +61,9 @@ module.exports = React.createClass({
   },
 
   makeLabel: function(x, y) {
+    if(this.state.x === this.props.x) {
+      return null;
+    }
     var textPadding = 2;
 
     var charCount = this.state.value.toString().length;
@@ -73,7 +77,7 @@ module.exports = React.createClass({
     var bgY = y - bgHeight + yAdjustment + this.props.fontSize/2;
 
     var pointWidth = 6;
-    var pointHeight = 8;
+    var pointHeight = 4;
 
     var midX = x;
     var leftX = x - pointWidth/2;
@@ -91,18 +95,19 @@ module.exports = React.createClass({
       <g>
         <rect
           x={bgX} y={bgY}
+          rx={this.consts.borderRadius} ry={this.consts.borderRadius}
           width={bgWidth} height={bgHeight}
-          fill="black"/>
+          fill="white"/>
         <text
           x={x} y={y}
           textAnchor="middle"
           fontSize={this.props.fontSize}
-          fill="white">
+          fill="red">
           {this.state.value}
         </text>
         <polyline
-          fill="black"
-          stroke="black"
+          fill="white"
+          stroke="white"
           strokeWidth="1"
           points={points} />
       </g>
