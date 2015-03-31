@@ -42,6 +42,7 @@ var RangeFinder = React.createClass({
     sliderMargin: 5,
     sliderRadius: 4,
     textMargin: 5,
+    textSize: 10,
     densityBadgeMargin: 45,
     gradientId: "mainGradient",
   },
@@ -54,6 +55,7 @@ var RangeFinder = React.createClass({
       maxCoverageHeight: 300,
       stepSize: 1,
       series: [],
+      title: "Value Range",
       densityLowColor: {r: 0, g: 0, b: 0},
       densityMidColor: null,
       densityHighColor: {r: 255, g: 255, b: 255},
@@ -76,6 +78,8 @@ var RangeFinder = React.createClass({
     end: React.PropTypes.number.isRequired,
 
     stepSize: React.PropTypes.number,
+
+    title: React.PropTypes.string,
 
     series: React.PropTypes.arrayOf(React.PropTypes.object),
     schema: React.PropTypes.shape({
@@ -166,13 +170,6 @@ var RangeFinder = React.createClass({
     return (
       <svg id={this.props.id} width={this.componentWidth} height={this.componentHeight} className="range-finder">
         {gradient}
-        <text
-          x={this.barX - this.consts.textMargin}
-          y={this.barY + this.props.barHeight}
-          textAnchor="end"
-          className="rf-label rf-value-label">
-          {this.props.start}
-        </text>
         <rect
           x={this.barX} y={this.barY}
           width={this.props.barWidth} height={this.props.barHeight} 
@@ -180,9 +177,25 @@ var RangeFinder = React.createClass({
           stroke="black"
           className="rf-range-bar"/>
         <text
-          x={this.barX + this.props.barWidth + this.consts.textMargin}
-          y={this.barY + this.props.barHeight}
+          x={this.barX - this.consts.textMargin}
+          y={this.barY + this.props.barHeight/2}
+          textAnchor="end"
+          className="rf-label rf-title-label">
+          {this.props.title}
+        </text>
+        <text
+          x={this.barX + this.consts.textMargin}
+          y={this.barY + this.consts.textSize}
+          fontSize={this.consts.textSize}
           textAnchor="start"
+          className="rf-label rf-value-label">
+          {this.props.start}
+        </text>
+        <text
+          x={this.barX + this.props.barWidth - this.consts.textMargin}
+          y={this.barY + this.consts.textSize}
+          fontSize={this.consts.textSize}
+          textAnchor="end"
           className="rf-label rf-value-label">
           {this.props.end}
         </text>
