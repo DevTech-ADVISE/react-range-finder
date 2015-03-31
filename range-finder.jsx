@@ -169,7 +169,7 @@ var RangeFinder = React.createClass({
             x={0} y={0}
             width={this.effectiveWidth}
             height={this.fullCoverageHeight}
-          fill="lightgray" />
+          fill="#F0F0F1" />
           {coverage}
           {coverageGrouping}
         </ScrollableSVG>
@@ -181,9 +181,9 @@ var RangeFinder = React.createClass({
         {gradient}
         <rect
           x={0} y={this.barY}
-          width={this.effectiveWidth} height={this.props.barHeight} 
-          fill="#999"
-          stroke="black"
+          width={this.effectiveWidth} height={this.props.barHeight}
+          fill="#DDD"
+          stroke="#DDD"
           className="rf-range-bar"/>
         <text
           x={this.barX - this.consts.textMargin}

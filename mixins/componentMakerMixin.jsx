@@ -331,7 +331,7 @@ var ComponentMakerMixin = {
           <rect
             x={0} y={startY - yAdjust}
             width={this.effectiveWidth} height={this.coverageBarSpacing}
-            fill="#AAA" />
+            fill="#DDDDE4" />
           <text
             data-ot={grouping.categoryName}
             x={textX}
