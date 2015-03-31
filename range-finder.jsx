@@ -32,13 +32,13 @@ var RangeFinder = React.createClass({
   mixins: [SetupMixin, MakerMixin, CalcMixin],
 
   consts: {
-    barMarginTop: 60,
-    barMarginLeft: 120,
+    barMarginTop: 0,
+    barMarginLeft: 100,
     barMarginRight: 25,
-    barMarginBottom: 50,
+    barMarginBottom: 10,
     coverageBarMargin: 10,
     labelCharacterLimit: 10,
-    tickSize: 15,
+    tickSize: 10,
     sliderMargin: 5,
     sliderRadius: 4,
     labelSideMargin: 1,
@@ -165,6 +165,11 @@ var RangeFinder = React.createClass({
           width={this.componentWidth} height={this.fullCoverageHeight}
           maxDisplayedHeight={this.props.maxCoverageHeight}
           className="rf-coverage-section">
+          <rect
+            x={0} y={0}
+            width={this.effectiveWidth}
+            height={this.fullCoverageHeight}
+          fill="lightgray" />
           {coverage}
           {coverageGrouping}
         </ScrollableSVG>
@@ -175,9 +180,9 @@ var RangeFinder = React.createClass({
       <svg id={this.props.id} width={this.componentWidth} height={this.componentHeight} className="range-finder">
         {gradient}
         <rect
-          x={this.barX} y={this.barY}
-          width={this.props.barWidth} height={this.props.barHeight} 
-          fill="#DDD"
+          x={0} y={this.barY}
+          width={this.effectiveWidth} height={this.props.barHeight} 
+          fill="#999"
           stroke="black"
           className="rf-range-bar"/>
         <text
@@ -188,7 +193,7 @@ var RangeFinder = React.createClass({
           {this.props.title}
         </text>
         <text
-          x={this.barX + this.consts.labelSideMargin}
+          x={this.barX}
           y={valueLabelY}
           fontSize={this.consts.textSize}
           textAnchor="start"
@@ -196,7 +201,7 @@ var RangeFinder = React.createClass({
           {this.props.start}
         </text>
         <text
-          x={this.barX + this.props.barWidth - this.consts.labelSideMargin}
+          x={this.effectiveWidth - this.consts.labelSideMargin}
           y={valueLabelY}
           fontSize={this.consts.textSize}
           textAnchor="end"
@@ -204,9 +209,10 @@ var RangeFinder = React.createClass({
           {this.props.end}
         </text>
         <text
-          x={densityX}
-          y={this.barY - this.consts.densityBadgeMargin}
-          textAnchor="middle"
+          x={this.barX - this.consts.textMargin}
+          y={this.barY + this.props.barHeight/2 + this.consts.textSize}
+          fontSize={12}
+          textAnchor="end"
           className="rf-label rf-density-label">
           {densityLabel}
         </text>

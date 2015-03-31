@@ -167,7 +167,7 @@ var ScrollableSVG = React.createClass({
           onTouchStart={this.onTouchStart}
           onTouchMove={this.onTouchMove}>
           <rect //Fixes mouse wheel scrolling on blank parts
-            x={this.props.x} y={this.props.y}
+            x={0} y={0}
             width={actualWidth} height={this.props.height}
             opacity="0"/>
           {this.props.children}

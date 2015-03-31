@@ -19,7 +19,7 @@ var ComponentMakerMixin = {
           x1={x} y1={y1}
           x2={x} y2={y2}
           strokeWidth="1"
-          stroke="gray" />
+          stroke="black" />
       );
     }
 
@@ -324,15 +324,23 @@ var ComponentMakerMixin = {
       var textY = startY + this.props.coverageBarHeight;
       var textX = leftX - this.consts.textMargin;
 
+      var yAdjust = 7;
+
       return (
-        <text
-          data-ot={grouping.categoryName}
-          x={textX}
-          y={textY}
-          textAnchor="end"
-          className="rf-label rf-category-label">
-          {name}
-        </text>
+        <g>
+          <rect
+            x={0} y={startY - yAdjust}
+            width={this.effectiveWidth} height={this.coverageBarSpacing}
+            fill="#AAA" />
+          <text
+            data-ot={grouping.categoryName}
+            x={textX}
+            y={textY}
+            textAnchor="end"
+            className="rf-label rf-category-label">
+            {name}
+          </text>
+        </g>
       );
     }, this);
   },

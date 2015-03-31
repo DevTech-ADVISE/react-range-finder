@@ -3,7 +3,6 @@ var PropertyCalculatorMixin = {
   calcComponentHeight: function() {
     return this.consts.barMarginTop +
       this.consts.barMarginBottom +
-      this.consts.tickSize +
       this.props.barHeight +
       this.calcCoverageHeight();
   },
@@ -13,6 +12,19 @@ var PropertyCalculatorMixin = {
     return this.props.barWidth +
       this.consts.barMarginLeft +
       this.consts.barMarginRight;
+  },
+
+  calcEffectiveHeight: function() {
+    return this.consts.barMarginTop +
+      this.props.barHeight +
+      this.consts.coverageBarMargin/2 +
+      this.calcCoverageHeight();
+  },
+
+  //the full width of the entire component
+  calcEffectiveWidth: function() {
+    return this.props.barWidth +
+      this.consts.barMarginLeft;
   },
 
   //The full height of the coverage bars
@@ -57,6 +69,8 @@ var PropertyCalculatorMixin = {
   updateCalculations: function() {
     this.componentHeight = this.calcComponentHeight();
     this.componentWidth = this.calcComponentWidth();
+    this.effectiveHeight = this.calcEffectiveHeight();
+    this.effectiveWidth = this.calcEffectiveWidth();
     this.fullCoverageHeight = this.calcFullCoverageHeight();
     this.coverageHeight = this.calcCoverageHeight();
     this.sliderY = this.calcSliderY();

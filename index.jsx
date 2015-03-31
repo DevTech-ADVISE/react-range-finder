@@ -3,7 +3,7 @@ var RangeFinder = require('./range-finder.jsx');
 var dataGenerator = require('./sampleDataGenerator');
 
 
-var start = 1915;
+var start = 1965;
 var end = 2015;
 
 var series = dataGenerator.makeData(start, end);
