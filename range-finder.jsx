@@ -41,6 +41,8 @@ var RangeFinder = React.createClass({
     tickSize: 15,
     sliderMargin: 5,
     sliderRadius: 4,
+    labelSideMargin: 1,
+    labelVertMargin: 2,
     textMargin: 5,
     textSize: 10,
     densityBadgeMargin: 45,
@@ -152,6 +154,8 @@ var RangeFinder = React.createClass({
 
     var densityX = startX + (endX - startX) / 2;
 
+    var valueLabelY = this.barBottom - this.consts.tickSize - this.consts.labelVertMargin;
+
     if(coverage.length > 0) {
       var barBottom = this.barY + this.props.barHeight + Math.ceil(this.consts.coverageBarMargin/2);
 
@@ -184,16 +188,16 @@ var RangeFinder = React.createClass({
           {this.props.title}
         </text>
         <text
-          x={this.barX + this.consts.textMargin}
-          y={this.barY + this.consts.textSize}
+          x={this.barX + this.consts.labelSideMargin}
+          y={valueLabelY}
           fontSize={this.consts.textSize}
           textAnchor="start"
           className="rf-label rf-value-label">
           {this.props.start}
         </text>
         <text
-          x={this.barX + this.props.barWidth - this.consts.textMargin}
-          y={this.barY + this.consts.textSize}
+          x={this.barX + this.props.barWidth - this.consts.labelSideMargin}
+          y={valueLabelY}
           fontSize={this.consts.textSize}
           textAnchor="end"
           className="rf-label rf-value-label">
