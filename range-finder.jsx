@@ -182,8 +182,8 @@ var RangeFinder = React.createClass({
         <rect
           x={0} y={this.barY}
           width={this.effectiveWidth} height={this.props.barHeight}
-          fill="#DDD"
-          stroke="#DDD"
+          fill="#CCC"
+          stroke="#CCC"
           className="rf-range-bar"/>
         <text
           x={this.barX - this.consts.textMargin}
