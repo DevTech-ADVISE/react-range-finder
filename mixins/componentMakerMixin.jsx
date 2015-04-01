@@ -331,6 +331,7 @@ var ComponentMakerMixin = {
           <rect
             x={0} y={startY - yAdjust}
             width={this.effectiveWidth} height={this.coverageBarSpacing}
+            className="rf-category-background"
             fill="#DDDDE4" />
           <text
             data-ot={grouping.categoryName}

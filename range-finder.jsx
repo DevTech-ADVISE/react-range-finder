@@ -101,6 +101,28 @@ var RangeFinder = React.createClass({
     this.barY = this.consts.barMarginTop;
   },
 
+  //function for outputting tag/class guide
+  //Ignore this
+  reportCoverage: function(element, indent) {
+    var classPart = element.className && element.className.baseVal ? " class='" + element.className.baseVal + "'" : "";
+    if(!element.children || element.children.length === 0) {
+      if(!element.tagName) return "";
+      return indent + "<" + element.tagName + classPart + "/>\n";
+    }
+
+    var toReturn = indent + "<" + element.tagName + classPart + ">\n";
+    
+    for(var key in element.children) {
+      var child = element.children[key];
+      toReturn += this.reportCoverage(child, indent + "  ");
+    }
+    
+
+    toReturn += indent + "</" + element.tagName + ">\n";
+
+    return toReturn;
+  },
+
   makeSnapGrid: function() {
     var start = this.props.start;
     var end = this.props.end;
@@ -169,7 +191,8 @@ var RangeFinder = React.createClass({
             x={0} y={0}
             width={this.effectiveWidth}
             height={this.fullCoverageHeight}
-          fill="#F0F0F1" />
+            className="rf-coverage-background"
+            fill="#F0F0F1" />
           {coverage}
           {coverageGrouping}
         </ScrollableSVG>
