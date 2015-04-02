@@ -34,14 +34,14 @@ module.exports = React.createClass({
         }
       })
       .on('dragmove', function (event) {
-        var x = event.clientX;
+        var x = event.pageX;
         var value = self.props.valueLookup.byLocation[x];
 
         self.setState({x: x, value: value});
         self.props.onDragMove(value, x);
       })
       .on('dragend', function (event) {
-        var x = event.clientX;
+        var x = event.pageX;
         var value = self.props.valueLookup.byLocation[x];
 
         self.props.onDragEnd(value);
