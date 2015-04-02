@@ -60,6 +60,28 @@ module.exports = React.createClass({
       });
   },
 
+  clamp: function(value, min, max) {
+    value = Math.min(value, max);
+    value = Math.max(value, min);
+    return value;
+  },
+
+  restrictToGrid: function(midX, width) {
+    var thisLeft = midX - width/2;
+    var thisRight = thisLeft + width;
+
+    var startX = this.props.snapGrid[0].x;
+    var endX = this.props.snapGrid[this.props.snapGrid.length - 1].x;
+
+    var startRight = startX + width/2;
+    var endLeft = endX - width/2;
+
+    var startOverlapAdjust = Math.max(startRight - thisLeft, 0)/2;
+    var endOverlapAdjust = Math.max(thisRight - endLeft, 0)/2;
+
+    return thisLeft + startOverlapAdjust - endOverlapAdjust;
+  },
+
   makeLabel: function(x, y) {
     if(this.state.x === this.props.x) {
       return null;
@@ -73,8 +95,10 @@ module.exports = React.createClass({
 
     var bgWidth = 6 * charCount + 2 * textPadding;
     var bgHeight = 10 + 2 * textPadding + heightAdjustment;
-    var bgX = x - bgWidth/2;
+    var bgX = this.restrictToGrid(x, bgWidth);
     var bgY = y - bgHeight + yAdjustment + this.props.fontSize/2;
+
+    var textX = bgX + bgWidth/2;
 
     var pointWidth = 6;
     var pointHeight = 4;
@@ -99,7 +123,7 @@ module.exports = React.createClass({
           width={bgWidth} height={bgHeight}
           fill="white"/>
         <text
-          x={x} y={y}
+          x={textX} y={y}
           textAnchor="middle"
           fontSize={this.props.fontSize}
           fill="red">
