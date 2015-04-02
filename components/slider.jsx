@@ -104,36 +104,40 @@ module.exports = React.createClass({
     var pointHeight = 4;
 
     var midX = x;
-    var leftX = x - pointWidth/2;
-    var rightX = x + pointWidth/2;
+    var leftX = Math.max(x - pointWidth/2, bgX);
+    var rightX = Math.min(x + pointWidth/2, bgX + bgWidth);
 
-    var topY = bgY + bgHeight;
-    var bottomY = topY + pointHeight;
+    var baseY = bgY + bgHeight;
+    var bottomY = baseY + pointHeight;
+    var topY = baseY - this.consts.borderRadius;
 
     var points =
-      leftX + "," + topY + " " +
+      rightX + "," + topY + " " +
+      rightX + "," + baseY + " " +
       midX + "," + bottomY + " " +
-      rightX + "," + topY + " ";
+      leftX + "," + baseY + " " +
+      leftX + "," + topY;
 
     return (
-      <g>
+      <g className="rf-value-indicator">
+        <polyline
+          fill="white"
+          points={points} 
+          className="rf-value-indicator-balloon"/>
         <rect
           x={bgX} y={bgY}
           rx={this.consts.borderRadius} ry={this.consts.borderRadius}
           width={bgWidth} height={bgHeight}
-          fill="white"/>
+          fill="white"
+          className="rf-value-indicator-balloon"/>
         <text
           x={textX} y={y}
           textAnchor="middle"
           fontSize={this.props.fontSize}
-          fill="red">
+          fill="red"
+          className="rf-label rf-value-indicator-label">
           {this.state.value}
         </text>
-        <polyline
-          fill="white"
-          stroke="white"
-          strokeWidth="1"
-          points={points} />
       </g>
     )
   },
