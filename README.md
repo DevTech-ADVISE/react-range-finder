@@ -71,6 +71,11 @@ Below is a diagram of the structure. If you see `...` after an element, it means
         <line class='rf-slider-bar'/> //slider line
         <circle class='rf-slider-handle'/> //top handle
         <circle class='rf-slider-handle'/> //bottom handle
+        <g class='rf-value-indicator'>
+            <rect class='rf-value-indicator-balloon'/>
+            <text class='rf-label rf-value-indicator-label'/>
+            <polyline class='rf-value-indicator-balloon'/>
+        </g>
       </g> (*2)
       <rect class='rf-unselected'/> //unselected range
       <rect class='rf-unselected'/> //unselected range
