@@ -82,6 +82,7 @@ var RangeFinder = React.createClass({
     stepSize: React.PropTypes.number,
 
     title: React.PropTypes.string,
+    consts: React.PropTypes.object,
 
     series: React.PropTypes.arrayOf(React.PropTypes.object),
     schema: React.PropTypes.shape({
@@ -99,6 +100,10 @@ var RangeFinder = React.createClass({
   componentWillMount: function() {
     this.barX = this.consts.barMarginLeft;
     this.barY = this.consts.barMarginTop;
+
+    for (var key in this.props.consts) {
+      this.consts[key] = this.props.consts[key];
+    }
   },
 
   //function for outputting tag/class guide
