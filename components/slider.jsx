@@ -192,17 +192,17 @@ module.exports = React.createClass({
           fill="white"
           className="rf-slider-handle"/>
         {label}
-        <rect
-          x={ghostX} y={ghostY}
-          width={ghostSize} height={ghostSize}
+        <circle
+          cx={x} cy={handleY}
+          r={ghostSize}
+          opacity={ghostOpacity}/>
+        <circle
+          cx={x} cy={handleY + height}
+          r={ghostSize}
           opacity={ghostOpacity}/>
         <rect
-          x={ghostX} y={ghostY + height + ghostHeightOffsetFactor * ghostSize}
-          width={ghostSize} height={ghostSize}
-          opacity={ghostOpacity}/>
-        <rect
-          x={handleX - ghostBarOffset} y={handleY + handleSize}
-          width={handleSize + handleSize/2} height={height}
+          x={x - ghostSize/2} y={handleY}
+          width={ghostSize} height={height}
           opacity={ghostOpacity}/>
       </g>
     )
