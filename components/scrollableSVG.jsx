@@ -1,4 +1,4 @@
-var react = require('react');
+var React = require('react');
 var interact = require('interact.js');
 
 var ScrollableSVG = React.createClass({

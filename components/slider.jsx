@@ -169,7 +169,7 @@ module.exports = React.createClass({
     var label = this.makeLabel(x, handleY - textMargin - handleSize);
 
     return (
-      <g className="rf-slider">
+      <g className="rf-slider" draggable="true">
         <line
           x1={x} y1={y}
           x2={x} y2={y + height}

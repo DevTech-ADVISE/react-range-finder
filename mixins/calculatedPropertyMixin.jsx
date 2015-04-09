@@ -29,6 +29,9 @@ var PropertyCalculatorMixin = {
 
   //The full height of the coverage bars
   calcFullCoverageHeight: function() {
+    if(!this.seriesMapping) {
+      return 0;
+    }
     return (this.seriesMapping.length + this.seriesGrouping.length) *
         (this.props.coverageBarHeight + this.consts.coverageBarMargin);
   },

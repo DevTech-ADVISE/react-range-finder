@@ -1,3 +1,4 @@
+var React = require('react');
 var Slider = require('../components/slider.jsx');
 var CoverageBar = require('../components/coverageBar.jsx');
 

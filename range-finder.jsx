@@ -147,6 +147,10 @@ var RangeFinder = React.createClass({
   },
 
   calculateCoverage: function(start, end) {
+    if(!this.seriesMapping) {
+      return 0;
+    }
+
     var totalSeries = this.seriesMapping.length;
 
     var seriesDensity = this.seriesDensity;
@@ -173,15 +177,15 @@ var RangeFinder = React.createClass({
     var coverageGrouping = this.makeCoverageGrouping();
     var unselected = this.makeUnselectedOverlay();
 
-    var density = this.calculateCoverage(this.state.start, this.state.end);
-    var densityLabel = Math.floor(100 * density) + "% coverage";
-
     var startX = this.state.startSliderX;
     var endX = this.state.endSliderX;
 
     var titleX = this.consts.barMarginLeft / 2;
 
     var valueLabelY = this.barY + (this.props.barHeight - this.consts.tickSize) / 2 + this.consts.textSize / 2;
+
+    var coverageDetails = null;
+    var densityLabel = null;
 
     if(coverage.length > 0) {
       var barBottom = this.barY + this.props.barHeight + Math.ceil(this.consts.coverageBarMargin/2);
@@ -202,6 +206,17 @@ var RangeFinder = React.createClass({
           {coverageGrouping}
         </ScrollableSVG>
       )
+
+      var density = this.calculateCoverage(this.state.start, this.state.end);
+      densityLabel = 
+        <text
+          x={titleX}
+          y={this.barY + this.props.barHeight/2 + this.consts.textSize}
+          fontSize={12}
+          textAnchor="middle"
+          className="rf-label rf-density-label">
+          {Math.floor(100 * density) + "% coverage"}
+        </text>;
     }
 
     return (
@@ -236,14 +251,7 @@ var RangeFinder = React.createClass({
           className="rf-label rf-value-label">
           {this.props.end}
         </text>
-        <text
-          x={titleX}
-          y={this.barY + this.props.barHeight/2 + this.consts.textSize}
-          fontSize={12}
-          textAnchor="middle"
-          className="rf-label rf-density-label">
-          {densityLabel}
-        </text>
+        {densityLabel}
         <g className="rf-ticks">{ticks}</g>
         {coverageDetails}
         {sliders}
