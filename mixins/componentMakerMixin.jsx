@@ -339,8 +339,7 @@ var ComponentMakerMixin = {
             x={textX}
             y={textY}
             textAnchor="end"
-            fill="#376893"
-            className="rf-label rf-category-label">
+            className="rf-label rf-label-bold rf-category-label">
             {name}
           </text>
         </g>

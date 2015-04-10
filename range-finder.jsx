@@ -214,8 +214,7 @@ var RangeFinder = React.createClass({
           y={this.barY + this.props.barHeight/2 + this.consts.textSize}
           fontSize={12}
           textAnchor="middle"
-          fill="#376893"
-          className="rf-label rf-density-label">
+          className="rf-label rf-label-bold rf-density-label">
           {Math.floor(100 * density) + "% coverage"}
         </text>;
     }
@@ -233,8 +232,7 @@ var RangeFinder = React.createClass({
           x={titleX}
           y={this.barY + this.props.barHeight/2}
           textAnchor="middle"
-          fill="#29333F"
-          className="rf-label rf-title-label">
+          className="rf-label rf-label-bold rf-title-label">
           {this.props.title}
         </text>
         <text
@@ -242,8 +240,7 @@ var RangeFinder = React.createClass({
           y={valueLabelY}
           fontSize={this.consts.textSize}
           textAnchor="start"
-          fill="#8C8C8C"
-          className="rf-label rf-value-label">
+          className="rf-label rf-label-bold rf-value-label">
           {this.props.start}
         </text>
         <text
@@ -251,8 +248,7 @@ var RangeFinder = React.createClass({
           y={valueLabelY}
           fontSize={this.consts.textSize}
           textAnchor="end"
-          fill="#8C8C8C"
-          className="rf-label rf-value-label">
+          className="rf-label rf-label-bold rf-value-label">
           {this.props.end}
         </text>
         {densityLabel}
