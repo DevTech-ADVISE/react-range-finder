@@ -20,7 +20,7 @@ var ComponentMakerMixin = {
           x1={x} y1={y1}
           x2={x} y2={y2}
           strokeWidth="1"
-          stroke="black" />
+          stroke="#A8A8A8" />
       );
     }
 
@@ -333,12 +333,13 @@ var ComponentMakerMixin = {
             x={0} y={startY - yAdjust}
             width={this.effectiveWidth} height={this.coverageBarSpacing}
             className="rf-category-background"
-            fill="#DDDDE4" />
+            fill="#E2E2E2" />
           <text
             data-ot={grouping.categoryName}
             x={textX}
             y={textY}
             textAnchor="end"
+            fill="#376893"
             className="rf-label rf-category-label">
             {name}
           </text>

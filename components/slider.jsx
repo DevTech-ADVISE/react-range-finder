@@ -188,7 +188,7 @@ module.exports = React.createClass({
           cx={x} cy={handleY + height}
           r={handleSize}
           strokeWidth="2"
-          stroke="blue"
+          stroke="#376893"
           fill="white"
           className="rf-slider-handle"/>
         {label}

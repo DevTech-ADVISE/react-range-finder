@@ -201,7 +201,7 @@ var RangeFinder = React.createClass({
             width={this.effectiveWidth}
             height={this.fullCoverageHeight}
             className="rf-coverage-background"
-            fill="#F0F0F1" />
+            fill="#F4F4F4" />
           {coverage}
           {coverageGrouping}
         </ScrollableSVG>
@@ -214,6 +214,7 @@ var RangeFinder = React.createClass({
           y={this.barY + this.props.barHeight/2 + this.consts.textSize}
           fontSize={12}
           textAnchor="middle"
+          fill="#376893"
           className="rf-label rf-density-label">
           {Math.floor(100 * density) + "% coverage"}
         </text>;
@@ -225,13 +226,14 @@ var RangeFinder = React.createClass({
         <rect
           x={0} y={this.barY}
           width={this.effectiveWidth} height={this.props.barHeight}
-          fill="#CCC"
-          stroke="#CCC"
+          fill="#CFCFCF"
+          stroke="#CFCFCF"
           className="rf-range-bar"/>
         <text
           x={titleX}
           y={this.barY + this.props.barHeight/2}
           textAnchor="middle"
+          fill="#29333F"
           className="rf-label rf-title-label">
           {this.props.title}
         </text>
@@ -240,6 +242,7 @@ var RangeFinder = React.createClass({
           y={valueLabelY}
           fontSize={this.consts.textSize}
           textAnchor="start"
+          fill="#8C8C8C"
           className="rf-label rf-value-label">
           {this.props.start}
         </text>
@@ -248,14 +251,15 @@ var RangeFinder = React.createClass({
           y={valueLabelY}
           fontSize={this.consts.textSize}
           textAnchor="end"
+          fill="#8C8C8C"
           className="rf-label rf-value-label">
           {this.props.end}
         </text>
         {densityLabel}
         <g className="rf-ticks">{ticks}</g>
         {coverageDetails}
-        {sliders}
         {unselected}
+        {sliders}
       </svg>
     )
   }

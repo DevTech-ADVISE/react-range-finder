@@ -1,3 +1,7 @@
 .rf-unselected {
     pointer-events: none;
 }
+
+text {
+    font-family: sans-serif;
+}

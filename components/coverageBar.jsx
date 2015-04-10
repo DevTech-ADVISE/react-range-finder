@@ -97,6 +97,7 @@ var CoverageBar = React.createClass({
           x={x1 - this.props.textMargin}
           y={y + this.props.height/2}
           textAnchor="end"
+          fill="#29333F"
           className="rf-label rf-coverage-label">
             {this.props.label}
         </text>
