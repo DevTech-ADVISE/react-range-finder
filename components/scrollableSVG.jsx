@@ -174,10 +174,10 @@ var ScrollableSVG = React.createClass({
 
         <defs>
           <linearGradient id={this.consts.gradientId}>
-            <stop offset="0%" stopColor="black"/>
-            <stop offset="5%" stopColor="white"/>
-            <stop offset="95%" stopColor="white"/>
-            <stop offset="100%" stopColor="black"/>
+            <stop offset="0%" stopColor="#CFCFCF"/>
+            <stop offset="10%" stopColor="white"/>
+            <stop offset="90%" stopColor="white"/>
+            <stop offset="100%" stopColor="#CFCFCF"/>
           </linearGradient>
         </defs>
 
@@ -190,7 +190,7 @@ var ScrollableSVG = React.createClass({
           x={scrollBarX} y={scrollBarY}
           width={scrollBarWidth} height={scrollBarHeight}
           rx={scrollBarWidth/2} ry={scrollBarWidth/2}
-          fill="gray" opacity="0.8"
+          fill="#989898"
           className="rf-scroll-bar"/>
       </g>
     );
