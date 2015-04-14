@@ -43,7 +43,7 @@ var RangeFinder = React.createClass({
     labelCharacterLimit: 20,
     tickSize: 10,
     sliderMargin: 5,
-    sliderRadius: 4,
+    sliderRadius: 5,
     labelSideMargin: 1,
     labelVertMargin: 2,
     textMargin: 5,
