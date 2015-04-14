@@ -2,9 +2,10 @@
   "name": "react-range-finder",
   "version": "1.1.0",
   "description": "",
-  "main": "range-finder.jsx",
+  "main": "lib/range-finder.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "install": "jsx src lib"
   },
   "repository": {
     "type": "git",

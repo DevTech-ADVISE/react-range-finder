@@ -1,6 +1,6 @@
 var React = require('react');
-var Slider = require('../components/slider.jsx');
-var CoverageBar = require('../components/coverageBar.jsx');
+var Slider = require('../components/slider.js');
+var CoverageBar = require('../components/coverageBar.js');
 
 var tinyColor = require('tinycolor2');
 

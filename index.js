@@ -1,5 +1,5 @@
 var React = require('react');
-var RangeFinder = require('./range-finder.jsx');
+var RangeFinder = require('./src/range-finder.js');
 var dataGenerator = require('./sampleDataGenerator');
 
 

@@ -1,15 +1,15 @@
 var React = require('react');
 
-var SetupMixin = require('./mixins/rangeFinderSetupMixin.jsx');
-var MakerMixin = require('./mixins/componentMakerMixin.jsx');
-var CalcMixin = require('./mixins/calculatedPropertyMixin.jsx');
+var SetupMixin = require('./mixins/rangeFinderSetupMixin.js');
+var MakerMixin = require('./mixins/componentMakerMixin.js');
+var CalcMixin = require('./mixins/calculatedPropertyMixin.js');
 
-var ScrollableSVG = require('./components/scrollableSVG.jsx');
+var ScrollableSVG = require('./components/scrollableSVG.js');
 
 var Opentip = require('opentip');
 require('opentip/css/opentip.css');
 
-require('./styles/rangeFinderStyles.css');
+require('../styles/rangeFinderStyles.css');
 
 Opentip.styles.close = {
   extends: "standard",
