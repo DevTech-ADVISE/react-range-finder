@@ -1,9 +1,12 @@
+var React = require('react');
 var Slider = require('../components/slider.jsx');
 var CoverageBar = require('../components/coverageBar.jsx');
 
+var tinyColor = require('tinycolor2');
+
 var ComponentMakerMixin = {
   makeTicks: function(snapGrid) {
-    var y1 = this.barY - this.consts.tickMargin;
+    var y1 = this.barY + this.props.barHeight;
     var y2 = y1 - this.consts.tickSize;
 
     var ticks = [];
@@ -17,39 +20,83 @@ var ComponentMakerMixin = {
           x1={x} y1={y1}
           x2={x} y2={y2}
           strokeWidth="1"
-          stroke="grey" />
+          stroke="#A8A8A8" />
       );
     }
 
     return ticks;
   },
 
-  makeSliders: function(snapGrid) {
-    var leftX = this.barX;
-    var leftY = this.barY - this.consts.sliderRadius - this.consts.sliderMargin - this.consts.tickMargin - this.consts.tickSize;
+  calculateDensityColor: function(factor) {
+    var scale = 100 * factor;
 
-    var rightX = this.barX + this.props.barWidth;
-    var rightY = leftY;
+    var fromColor = tinyColor(this.props.densityLowColor);
+    var toColor = tinyColor(this.props.densityHighColor);
 
-    var coverageHeight = 0;
-
-    if(this.seriesMapping) {
-      coverageHeight = this.seriesMapping.length * (this.props.coverageBarHeight + this.consts.coverageBarMargin);
-      
-      if(this.props.maxCoverageHeight < coverageHeight) {
-        coverageHeight = this.props.maxCoverageHeight;
-      }
-
-      coverageHeight += Math.ceil(this.consts.coverageBarMargin/2);
+    if(this.props.densityMidColor === null) {
+      return tinyColor.mix(fromColor, toColor, scale).toRgbString();
     }
 
-    var sliderHeight = 
-      2 * this.consts.sliderRadius +
-      2 * this.consts.sliderMargin +
-      this.consts.tickSize +
-      this.consts.tickMargin +
-      this.props.barHeight +
-      coverageHeight;
+    scale *= 2;
+
+    switch(scale) {
+      case 0:
+        return tinyColor(this.props.densityLowColor).toRgbString();
+      case 100:
+        return tinyColor(this.props.densityMidColor).toRgbString();
+      case 200:
+        return tinyColor(this.props.densityHighColor).toRgbString();
+    }
+
+    if(scale > 100) {
+      scale -= 100;
+      fromColor = tinyColor(this.props.densityMidColor);
+      toColor = tinyColor(this.props.densityHighColor);
+    } else {
+      fromColor = tinyColor(this.props.densityLowColor);
+      toColor = tinyColor(this.props.densityMidColor);
+    }
+
+    return tinyColor.mix(fromColor, toColor, scale).toRgbString();
+  },
+
+  makeGradient: function() {
+    var seriesDensity = this.seriesDensity;
+    var length = this.props.end - this.props.start;
+    var factor = 1/length;
+    var count = 0;
+
+    if(length === 0) {
+      return null;
+    }
+
+    var gradientInfo = [];
+
+    this.seriesDensity.forEach(function(density, id) {
+      var color = this.calculateDensityColor(density);
+      var midOffset = count++ / length;
+      var prevOffset = midOffset - factor;
+      var nextOffset = midOffset + factor;
+      
+      var lowerOffset = 100 * Math.max((midOffset + prevOffset) / 2, 0) + "%";
+      var higherOffset = 100 * Math.min((nextOffset + midOffset) / 2, 1) + "%";
+
+      gradientInfo.push(<stop key={id + "l"} offset={lowerOffset} stopColor={color} />);
+      gradientInfo.push(<stop key={id + "h"} offset={higherOffset} stopColor={color} />);
+    }, this);
+
+    return (
+      <defs>
+        <linearGradient id={this.consts.gradientId}>
+          {gradientInfo}
+        </linearGradient>
+      </defs>
+    );
+  },
+
+  makeSliders: function(snapGrid) {
+    var leftX = this.barX;
+    var rightX = this.barX + this.props.barWidth;
 
     var valueLookup = {};
     valueLookup.byValue = {};
@@ -84,9 +131,10 @@ var ComponentMakerMixin = {
       <Slider
         key="leftSlider"
         x={leftX}
-        y={leftY}
-        height={sliderHeight}
-        handleAnchor={1}
+        y={this.sliderY}
+        height={this.sliderHeight}
+        handleSize={this.consts.sliderRadius}
+        fontSize={this.consts.textSize}
         snapGrid={startSnapGrid}
         valueLookup={valueLookup}
         onDragMove={this.onStartDragMove}
@@ -96,9 +144,10 @@ var ComponentMakerMixin = {
       <Slider
         key="rightSlider"
         x={rightX}
-        y={rightY}
-        height={sliderHeight}
-        handleAnchor={0}
+        y={this.sliderY}
+        height={this.sliderHeight}
+        handleSize={this.consts.sliderRadius}
+        fontSize={this.consts.textSize}
         snapGrid={endSnapGrid}
         valueLookup={valueLookup}
         onDragMove={this.onEndDragMove}
@@ -109,14 +158,14 @@ var ComponentMakerMixin = {
   },
 
   onStartDragMove: function(start, xLocation) {
-    this.setState({startSliderX: xLocation});
+    this.setState({start: start, startSliderX: xLocation});
 
     this.props.onStartDragMove(start);
     this.props.onDragMove(start, this.state.end);
   },
 
   onEndDragMove: function(end, xLocation) {
-    this.setState({endSliderX: xLocation});
+    this.setState({end: end, endSliderX: xLocation});
 
     this.props.onEndDragMove(end);
     this.props.onDragMove(this.state.start, end);
@@ -144,18 +193,38 @@ var ComponentMakerMixin = {
     var x = this.barX;
     var startY = Math.floor(this.consts.coverageBarMargin/2);
 
-    var yearCount = (this.props.end - this.props.start) / this.props.stepSize;
-    var dashSize = this.props.barWidth / yearCount;
+    var dashSize = this.props.barWidth / this.stepCount;
 
     var colors = this.makeColors();
 
-    return this.seriesMapping.map(function(series, id) {
-      var y = startY + id * (this.props.coverageBarHeight + this.consts.coverageBarMargin);
+    var previousCategory = null;
+    var yOffset = -this.consts.coverageBarMargin/2;
 
+    var coverageBars = []
+
+    this.seriesMapping.forEach(function(series, id) {
       var label = series.seriesNames[series.seriesNames.length - 1];
-      var seriesText = series.seriesNames.join("<br/>");
+      var seriesText =
+        "<span class='rf-label-bold'>" + 
+        series.seriesNames.join("<br/>") +
+        "</span>";
 
-      return (
+
+      if(series.seriesNames.length > 1) {
+        var category = series.seriesNames[series.seriesNames.length - 2];
+
+        if(previousCategory !== category) {
+          previousCategory = category;
+          yOffset += this.coverageBarSpacing;
+        }
+      }
+
+      var y =
+        startY +
+        id * this.coverageBarSpacing +
+        yOffset;
+
+      coverageBars.push(
         <CoverageBar
           key={"coverage" + id}
           x={x}
@@ -170,7 +239,20 @@ var ComponentMakerMixin = {
           label={this.truncateText(label, this.consts.labelCharacterLimit)}
           tooltip={seriesText}/>
       );
+
+      var lineY = y - this.consts.coverageBarMargin/2;// + this.coverageHeight + this.consts.coverageBarMargin;
+
+      coverageBars.push(
+        <line
+          key={"line" + id}
+          x1={0} y1={lineY}
+          x2={x} y2={lineY}
+          stroke="#D7D7D7"/>
+      );
+
     }, this);
+
+    return coverageBars;
   },
 
   makeColors: function() {
@@ -192,26 +274,51 @@ var ComponentMakerMixin = {
       });
     }
 
-    return seriesMapping.map(function(item) {
-      var colorIndeces = item.colorIndeces;
-      var selectedColor = colors;
+  //   return seriesMapping.map(function(item) {
+  //     return colors[item.colorIndex];
+  //   });
+  // },
 
-      for(var i = 0; i < colorIndeces.length; i++) {
-        var colorIndex = colorIndeces[i];
+    return seriesMapping.map(this.findColor);
+  },
 
-        if(typeof selectedColor === "string") {
-          return selectedColor;
-        }
+  //Old function for finding proper color
+  findColor: function(series) {
+    var colorIndeces = series.colorIndeces;
 
-        selectedColor = selectedColor[colorIndex % selectedColor.length];
+    var selectedColor = this.props.schema.colors;
+
+    var end = colorIndeces.length - 1;
+
+    //loop through color indeces, finding the correct color to apply
+    for(var i = 0; i < colorIndeces.length; i++) {
+      var colorIndex = colorIndeces[i];
+
+      //get the next color according to the color index
+      var newColor = selectedColor[colorIndex % selectedColor.length];
+
+      //CASE: color list is less deep than series/category list
+      //
+      //(except on the last loop, when we expect a string)
+      //if the new color is a string, instead of sending the new color,
+      //find the selected color from the last index in the indeces.
+      //This will solve the issue of exitting too early
+      if(i < end && typeof newColor === "string") {
+        return selectedColor[colorIndeces[end] % selectedColor.length];
       }
 
-      while(typeof selectedColor !== "string") {
-        selectedColor = selectedColor[0];
-      }
+      //assing the selected color  and re-iterate
+      selectedColor = newColor;
+    }
 
-      return selectedColor;
-    });
+    //CASE: The color list is deeper than the series/category list
+    //
+    //Get the first color we can find down in the heirarchy
+    while(typeof selectedColor !== "string") {
+      selectedColor = selectedColor[0];
+    }
+  
+    return selectedColor;
   },
 
   truncateText: function(text, charLimit) {
@@ -230,69 +337,45 @@ var ComponentMakerMixin = {
       var name = this.truncateText(grouping.categoryName, this.consts.labelCharacterLimit);
       var barBottom = Math.floor(this.consts.coverageBarMargin/2);
 
-      var barSpacing = this.consts.coverageBarMargin + this.props.coverageBarHeight;
-
-      var startY = barBottom + grouping.startIndex * barSpacing;
-      var endY = startY + grouping.count * barSpacing - this.consts.coverageBarMargin;
+      var startY = barBottom + (grouping.startIndex + id) * this.coverageBarSpacing;
+      var endY = startY + grouping.count * this.coverageBarSpacing - this.consts.coverageBarMargin;
       var rightX = this.barX;
       var leftX = rightX - this.consts.textMargin;
-      var textY = startY + (endY - startY) / 2;
+      var textY = startY + this.props.coverageBarHeight - Math.floor(this.consts.textSize/2);
       var textX = leftX - this.consts.textMargin;
 
-      var points = this.makePointList(leftX, rightX, startY, endY);
+      var yAdjust = 7;
 
       return (
-        <g key={"grouping" + id} className="rf-category">
+        <g>
+          <rect
+            x={0} y={startY - yAdjust}
+            width={this.effectiveWidth} height={this.coverageBarSpacing}
+            className="rf-category-background"
+            fill="#E2E2E2" />
           <text
-            data-ot={grouping.categoryName}
             x={textX}
             y={textY}
             textAnchor="end"
-            className="rf-label rf-category-label">
+            className="rf-label rf-label-bold rf-category-label">
             {name}
           </text>
-          <polyline
-            fill="none"
-            stroke="black"
-            strokeWidth="1"
-            points={points}
-            className="rf-category-grouping" />
         </g>
       );
     }, this);
   },
 
-  makePointList: function(leftX, rightX, startY, endY) {
-    return rightX + ',' + startY + ' ' +
-           leftX + ',' + startY + ' ' +
-           leftX + ',' + endY + ' ' +
-           rightX + ',' + endY;
-  },
-
   makeUnselectedOverlay: function() {
     var startX = this.barX;
     var endX = this.state.endSliderX;
-    var y = this.barY;
+    var y = this.barBottom;
 
     var startWidth = this.state.startSliderX - this.barX;
     var endWidth = this.barX + this.props.barWidth - this.state.endSliderX;
 
-    var coverageHeight = 0;
-
-    if(this.seriesMapping) {
-      coverageHeight = this.seriesMapping.length *
-        (this.consts.coverageBarMargin + this.props.coverageBarHeight);
-
-      if(coverageHeight > this.props.maxCoverageHeight) {
-        coverageHeight = this.props.maxCoverageHeight;
-      }
-
-      coverageHeight += Math.ceil(this.consts.coverageBarMargin/2);
-    }
-
     var height = 
-      this.props.barHeight +
-      coverageHeight;
+      Math.floor(this.consts.coverageBarMargin/2) +
+      this.coverageHeight;
 
     var unselectedRanges = [];
 

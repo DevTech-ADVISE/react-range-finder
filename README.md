@@ -57,46 +57,60 @@ Styles
 
 Below is a diagram of the structure. If you see `...` after an element, it means that element can be repeated. Changing the width or height of things (especially any rects) is not recommended.
 
-    <svg class="range-finder">
-    <g class="rf-ticks"> //tick marks on top
+    <svg class='range-finder'>
+      <rect class='rf-range-bar'/>
+      <text class='rf-label rf-title-label'/> //Value Finder title
+      <text class='rf-label rf-value-label'/> //start label
+      <text class='rf-label rf-value-label'/> //end label
+      <text class='rf-label rf-density-label'/> //density label
+      <g class='rf-ticks'> //tick marks on top
         <line/>... //each tick mark
-    </g>
-    <text class="rf-label rf-value-label"/> //start label
-    <rect class="rf-range-bar"/> //main range bar
-    <text class="rf-label rf-value-label"/> //end label
-    <svg class="rf-coverage-section">
-        <g class="rf-coverage"> //coverage bars: see below
-            <line class="rf-coverage-line"/> //dashed line
-            <rect class="rf-coverage-bar"/>... //coverage bars
-            <text class="rf-label rf-coverage-label"/> //right hand label
+      </g>
+      <svg class='rf-coverage-section'>
+        <rect class='rf-coverage-background'/>
+        <g class='rf-coverage'> //coverage bars: see below
+          <line class='rf-coverage-line'/> //dashed line
+          <rect class='rf-coverage-bar'/>... //coverage bars
+          <text class='rf-label rf-coverage-label'/> //right hand label
         </g>...
-    </svg>
-    <g class="rf-category"> //left hand category label and grouping lines
-        <text class="rf-label rf-category-label"/> //label
-        <polyline class="rf-category-grouping"/> //grouping line
-    </g>...
-    <g class="rf-slider">
-        <text class="rf-label rf-slider-label"/>
-        <rect class="rf-slider-handle"/>
-        <line class="rf-slider-bar"/>
-        <rect class="rf-slider-handle"/>
-    </g> (*2)
+        <g>
+          <rect class='rf-category-background'/>
+          <text class='rf-label rf-category-label'/>
+        </g>...
+      </svg>
+      <g class='rf-slider'> //slider
+        <line class='rf-slider-bar'/> //slider line
+        <circle class='rf-slider-handle'/> //top handle
+        <circle class='rf-slider-handle'/> //bottom handle
+        <g class='rf-value-indicator'>
+            <rect class='rf-value-indicator-balloon'/>
+            <text class='rf-label rf-value-indicator-label'/>
+            <polyline class='rf-value-indicator-balloon'/>
+        </g>
+      </g> (*2)
+      <rect class='rf-unselected'/> //unselected range
+      <rect class='rf-unselected'/> //unselected range
     </svg>
 
 In the case of there being too many coverage bars, the `rf-coverage-section` is replaced as follows:
 
-    <g class="rf-coverage-section">
-        <svg>
-            <g class="rf-coverage"> //coverage bars: see below
-                <line class="rf-coverage-line"/> //dashed line
-                <rect class="rf-coverage-bar"/>... //coverage bars
-                <text class="rf-label rf-coverage-label"/> //right hand label
-            </g>...
-        </svg>
-        <polyline class="rf-scroll-arrow" />
-        <rect class="rf-scroll-button" />
-        <rect class="rf-scroll-area" />
-        <rect class="rf-scroll-bar" />
-        <polyline class="rf-scroll-arrow" />
-        <rect class="rf-scroll-button" />
+    <g class='rf-coverage-section'>
+      <svg>
+        <rect class='rf-coverage-background'/>
+        <g class='rf-coverage'> //coverage bars
+          <line class='rf-coverage-line'/> //dashed line
+          <rect class='rf-coverage-bar'/>... //coverage bars
+          <text class='rf-label rf-coverage-label'/> //right hand label
+        </g>...
+        <g>
+          <rect class='rf-category-background'/>
+          <text class='rf-label rf-category-label'/>
+        </g>...
+      </svg>
+      <polyline class='rf-scroll-arrow'/>
+      <rect class='rf-scroll-button'/>
+      <rect class='rf-scroll-area'/>
+      <rect class='rf-scroll-bar'/>
+      <polyline class='rf-scroll-arrow'/>
+      <rect class='rf-scroll-button'/>
     </g>
