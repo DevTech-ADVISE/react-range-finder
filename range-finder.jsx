@@ -33,28 +33,30 @@ var RangeFinder = React.createClass({
 
   consts: {
     barMarginTop: 0,
-    barMarginLeft: 100,
+    barMarginLeft: 160,
     barMarginRight: 25,
     barMarginBottom: 10,
     coverageBarMargin: 10,
-    labelCharacterLimit: 10,
+    labelCharacterLimit: 20,
     tickSize: 10,
     sliderMargin: 5,
     sliderRadius: 4,
     labelSideMargin: 1,
     labelVertMargin: 2,
     textMargin: 5,
-    textSize: 10,
+    textSize: 15,
     densityBadgeMargin: 45,
     gradientId: "mainGradient",
+    scrollWidth: 10,
+    borderRadius: 5,
   },
 
   getDefaultProps: function() {
     return {
-      barWidth: 300,
-      barHeight: 30,
-      coverageBarHeight: 8,
-      maxCoverageHeight: 300,
+      barWidth: 700,
+      barHeight: 50,
+      coverageBarHeight: 20,
+      maxCoverageHeight: 750,
       stepSize: 1,
       series: [],
       title: "Value Range",
@@ -195,6 +197,7 @@ var RangeFinder = React.createClass({
           y={barBottom}
           width={this.componentWidth} height={this.fullCoverageHeight}
           maxDisplayedHeight={this.props.maxCoverageHeight}
+          scrollWidth={this.consts.scrollWidth}
           className="rf-coverage-section">
           <rect
             x={0} y={0}
@@ -219,14 +222,36 @@ var RangeFinder = React.createClass({
         </text>;
     }
 
+    var topBarWidth = this.effectiveWidth;
+    var topBarHeight = this.props.barHeight + this.consts.borderRadius;
+
+    if(this.needsScrollBar) {
+      topBarWidth += this.consts.scrollWidth;
+    }
+
+    var offset = 100 - 100 * (this.consts.borderRadius / topBarHeight);
+    offset += "%"
+
     return (
-      <svg id={this.props.id} width={this.componentWidth} height={this.componentHeight} className="range-finder">
-        {gradient}
+      <svg
+        id={this.props.id}
+        width={this.componentWidth}
+        height={this.componentHeight}
+        className="range-finder">
+        <defs>
+          <linearGradient id={this.consts.gradientId} x1="0%" x2="0%" y1="0%" y2="100%">
+            <stop offset="0%" stopColor="#CFCFCF" stopOpacity="100%"/>
+            <stop offset={offset} stopColor="#CFCFCF" stopOpacity="100%"/>
+            <stop offset={offset} stopColor="#CFCFCF" stopOpacity="0%"/>
+            <stop offset="100%" stopColor="#CFCFCF" stopOpacity="0%"/>
+          </linearGradient>
+        </defs>
         <rect
           x={0} y={this.barY}
-          width={this.effectiveWidth} height={this.props.barHeight}
-          fill="#CFCFCF"
-          stroke="#CFCFCF"
+          width={topBarWidth} height={topBarHeight}
+          rx={this.consts.borderRadius} ry={this.consts.borderRadius}
+          stroke={"url(#" + this.consts.gradientId + ")"}
+          fill={"url(#" + this.consts.gradientId + ")"}
           className="rf-range-bar"/>
         <text
           x={titleX}

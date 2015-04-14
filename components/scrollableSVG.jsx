@@ -15,8 +15,8 @@ var ScrollableSVG = React.createClass({
   },
 
   consts: {
-    scrollWidth: 15,
-    scrollButtonMargin: 3,
+    scrollBarPadding: 2,
+    gradientId: "scrollBarGradient",
   },
 
   propTypes: {
@@ -24,7 +24,7 @@ var ScrollableSVG = React.createClass({
     y: React.PropTypes.number,
     width: React.PropTypes.number.isRequired,
     height: React.PropTypes.number.isRequired,
-    //maxDisplayedWidth: React.PropTypes.number.isRequired, //Future plan?
+    scrollWidth: React.PropTypes.number.isRequired,
     maxDisplayedHeight: React.PropTypes.number.isRequired,
   },
 
@@ -48,8 +48,7 @@ var ScrollableSVG = React.createClass({
       .on('dragmove', function (event) {
         var scrollAreaHeight =
           self.props.maxDisplayedHeight -
-          2 * self.consts.scrollButtonMargin -
-          2 * self.consts.scrollWidth;
+          2 * self.consts.scrollBarPadding;
 
         var scrollFactor = self.props.height / scrollAreaHeight;
         
@@ -136,26 +135,26 @@ var ScrollableSVG = React.createClass({
     var actualWidth = this.props.width;
     var actualHeight = this.props.maxDisplayedHeight;
 
-    var scrollX = this.props.width - this.consts.scrollWidth;
-    var scrollWidth = this.consts.scrollWidth;
+    var scrollAreaX = this.props.width - this.props.scrollWidth;
+    var scrollAreaWidth = this.props.scrollWidth;
 
-    var scrollAreaY = this.props.y + this.consts.scrollButtonMargin + scrollWidth;
-    var scrollAreaHeight =
-      this.props.maxDisplayedHeight -
-      2 * this.consts.scrollButtonMargin -
-      2 * scrollWidth;
+    var scrollBarX = scrollAreaX + this.consts.scrollBarPadding;
+    var scrollBarWidth = scrollAreaWidth - 2 * this.consts.scrollBarPadding;
 
-    var scrollBarHeight = scrollAreaHeight * this.props.maxDisplayedHeight / this.props.height;
+    var scrollAreaY = this.props.y;
+    var scrollAreaHeight = this.props.maxDisplayedHeight;
 
-    var effectiveBarArea = scrollAreaHeight - scrollBarHeight;
+    var scrollBarHeight = (scrollAreaHeight - 2 * this.consts.scrollBarPadding) * this.props.maxDisplayedHeight / this.props.height;
+
+    var effectiveBarArea = scrollAreaHeight - scrollBarHeight - 2 * this.consts.scrollBarPadding;
     var effectiveOffsetMax = this.props.height - this.props.maxDisplayedHeight;
 
-    var scrollBarY = scrollAreaY + this.state.offsetY / effectiveOffsetMax * effectiveBarArea;
+    var scrollBarY = scrollAreaY + this.consts.scrollBarPadding + this.state.offsetY / effectiveOffsetMax * effectiveBarArea;
 
     var topScrollButtonY = this.props.y;
     var bottomScrollButtonY = this.props.y +
       this.props.maxDisplayedHeight -
-      this.consts.scrollWidth;
+      this.props.scrollWidth;
 
     return (
       <g className={this.props.className}>
@@ -173,32 +172,26 @@ var ScrollableSVG = React.createClass({
           {this.props.children}
         </svg>
 
-        {this.makeTriangle(scrollX, topScrollButtonY, scrollWidth, scrollWidth, "up")}
-        <rect 
-          x={scrollX} y={topScrollButtonY}
-          width={scrollWidth} height={scrollWidth}
-          fill="gray" opacity="0.5"
-          onClick={this.scrollElement.bind(this, -this.props.scrollMod)}
-          className="rf-scroll-button"/>
+        <defs>
+          <linearGradient id={this.consts.gradientId}>
+            <stop offset="0%" stopColor="black"/>
+            <stop offset="5%" stopColor="white"/>
+            <stop offset="95%" stopColor="white"/>
+            <stop offset="100%" stopColor="black"/>
+          </linearGradient>
+        </defs>
 
         <rect ref="scrollArea"
-          x={scrollX} y={scrollAreaY}
-          width={scrollWidth} height={scrollAreaHeight}
-          fill="gray" opacity="0.5"
+          x={scrollAreaX} y={scrollAreaY}
+          width={scrollAreaWidth} height={scrollAreaHeight}
+          fill={"url(#" + this.consts.gradientId + ")"}
           className="rf-scroll-area"/>
         <rect ref="scrollBar"
-          x={scrollX} y={scrollBarY}
-          width={scrollWidth} height={scrollBarHeight}
+          x={scrollBarX} y={scrollBarY}
+          width={scrollBarWidth} height={scrollBarHeight}
+          rx={scrollBarWidth/2} ry={scrollBarWidth/2}
           fill="gray" opacity="0.8"
           className="rf-scroll-bar"/>
-
-        {this.makeTriangle(scrollX, bottomScrollButtonY, scrollWidth, scrollWidth, "down")}
-        <rect 
-          x={scrollX} y={bottomScrollButtonY}
-          width={scrollWidth} height={scrollWidth}
-          fill="gray" opacity="0.5"
-          onClick={this.scrollElement.bind(this, this.props.scrollMod)}
-          className="rf-scroll-button"/>
       </g>
     );
   },

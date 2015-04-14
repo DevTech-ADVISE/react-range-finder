@@ -39,3 +39,8 @@
     fill: #273441;
     font-size: 12px;
 }
+
+.rf-value-indicator-label {
+    fill: red;
+    font-size: 13px;
+}

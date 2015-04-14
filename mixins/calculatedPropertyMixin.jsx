@@ -11,7 +11,7 @@ var PropertyCalculatorMixin = {
   calcComponentWidth: function() {
     return this.props.barWidth +
       this.consts.barMarginLeft +
-      this.consts.barMarginRight;
+      this.consts.scrollWidth;
   },
 
   calcEffectiveHeight: function() {
@@ -69,6 +69,10 @@ var PropertyCalculatorMixin = {
       this.props.barHeight;
   },
 
+  calcNeedsScrollBar: function() {
+    return this.calcFullCoverageHeight() > this.props.maxCoverageHeight;
+  },
+
   updateCalculations: function() {
     this.componentHeight = this.calcComponentHeight();
     this.componentWidth = this.calcComponentWidth();
@@ -81,6 +85,7 @@ var PropertyCalculatorMixin = {
     this.coverageBarSpacing = this.calcCoverageBarSpacing();
     this.stepCount = this.calcStepCount();
     this.barBottom = this.calcBarBottom();
+    this.needsScrollBar = this.calcNeedsScrollBar();
   },
 
   componentDidUpdate: function() {

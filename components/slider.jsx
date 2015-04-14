@@ -86,22 +86,19 @@ module.exports = React.createClass({
     if(this.state.x === this.props.x) {
       return null;
     }
-    var textPadding = 2;
 
-    var charCount = this.state.value.toString().length;
-    var charWidth = 6;
-    var heightAdjustment = 1;
-    var yAdjustment = -1;
+    var tailOffsetY = -12;
 
-    var bgWidth = 6 * charCount + 2 * textPadding;
-    var bgHeight = 10 + 2 * textPadding + heightAdjustment;
+    var pointWidth = 16;
+    var pointHeight = 10;
+
+    var bgWidth = 48;
+    var bgHeight = 25;
     var bgX = this.restrictToGrid(x, bgWidth);
-    var bgY = y - bgHeight + yAdjustment + this.props.fontSize/2;
+    var bgY = y - bgHeight - pointHeight + tailOffsetY;
 
     var textX = bgX + bgWidth/2;
-
-    var pointWidth = 6;
-    var pointHeight = 4;
+    var textY = bgY + bgHeight * 0.65;
 
     var midX = x;
     var leftX = Math.max(x - pointWidth/2, bgX);
@@ -131,7 +128,7 @@ module.exports = React.createClass({
           fill="white"
           className="rf-value-indicator-balloon"/>
         <text
-          x={textX} y={y}
+          x={textX} y={textY}
           textAnchor="middle"
           fontSize={this.props.fontSize}
           fill="red"
@@ -166,7 +163,7 @@ module.exports = React.createClass({
 
     var ghostBarOffset = 0;
 
-    var label = this.makeLabel(x, handleY - textMargin - handleSize);
+    var label = this.makeLabel(x, handleY);
 
     return (
       <g className="rf-slider" draggable="true">

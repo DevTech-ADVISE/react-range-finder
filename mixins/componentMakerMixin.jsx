@@ -198,9 +198,11 @@ var ComponentMakerMixin = {
     var colors = this.makeColors();
 
     var previousCategory = null;
-    var yOffset = 0;
+    var yOffset = -this.consts.coverageBarMargin/2;
 
-    return this.seriesMapping.map(function(series, id) {
+    var coverageBars = []
+
+    this.seriesMapping.forEach(function(series, id) {
       var label = series.seriesNames[series.seriesNames.length - 1];
       var seriesText = series.seriesNames.join("<br/>");
 
@@ -218,7 +220,7 @@ var ComponentMakerMixin = {
         id * this.coverageBarSpacing +
         yOffset;
 
-      return (
+      coverageBars.push(
         <CoverageBar
           key={"coverage" + id}
           x={x}
@@ -233,7 +235,20 @@ var ComponentMakerMixin = {
           label={this.truncateText(label, this.consts.labelCharacterLimit)}
           tooltip={seriesText}/>
       );
+
+      var lineY = y - this.consts.coverageBarMargin/2;// + this.coverageHeight + this.consts.coverageBarMargin;
+
+      coverageBars.push(
+        <line
+          key={"line" + id}
+          x1={0} y1={lineY}
+          x2={x} y2={lineY}
+          stroke="#D7D7D7"/>
+      );
+
     }, this);
+
+    return coverageBars;
   },
 
   makeColors: function() {
@@ -322,7 +337,7 @@ var ComponentMakerMixin = {
       var endY = startY + grouping.count * this.coverageBarSpacing - this.consts.coverageBarMargin;
       var rightX = this.barX;
       var leftX = rightX - this.consts.textMargin;
-      var textY = startY + this.props.coverageBarHeight;
+      var textY = startY + this.props.coverageBarHeight - Math.floor(this.consts.textSize/2);
       var textX = leftX - this.consts.textMargin;
 
       var yAdjust = 7;
