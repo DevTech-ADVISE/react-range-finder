@@ -1,4 +1,12 @@
 var SetupMixin = {
+  componentWillMount: function() {
+    if(this.props.series.length === 0) {
+      return;
+    }
+
+    this.setGroupedSeries();
+    this.setYearValues();
+  },
 
   setGroupedSeries: function() {
     this.seriesMapping = [];
@@ -170,28 +178,55 @@ var SetupMixin = {
     };
   },
 
-  setValueRange: function() {
-    if(this.props.series.length === 0) {
-      return;
-    }
+  setYearValues: function() {
+    var totalSeries = this.seriesMapping.length;
+    var valueKey = this.props.schema.value;
 
-    var start = null;
-    var end = null;
+    var seriesDensity = []; //slicing becomes way easier with arrays.
 
-    var value = this.props.schema.value;
+    this.props.series.forEach(function(item) {
+      var value = item[valueKey];
 
-    this.props.series.forEach(function(item){
-      if(start === null || item[value] < start) {
-        start = item[value];
+      if(value === null) {
+        return;
       }
 
-      if(end === null || item[value] > end) {
-        end = item[value];
+      if(!seriesDensity[value]) {
+        seriesDensity[value] = 0;
       }
+
+      seriesDensity[value] += 1;
+    }, this);
+
+    seriesDensity.forEach(function(count, id, list) {
+      list[id] = count/totalSeries;
     });
 
-    this.setState({start: start, end: end});
+    this.seriesDensity = seriesDensity;
   },
+
+  // setValueRange: function() {
+  //   if(this.props.series.length === 0) {
+  //     return;
+  //   }
+
+  //   var start = null;
+  //   var end = null;
+
+  //   var value = this.props.schema.value;
+
+  //   this.props.series.forEach(function(item){
+  //     if(start === null || item[value] < start) {
+  //       start = item[value];
+  //     }
+
+  //     if(end === null || item[value] > end) {
+  //       end = item[value];
+  //     }
+  //   });
+
+  //   this.setState({start: start, end: end});
+  // },
 };
 
 module.exports = SetupMixin;

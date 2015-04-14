@@ -128,17 +128,21 @@ function makeData(start, end) {
 
   var seriesCluster = clusterSeries(majorSeries, minorSeries);
 
-  var fakeDataSet = addYearData(seriesCluster, start, end)
+  var fakeDataSet = addYearData(seriesCluster, start, end);
 
   return fakeDataSet;
 }
 
 function makeSchema() {
-  var colors = [
-    ['red', 'darkred'],
-    ['limegreen', 'darkgreen'],
-    ['dodgerblue', 'darkblue']
-  ];
+  // var colors = [
+  //   ['red', 'darkred'],
+  //   ['limegreen', 'darkgreen'],
+  //   ['dodgerblue', 'darkblue']
+  // ];
+  var colors =
+    ['red', 'darkred',
+    'limegreen', 'darkgreen',
+    'dodgerblue', 'darkblue'];
 
   return {series:['major', 'minor'], value:'year', colors: colors};
 }

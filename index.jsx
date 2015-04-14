@@ -3,39 +3,43 @@ var RangeFinder = require('./range-finder.jsx');
 var dataGenerator = require('./sampleDataGenerator');
 
 
-var start = 1915;
+var start = 1965;
 var end = 2015;
 
 var series = dataGenerator.makeData(start, end);
 var schema = dataGenerator.makeSchema();
 
+function log(message) {
+  console.log(message);
+}
+
 function onStartDragMove(value) {
-  console.log("Current start year: " + value);
+  log("Current start year: " + value);
 }
 
 function onEndDragMove(value) {
-  console.log("Current end year: " + value);
+  log("Current end year: " + value);
 }
 
 function onDragMove(start, end) {
-  console.log("Current year set:", start, end);
+  log("Current year set:", start, end);
 }
 
 function reportRange()
 {
-  console.log("Date Range: " + start + "-" + end);
+  log("Date Range: " + start + "-" + end);
 }
 
 function onStartDragEnd(value) {
-  console.log("Selected start year: " + value);
+  log("Selected start year: " + value);
 }
 
 function onEndDragEnd(value) {
-  console.log("Selected end year: " + value);
+  log("Selected end year: " + value);
 }
 
 function onDragEnd(start, end) {
-  console.log("Date Range: " + start + "-" + end + ", " + (end - start + 1) + " years selected");
+  log("Date Range: " + start + "-" + end + ", " + (end - start + 1) + " years selected");
 }
 
 React.render(
