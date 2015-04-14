@@ -8,19 +8,14 @@ Range Finder is a tool that allows you to select a numeric range between a start
 Properties
 ==========
 
-Required
---------
-
-* **start**: (Number) The minimum number.
-* **end**: (Number) The maximum number.
-
 Callbacks
 ---------
 * **onDrag**: (function(startValue, endValue)) Called when either the start slider or the end slider is moved.
-* **onDrag_RangeStart**: (function(value)) Called when the start slider is moved. 
-* **onRelease_RangeStart**: (function(value)) Called when the start slider is released.
-* **onDrag_RangeEnd**: (function(value)) Called when the end slider is moved.
-* **onRelease_RangeEnd**: (function(value)) Called when the end slider is released.
+* **onRelease**: (function(startValue, endValue)) Called when either the start slider or the end slider is released.
+* **onDragRangeStart**: (function(value)) Called when the start slider is moved. 
+* **onReleaseRangeStart**: (function(value)) Called when the start slider is released.
+* **onDragRangeEnd**: (function(value)) Called when the end slider is moved.
+* **onReleaseRangeEnd**: (function(value)) Called when the end slider is released.
 
 Optional
 --------
@@ -33,10 +28,14 @@ Optional
 
 ### Data Coverage ###
 
+Start and End values will be inferred from the dataset if there is one.
+* **start**: (Number) The minimum number.
+* **end**: (Number) The maximum number.
+
 * **coverageBarHeight**: (Number) The height of each coverage bar. Defaults to 8px.
 * **data**: (array of objects) The objects should be like rows from a database query. At least one of the properties should be numeric. 
-* **coverageRowLabels**: (array of strings or one string) Labels for each coverage row. These are the keys of the data to be sorted on. If you want to sort on more than one key, you can specify an array, which will be sorted in the order the key appears in the array.
-* **value**: (String) This is the key to draw the coverage of values from. The data using this key must be either numeric or null.
+* **rowLabelProperties**: (array of strings or one string) Labels for each coverage row. These are the keys of the data to be sorted on. If you want to sort on more than one key, you can specify an array, which will be sorted in the order the key appears in the array.
+* **valueProperty**: (String) This is the key to draw the coverage of values from. The data using this key must be either numeric or null.
 * **colors**: (multidimensional array of strings which are CSS colors) This is your color scheme. Simplest case: You have series: "series_name" and colors: ["red", "blue"]. The first coverage bar will be red, the second blue, the third red, the fourth blue, etc. The colors will loop.  
 If you want to color each series separately but have a color scheme for each series set (e.g. series: ["series_category", "series_name"]) you can pass in a multidemensional color array.
 
@@ -47,8 +46,8 @@ Example:
     start={1950}
     end={2005}
     data={data}
-    coverageRowLabels={['country', 'someDemographic']}
-    value={'year'}
+    rowLabelProperties={['country', 'someDemographic']}
+    valueProperty={'year'}
     colors={[['red', 'darkred'], ['limegreen', 'darkgreen']]}
     onDrag={function(startValue, endValue){console.log("Starting year: " + startValue + ", Ending year: " + endValue)}}/>
 ```
