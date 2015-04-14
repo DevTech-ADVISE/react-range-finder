@@ -14,6 +14,9 @@ require('./styles/rangeFinderStyles.css');
 Opentip.styles.close = {
   extends: "standard",
   offset: [-3,-3],
+  background: "#CFCFCF",
+  borderColor: "#CFCFCF",
+  className: "rf-tooltip"
 };
 
 Opentip.defaultStyle = "close";

@@ -204,7 +204,11 @@ var ComponentMakerMixin = {
 
     this.seriesMapping.forEach(function(series, id) {
       var label = series.seriesNames[series.seriesNames.length - 1];
-      var seriesText = series.seriesNames.join("<br/>");
+      var seriesText =
+        "<span class='rf-label-bold'>" + 
+        series.seriesNames.join("<br/>") +
+        "</span>";
+
 
       if(series.seriesNames.length > 1) {
         var category = series.seriesNames[series.seriesNames.length - 2];
@@ -350,7 +354,6 @@ var ComponentMakerMixin = {
             className="rf-category-background"
             fill="#E2E2E2" />
           <text
-            data-ot={grouping.categoryName}
             x={textX}
             y={textY}
             textAnchor="end"

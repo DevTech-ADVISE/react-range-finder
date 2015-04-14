@@ -44,3 +44,8 @@
     fill: red;
     font-size: 13px;
 }
+
+.rf-tooltip{
+    font-size: 13px;
+    color: #273441;
+}
