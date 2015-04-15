@@ -152,12 +152,10 @@ var RangeFinder = React.createClass({
   },
 
   calculateCoverage: function(start, end) {
-    if(!this.seriesMapping) {
+    if(!this.needsCoverage) {
       return 0;
     }
-
-    var totalSeries = this.seriesMapping.length;
-
+    
     var seriesDensity = this.seriesDensity;
 
     var sum = 0;

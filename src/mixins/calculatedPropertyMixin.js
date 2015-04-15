@@ -32,7 +32,7 @@ var PropertyCalculatorMixin = {
     if(!this.seriesMapping) {
       return 0;
     }
-    return (this.seriesMapping.length + this.seriesGrouping.length) *
+    return (this.calcCoverageBarCount() + this.calcCoverageGroupingCount()) *
         (this.props.coverageBarHeight + this.consts.coverageBarMargin);
   },
 
@@ -73,6 +73,30 @@ var PropertyCalculatorMixin = {
     return this.calcFullCoverageHeight() > this.props.maxCoverageHeight;
   },
 
+  calcNeedsCoverage: function() {
+    return this.seriesMapping && this.seriesMapping.length > 0;
+  },
+
+  calcNeedsGrouping: function() {
+    return this.seriesGrouping && this.seriesGrouping.length > 0;
+  },
+
+  calcCoverageBarCount: function() {
+    if(!this.seriesMapping) {
+      return 0;
+    }
+
+    return this.seriesMapping.length;
+  },
+
+  calcCoverageGroupingCount: function() {
+    if(!this.seriesGrouping) {
+      return 0;
+    }
+
+    return this.seriesGrouping.length;
+  },
+
   updateCalculations: function() {
     this.componentHeight = this.calcComponentHeight();
     this.componentWidth = this.calcComponentWidth();
@@ -86,6 +110,10 @@ var PropertyCalculatorMixin = {
     this.stepCount = this.calcStepCount();
     this.barBottom = this.calcBarBottom();
     this.needsScrollBar = this.calcNeedsScrollBar();
+    this.needsCoverage = this.calcNeedsCoverage();
+    this.needsGrouping = this.calcNeedsGrouping();
+    this.coverageBarCount = this.calcCoverageBarCount();
+    this.coverageGroupingCount = this.calcCoverageGroupingCount();
   },
 
   componentDidUpdate: function() {

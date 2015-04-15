@@ -63,12 +63,13 @@ var ComponentMakerMixin = {
   makeGradient: function() {
     var seriesDensity = this.seriesDensity;
     var length = this.props.end - this.props.start;
-    var factor = 1/length;
     var count = 0;
 
     if(length === 0) {
       return null;
     }
+
+    var factor = 1/length;
 
     var gradientInfo = [];
 
@@ -186,7 +187,7 @@ var ComponentMakerMixin = {
   },
 
   makeCoverage: function() {
-    if(!this.seriesMapping) {
+    if(!this.needsCoverage) {
       return [];
     }
 
@@ -258,7 +259,7 @@ var ComponentMakerMixin = {
   makeColors: function() {
     var colors = ["black", "gray"];
 
-    if(!this.seriesMapping) {
+    if(!this.needsCoverage) {
       return colors;
     }
 
@@ -322,14 +323,14 @@ var ComponentMakerMixin = {
   },
 
   truncateText: function(text, charLimit) {
-    if(text.length <= charLimit + 3) { // +3 for the dots.
+    if(text === null || text.length <= charLimit + 3) { // +3 for the dots.
       return text;
     }
     return text.substring(0, charLimit) + "...";
   },
 
   makeCoverageGrouping: function() {
-    if(!this.seriesGrouping) {
+    if(!this.needsGrouping) {
       return [];
     }
 
