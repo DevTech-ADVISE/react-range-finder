@@ -47,6 +47,8 @@ var CoverageBar = React.createClass({
     var barWidth = width * barRange / range;
     var barX = this.props.x + width * barOffset / range;
 
+    barWidth = Math.max(barWidth, 1);
+
     return (
       <rect
         key={"coverageBar" + id}
