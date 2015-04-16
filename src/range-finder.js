@@ -46,12 +46,13 @@ var RangeFinder = React.createClass({
     sliderRadius: 5,
     labelSideMargin: 1,
     labelVertMargin: 2,
-    textMargin: 5,
+    textMargin: 20,
     textSize: 15,
     densityBadgeMargin: 45,
     gradientId: "mainGradient",
     scrollWidth: 10,
     borderRadius: 5,
+    coverageGap: 4,
   },
 
   getDefaultProps: function() {
@@ -178,6 +179,7 @@ var RangeFinder = React.createClass({
 
     var coverage = this.makeCoverage();
     var coverageGrouping = this.makeCoverageGrouping();
+    var gapFillers = this.makeGapFillers();
     var unselected = this.makeUnselectedOverlay();
 
     var startX = this.state.startSliderX;
@@ -191,7 +193,7 @@ var RangeFinder = React.createClass({
     var densityLabel = null;
 
     if(coverage.length > 0) {
-      var barBottom = this.barY + this.props.barHeight + Math.ceil(this.consts.coverageBarMargin/2);
+      var barBottom = this.barY + this.props.barHeight + this.consts.coverageGap;
 
       coverageDetails = (
         <ScrollableSVG
@@ -280,6 +282,7 @@ var RangeFinder = React.createClass({
         {densityLabel}
         <g className="rf-ticks">{ticks}</g>
         {coverageDetails}
+        {gapFillers}
         {unselected}
         {sliders}
       </svg>

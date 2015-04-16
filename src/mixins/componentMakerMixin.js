@@ -199,7 +199,7 @@ var ComponentMakerMixin = {
     var colors = this.makeColors();
 
     var previousCategory = null;
-    var yOffset = -this.consts.coverageBarMargin/2;
+    var yOffset = 0
 
     var coverageBars = []
 
@@ -237,6 +237,7 @@ var ComponentMakerMixin = {
           end={this.props.end}
           coverage={series.coverage}
           dashSize={dashSize}
+          textMargin={this.consts.textMargin}
           label={this.truncateText(label, this.consts.labelCharacterLimit)}
           tooltip={seriesText}/>
       );
@@ -336,34 +337,78 @@ var ComponentMakerMixin = {
 
     return this.seriesGrouping.map(function(grouping, id) {
       var name = this.truncateText(grouping.categoryName, this.consts.labelCharacterLimit);
-      var barBottom = Math.floor(this.consts.coverageBarMargin/2);
 
-      var startY = barBottom + (grouping.startIndex + id) * this.coverageBarSpacing;
+
+      var startY = (grouping.startIndex + id) * this.coverageBarSpacing;
       var endY = startY + grouping.count * this.coverageBarSpacing - this.consts.coverageBarMargin;
       var rightX = this.barX;
       var leftX = rightX - this.consts.textMargin;
       var textY = startY + this.props.coverageBarHeight - Math.floor(this.consts.textSize/2);
-      var textX = leftX - this.consts.textMargin;
+      var textX = this.consts.textMargin;
 
       var yAdjust = 7;
+
+      var separator = id === 0 ?
+        null :
+        <line
+          x1={0} y1={startY}
+          x2={this.effectiveWidth} y2={startY}
+          strokeWidth="2"
+          className="rf-category-divider"
+          stroke="#B0B0B0" />
+
 
       return (
         <g>
           <rect
-            x={0} y={startY - yAdjust}
+            x={0} y={startY}
             width={this.effectiveWidth} height={this.coverageBarSpacing}
             className="rf-category-background"
             fill="#E2E2E2" />
+            {separator}
           <text
             x={textX}
-            y={textY}
-            textAnchor="end"
+            y={textY + yAdjust}
+            textAnchor="start"
             className="rf-label rf-label-bold rf-category-label">
             {name}
           </text>
         </g>
       );
     }, this);
+  },
+
+  makeGapFillers: function() {
+    var startX = 0;
+    var startWidth = this.state.startSliderX;
+
+    var endX = this.state.endSliderX;
+    var endWidth = this.componentWidth - this.state.endSliderX;
+
+    var y = this.barBottom;
+    var height = this.consts.coverageGap;
+
+    var gapFillers = [];
+
+    gapFillers.push(
+      <rect
+        key="unselectedStart"
+        x={startX} y={y}
+        width={startWidth} height={height}
+        fill="#B0B0B0"
+        className="rf-gap-filler"/>
+    );
+
+    gapFillers.push(
+      <rect
+        key="unselectedStart"
+        x={endX} y={y}
+        width={endWidth} height={height}
+        fill="#B0B0B0"
+        className="rf-gap-filler"/>
+    );
+
+    return gapFillers;
   },
 
   makeUnselectedOverlay: function() {

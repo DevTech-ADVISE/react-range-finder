@@ -42,13 +42,18 @@ var PropertyCalculatorMixin = {
 
   //the starting Y position of the sliders
   calcSliderY: function(props, state) {
-    return this.calcBarBottom(props, state);
+    return this.calcBarBottom(props, state) + this.consts.coverageGap/2;
   },
 
   //the height of each slider
   calcSliderHeight: function(props, state) {
-    return this.consts.sliderRadius +
-      this.calcCoverageHeight(props, state);
+    var coverageHeight = this.calcCoverageHeight(props, state);
+
+    if(coverageHeight === 0) {
+      return 0;
+    }
+
+    return coverageHeight + this.consts.coverageGap/2;
   },
 
   //The total space a coverage bar represents (bar and margin)
