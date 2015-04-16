@@ -108,7 +108,9 @@ var SetupMixin = {
       var mismatchedIndex = this.getMismatchedIndex(item, currentSeries);
 
       if(mismatchedIndex !== -1) {
-        coverage.push({start: start, end: end});
+        if(start !== null && end !== null) {
+          coverage.push({start: start, end: end});
+        }
 
         var seriesNames = [];
         seriesLabels.forEach(function(label) {
@@ -137,7 +139,9 @@ var SetupMixin = {
     }, this);
 
     //cleanup the last one
-    coverage.push({start: start, end: end});
+    if(start !== null && end !== null) {
+      coverage.push({start: start, end: end});
+    }
 
     var seriesNames = [];
     seriesLabels.forEach(function(label) {
