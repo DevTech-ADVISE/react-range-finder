@@ -96,20 +96,10 @@ var ComponentMakerMixin = {
   },
 
   makeSliders: function(snapGrid) {
-    var leftX = this.barX;
-    var rightX = this.barX + this.props.barWidth;
+    var leftX = this.valueLookup.byValue[this.state.start];
+    var rightX = this.valueLookup.byValue[this.state.end];
 
-    var valueLookup = {};
-    valueLookup.byValue = {};
-    valueLookup.byLocation = {};
-
-    for (var key in snapGrid) {
-      var xLocation = snapGrid[key].x;
-      var value = snapGrid[key].value;
-
-      valueLookup.byValue[value] = xLocation;
-      valueLookup.byLocation[xLocation] = value;
-    }
+    var valueLookup = this.valueLookup;
 
     var startSnapGrid = [];
     var endSnapGrid = [];
@@ -158,15 +148,14 @@ var ComponentMakerMixin = {
     return sliders;
   },
 
-  onStartDragMove: function(start, xLocation) {
-    this.setState({start: start, startSliderX: xLocation});
-
+  onStartDragMove: function(start) {
+    this.setState({start: start});
     this.props.onStartDragMove(start);
     this.props.onDragMove(start, this.state.end);
   },
 
-  onEndDragMove: function(end, xLocation) {
-    this.setState({end: end, endSliderX: xLocation});
+  onEndDragMove: function(end) {
+    this.setState({end: end});
 
     this.props.onEndDragMove(end);
     this.props.onDragMove(this.state.start, end);
@@ -380,10 +369,14 @@ var ComponentMakerMixin = {
 
   makeGapFillers: function() {
     var startX = 0;
-    var startWidth = this.state.startSliderX;
+    var startWidth = this.valueLookup.byValue[this.state.start];
 
-    var endX = this.state.endSliderX;
-    var endWidth = this.componentWidth - this.state.endSliderX;
+    var endX = this.valueLookup.byValue[this.state.end];
+    var endWidth = this.barX + this.props.barWidth - endX;
+
+    if(this.needsScrollBar) {
+      endWidth += this.consts.scrollWidth;
+    }
 
     var y = this.barBottom;
     var height = this.consts.coverageGap;
@@ -413,11 +406,11 @@ var ComponentMakerMixin = {
 
   makeUnselectedOverlay: function() {
     var startX = this.barX;
-    var endX = this.state.endSliderX;
+    var endX = this.valueLookup.byValue[this.state.end];
     var y = this.barBottom;
 
-    var startWidth = this.state.startSliderX - this.barX;
-    var endWidth = this.barX + this.props.barWidth - this.state.endSliderX;
+    var startWidth = this.valueLookup.byValue[this.state.start] - this.barX;
+    var endWidth = this.barX + this.props.barWidth - endX;
 
     var height = 
       Math.floor(this.consts.coverageBarMargin/2) +

@@ -99,6 +99,46 @@ var PropertyCalculatorMixin = {
     return this.seriesGrouping.length;
   },
 
+  makeSnapGrid: function(props, state) {
+    var start = props.start;
+    var end = props.end;
+
+    var stepCount = this.calcStepCount(props, state);
+
+    var stepWidth = props.barWidth / stepCount;
+
+    var snapTargets = [];
+
+    for(var i = 0; i <= stepCount; i++) {
+      var x = this.consts.barMarginLeft + i * stepWidth;
+      var value = start + i * props.stepSize;
+
+      snapTargets.push({ x: x, value: value, isEndPoint: i === 0 || i === stepCount });
+    }
+
+    return snapTargets;
+  },
+
+  makeValueLookup: function(props, state) {
+    var snapGrid = this.makeSnapGrid(props, state);
+
+    var valueLookup = {};
+    valueLookup.byValue = {};
+    valueLookup.byLocation = {};
+    valueLookup.isEndPoint = {};
+
+    for (var key in snapGrid) {
+      var xLocation = snapGrid[key].x;
+      var value = snapGrid[key].value;
+
+      valueLookup.byValue[value] = xLocation;
+      valueLookup.byLocation[xLocation] = value;
+      valueLookup.isEndPoint[xLocation] = snapGrid[key].isEndPoint;
+    }
+
+    return valueLookup;
+  },
+
   updateCalculations: function(props, state) {
     this.componentHeight = this.calcComponentHeight(props, state);
     this.componentWidth = this.calcComponentWidth(props, state);
@@ -116,6 +156,9 @@ var PropertyCalculatorMixin = {
     this.needsGrouping = this.calcNeedsGrouping(props, state);
     this.coverageBarCount = this.calcCoverageBarCount(props, state);
     this.coverageGroupingCount = this.calcCoverageGroupingCount(props, state);
+
+    this.snapGrid = this.makeSnapGrid(props, state);
+    this.valueLookup = this.makeValueLookup(props, state);
   },
 
   componentWillUpdate: function(props, state) {

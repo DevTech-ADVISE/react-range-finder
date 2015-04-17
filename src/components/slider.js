@@ -38,7 +38,7 @@ module.exports = React.createClass({
         var value = self.props.valueLookup.byLocation[x];
 
         self.setState({x: x, value: value});
-        self.props.onDragMove(value, x);
+        self.props.onDragMove(value);
       })
       .on('dragend', function (event) {
         var x = event.pageX;
@@ -60,12 +60,6 @@ module.exports = React.createClass({
       });
   },
 
-  clamp: function(value, min, max) {
-    value = Math.min(value, max);
-    value = Math.max(value, min);
-    return value;
-  },
-
   restrictToGrid: function(midX, width) {
     var thisLeft = midX - width/2;
     var thisRight = thisLeft + width;
@@ -83,7 +77,7 @@ module.exports = React.createClass({
   },
 
   makeLabel: function(x, y) {
-    if(this.state.x === this.props.x) {
+    if(this.props.valueLookup.isEndPoint[x]) {
       return null;
     }
 

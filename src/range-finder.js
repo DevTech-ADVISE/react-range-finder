@@ -23,11 +23,20 @@ Opentip.defaultStyle = "close";
 
 var RangeFinder = React.createClass({
   getInitialState: function() {
+
+    var selectedRange = this.props.selectedRange || {};
+
+    var start = selectedRange.start || this.props.start;
+    var end = selectedRange.end || this.props.end;
+
+    start = Math.max(start, this.props.start);
+    end = Math.min(end, this.props.end);
+
+    start = Math.min(start, end); //Limit start to end value
+
     return {
-      start: this.props.start,
-      end: this.props.end,
-      startSliderX: this.consts.barMarginLeft,
-      endSliderX: this.consts.barMarginLeft + this.props.barWidth,
+      start: start,
+      end: end,
       coverageOffset: 0
     };
   },
@@ -85,6 +94,11 @@ var RangeFinder = React.createClass({
     start: React.PropTypes.number.isRequired,
     end: React.PropTypes.number.isRequired,
 
+    selectedRange: React.PropTypes.shape({
+      start: React.PropTypes.number,
+      end: React.PropTypes.number,
+    }),
+
     stepSize: React.PropTypes.number,
 
     title: React.PropTypes.string,
@@ -104,12 +118,12 @@ var RangeFinder = React.createClass({
   },
 
   componentWillMount: function() {
-    this.barX = this.consts.barMarginLeft;
-    this.barY = this.consts.barMarginTop;
-
     for (var key in this.props.consts) {
       this.consts[key] = this.props.consts[key];
     }
+
+    this.barX = this.consts.barMarginLeft;
+    this.barY = this.consts.barMarginTop;
   },
 
   //function for outputting tag/class guide
@@ -134,24 +148,6 @@ var RangeFinder = React.createClass({
     return toReturn;
   },
 
-  makeSnapGrid: function() {
-    var start = this.props.start;
-    var end = this.props.end;
-
-    var stepWidth = this.props.barWidth / this.stepCount;
-
-    var snapTargets = [];
-
-    for(var i = 0; i <= this.stepCount; i++) {
-      var x = this.barX + i * stepWidth;
-      var value = start + i * this.props.stepSize;
-
-      snapTargets.push({ x: x, value: value });
-    }
-
-    return snapTargets;
-  },
-
   calculateCoverage: function(start, end) {
     if(!this.needsCoverage) {
       return 0;
@@ -171,7 +167,7 @@ var RangeFinder = React.createClass({
   },
 
   render: function() {
-    var snapGrid = this.makeSnapGrid();
+    var snapGrid = this.snapGrid;
     var gradient = null; //this.makeGradient();
 
     var ticks = this.makeTicks(snapGrid);
@@ -181,9 +177,6 @@ var RangeFinder = React.createClass({
     var coverageGrouping = this.makeCoverageGrouping();
     var gapFillers = this.makeGapFillers();
     var unselected = this.makeUnselectedOverlay();
-
-    var startX = this.state.startSliderX;
-    var endX = this.state.endSliderX;
 
     var titleX = this.consts.barMarginLeft / 2;
 
