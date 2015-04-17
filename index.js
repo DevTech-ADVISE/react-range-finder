@@ -22,7 +22,7 @@ function onEndDragMove(value) {
 }
 
 function onDragMove(start, end) {
-  log("Current year set:", start, end);
+  log("Current year set: " + start + " " + end);
 }
 
 function reportRange()
