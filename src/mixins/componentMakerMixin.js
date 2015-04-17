@@ -359,7 +359,7 @@ var ComponentMakerMixin = {
 
 
       return (
-        <g>
+        <g key={"separator" + id}>
           <rect
             x={0} y={startY}
             width={this.effectiveWidth} height={this.coverageBarSpacing}
@@ -401,7 +401,7 @@ var ComponentMakerMixin = {
 
     gapFillers.push(
       <rect
-        key="unselectedStart"
+        key="unselectedEnd"
         x={endX} y={y}
         width={endWidth} height={height}
         fill="#B0B0B0"
