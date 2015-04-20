@@ -25,6 +25,8 @@ Callbacks
 Optional
 --------
 
+* **selectedRange**: ({start: Number, end: Number}) The initial selected range of the sliders (defaults to the entire range). `start` and `end` are both optional (i.e. you can pass in only one without the other).
+
 ### Sizing ###
 
 * **barWidth**: (Number, 300) The width of the main bar. Note that the actual svg element will be 100px wider than that to accommodate labels.

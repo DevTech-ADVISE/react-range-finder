@@ -30,7 +30,7 @@ var CoverageBar = React.createClass({
   getDefaultProps: function() {
     return {
       height: 5,
-      textMargin: 5,
+      textMargin: 20,
       color: "black"
     };
   },
@@ -46,6 +46,8 @@ var CoverageBar = React.createClass({
 
     var barWidth = width * barRange / range;
     var barX = this.props.x + width * barOffset / range;
+
+    barWidth = Math.max(barWidth, 1);
 
     return (
       <rect
@@ -95,9 +97,9 @@ var CoverageBar = React.createClass({
 
         <text
           data-ot={tooltip}
-          x={x1 - this.props.textMargin}
+          x={this.props.textMargin}
           y={y + textYAdjust}
-          textAnchor="end"
+          textAnchor="start"
           fill="#29333F"
           className="rf-label rf-coverage-label">
             {this.props.label}

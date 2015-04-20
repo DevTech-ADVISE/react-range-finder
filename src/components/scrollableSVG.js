@@ -10,7 +10,6 @@ var ScrollableSVG = React.createClass({
     return {
       x: 0,
       y: 0,
-      scrollMod: 20,
     };
   },
 
@@ -30,6 +29,10 @@ var ScrollableSVG = React.createClass({
 
   componentDidMount: function() {
     this.setInteraction();
+  },
+
+  componentWillReceiveProps: function(newProps) {
+    this.setState({offsetY: 0});
   },
   
   setInteraction: function() {

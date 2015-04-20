@@ -1,99 +1,172 @@
 var PropertyCalculatorMixin = {
   //The full height of the entire component
-  calcComponentHeight: function() {
+  calcComponentHeight: function(props, state) {
     return this.consts.barMarginTop +
       this.consts.barMarginBottom +
-      this.props.barHeight +
-      this.calcCoverageHeight();
+      props.barHeight +
+      this.calcCoverageHeight(props, state);
   },
 
   //the full width of the entire component
-  calcComponentWidth: function() {
-    return this.props.barWidth +
+  calcComponentWidth: function(props, state) {
+    return props.barWidth +
       this.consts.barMarginLeft +
       this.consts.scrollWidth;
   },
 
-  calcEffectiveHeight: function() {
+  calcEffectiveHeight: function(props, state) {
     return this.consts.barMarginTop +
-      this.props.barHeight +
+      props.barHeight +
       this.consts.coverageBarMargin/2 +
-      this.calcCoverageHeight();
+      this.calcCoverageHeight(props, state);
   },
 
   //the full width of the entire component
-  calcEffectiveWidth: function() {
-    return this.props.barWidth +
+  calcEffectiveWidth: function(props, state) {
+    return props.barWidth +
       this.consts.barMarginLeft;
   },
 
   //The full height of the coverage bars
-  calcFullCoverageHeight: function() {
-    if(!this.seriesMapping) {
-      return 0;
-    }
-    return (this.seriesMapping.length + this.seriesGrouping.length) *
-        (this.props.coverageBarHeight + this.consts.coverageBarMargin);
+  calcFullCoverageHeight: function(props, state) {
+    return (this.calcCoverageBarCount(props, state) + this.calcCoverageGroupingCount(props, state)) *
+        (props.coverageBarHeight + this.consts.coverageBarMargin);
   },
 
   //the actual displayed height of the coverage bars
-  calcCoverageHeight: function() {
-    var fullHeight = this.calcFullCoverageHeight();
+  calcCoverageHeight: function(props, state) {
+    var fullHeight = this.calcFullCoverageHeight(props, state);
 
-    return Math.min(fullHeight, this.props.maxCoverageHeight);
+    return Math.min(fullHeight, props.maxCoverageHeight);
   },
 
   //the starting Y position of the sliders
-  calcSliderY: function() {
-    return this.calcBarBottom();
+  calcSliderY: function(props, state) {
+    return this.calcBarBottom(props, state) + this.consts.coverageGap/2;
   },
 
   //the height of each slider
-  calcSliderHeight: function() {
-    return this.consts.sliderRadius +
-      this.calcCoverageHeight();
+  calcSliderHeight: function(props, state) {
+    var coverageHeight = this.calcCoverageHeight(props, state);
+
+    if(coverageHeight === 0) {
+      return 0;
+    }
+
+    return coverageHeight + this.consts.coverageGap/2;
   },
 
   //The total space a coverage bar represents (bar and margin)
-  calcCoverageBarSpacing: function() {
-    return this.props.coverageBarHeight +
+  calcCoverageBarSpacing: function(props, state) {
+    return props.coverageBarHeight +
     this.consts.coverageBarMargin;
   },
 
-  calcStepCount: function() {
-    return (this.props.end - this.props.start) / this.props.stepSize;
+  calcStepCount: function(props, state) {
+    return (props.end - props.start) / props.stepSize;
   },
 
-  calcBarBottom: function() {
+  calcBarBottom: function(props, state) {
     return this.consts.barMarginTop +
-      this.props.barHeight;
+      props.barHeight;
   },
 
-  calcNeedsScrollBar: function() {
-    return this.calcFullCoverageHeight() > this.props.maxCoverageHeight;
+  calcNeedsScrollBar: function(props, state) {
+    return this.calcFullCoverageHeight(props, state) > props.maxCoverageHeight;
   },
 
-  updateCalculations: function() {
-    this.componentHeight = this.calcComponentHeight();
-    this.componentWidth = this.calcComponentWidth();
-    this.effectiveHeight = this.calcEffectiveHeight();
-    this.effectiveWidth = this.calcEffectiveWidth();
-    this.fullCoverageHeight = this.calcFullCoverageHeight();
-    this.coverageHeight = this.calcCoverageHeight();
-    this.sliderY = this.calcSliderY();
-    this.sliderHeight = this.calcSliderHeight();
-    this.coverageBarSpacing = this.calcCoverageBarSpacing();
-    this.stepCount = this.calcStepCount();
-    this.barBottom = this.calcBarBottom();
-    this.needsScrollBar = this.calcNeedsScrollBar();
+  calcNeedsCoverage: function(props, state) {
+    return this.seriesMapping && this.seriesMapping.length > 0;
   },
 
-  componentDidUpdate: function() {
-    this.updateCalculations();
+  calcNeedsGrouping: function(props, state) {
+    return this.seriesGrouping && this.seriesGrouping.length > 0;
+  },
+
+  calcCoverageBarCount: function(props, state) {
+    if(!this.seriesMapping) {
+      return 0;
+    }
+
+    return this.seriesMapping.length;
+  },
+
+  calcCoverageGroupingCount: function(props, state) {
+    if(!this.seriesGrouping) {
+      return 0;
+    }
+
+    return this.seriesGrouping.length;
+  },
+
+  makeSnapGrid: function(props, state) {
+    var start = props.start;
+    var end = props.end;
+
+    var stepCount = this.calcStepCount(props, state);
+
+    var stepWidth = props.barWidth / stepCount;
+
+    var snapTargets = [];
+
+    for(var i = 0; i <= stepCount; i++) {
+      var x = this.consts.barMarginLeft + i * stepWidth;
+      var value = start + i * props.stepSize;
+
+      snapTargets.push({ x: x, value: value, isEndPoint: i === 0 || i === stepCount });
+    }
+
+    return snapTargets;
+  },
+
+  makeValueLookup: function(props, state) {
+    var snapGrid = this.makeSnapGrid(props, state);
+
+    var valueLookup = {};
+    valueLookup.byValue = {};
+    valueLookup.byLocation = {};
+    valueLookup.isEndPoint = {};
+
+    for (var key in snapGrid) {
+      var xLocation = snapGrid[key].x;
+      var value = snapGrid[key].value;
+
+      valueLookup.byValue[value] = xLocation;
+      valueLookup.byLocation[xLocation] = value;
+      valueLookup.isEndPoint[xLocation] = snapGrid[key].isEndPoint;
+    }
+
+    return valueLookup;
+  },
+
+  updateCalculations: function(props, state) {
+    this.componentHeight = this.calcComponentHeight(props, state);
+    this.componentWidth = this.calcComponentWidth(props, state);
+    this.effectiveHeight = this.calcEffectiveHeight(props, state);
+    this.effectiveWidth = this.calcEffectiveWidth(props, state);
+    this.fullCoverageHeight = this.calcFullCoverageHeight(props, state);
+    this.coverageHeight = this.calcCoverageHeight(props, state);
+    this.sliderY = this.calcSliderY(props, state);
+    this.sliderHeight = this.calcSliderHeight(props, state);
+    this.coverageBarSpacing = this.calcCoverageBarSpacing(props, state);
+    this.stepCount = this.calcStepCount(props, state);
+    this.barBottom = this.calcBarBottom(props, state);
+    this.needsScrollBar = this.calcNeedsScrollBar(props, state);
+    this.needsCoverage = this.calcNeedsCoverage(props, state);
+    this.needsGrouping = this.calcNeedsGrouping(props, state);
+    this.coverageBarCount = this.calcCoverageBarCount(props, state);
+    this.coverageGroupingCount = this.calcCoverageGroupingCount(props, state);
+
+    this.snapGrid = this.makeSnapGrid(props, state);
+    this.valueLookup = this.makeValueLookup(props, state);
+  },
+
+  componentWillUpdate: function(props, state) {
+    this.updateCalculations(props, state);
   },
 
   componentWillMount: function() {
-    this.updateCalculations();
+    this.updateCalculations(this.props, this.state);
   },
 };
 

@@ -63,12 +63,13 @@ var ComponentMakerMixin = {
   makeGradient: function() {
     var seriesDensity = this.seriesDensity;
     var length = this.props.end - this.props.start;
-    var factor = 1/length;
     var count = 0;
 
     if(length === 0) {
       return null;
     }
+
+    var factor = 1/length;
 
     var gradientInfo = [];
 
@@ -95,20 +96,10 @@ var ComponentMakerMixin = {
   },
 
   makeSliders: function(snapGrid) {
-    var leftX = this.barX;
-    var rightX = this.barX + this.props.barWidth;
+    var leftX = this.valueLookup.byValue[this.state.start];
+    var rightX = this.valueLookup.byValue[this.state.end];
 
-    var valueLookup = {};
-    valueLookup.byValue = {};
-    valueLookup.byLocation = {};
-
-    for (var key in snapGrid) {
-      var xLocation = snapGrid[key].x;
-      var value = snapGrid[key].value;
-
-      valueLookup.byValue[value] = xLocation;
-      valueLookup.byLocation[xLocation] = value;
-    }
+    var valueLookup = this.valueLookup;
 
     var startSnapGrid = [];
     var endSnapGrid = [];
@@ -157,15 +148,14 @@ var ComponentMakerMixin = {
     return sliders;
   },
 
-  onStartDragMove: function(start, xLocation) {
-    this.setState({start: start, startSliderX: xLocation});
-
+  onStartDragMove: function(start) {
+    this.setState({start: start});
     this.props.onStartDragMove(start);
     this.props.onDragMove(start, this.state.end);
   },
 
-  onEndDragMove: function(end, xLocation) {
-    this.setState({end: end, endSliderX: xLocation});
+  onEndDragMove: function(end) {
+    this.setState({end: end});
 
     this.props.onEndDragMove(end);
     this.props.onDragMove(this.state.start, end);
@@ -186,7 +176,7 @@ var ComponentMakerMixin = {
   },
 
   makeCoverage: function() {
-    if(!this.seriesMapping) {
+    if(!this.needsCoverage) {
       return [];
     }
 
@@ -198,7 +188,7 @@ var ComponentMakerMixin = {
     var colors = this.makeColors();
 
     var previousCategory = null;
-    var yOffset = -this.consts.coverageBarMargin/2;
+    var yOffset = 0
 
     var coverageBars = []
 
@@ -236,6 +226,7 @@ var ComponentMakerMixin = {
           end={this.props.end}
           coverage={series.coverage}
           dashSize={dashSize}
+          textMargin={this.consts.textMargin}
           label={this.truncateText(label, this.consts.labelCharacterLimit)}
           tooltip={seriesText}/>
       );
@@ -258,7 +249,7 @@ var ComponentMakerMixin = {
   makeColors: function() {
     var colors = ["black", "gray"];
 
-    if(!this.seriesMapping) {
+    if(!this.needsCoverage) {
       return colors;
     }
 
@@ -322,41 +313,52 @@ var ComponentMakerMixin = {
   },
 
   truncateText: function(text, charLimit) {
-    if(text.length <= charLimit + 3) { // +3 for the dots.
+    if(text === null || text.length <= charLimit + 3) { // +3 for the dots.
       return text;
     }
     return text.substring(0, charLimit) + "...";
   },
 
   makeCoverageGrouping: function() {
-    if(!this.seriesGrouping) {
+    if(!this.needsGrouping) {
       return [];
     }
 
     return this.seriesGrouping.map(function(grouping, id) {
       var name = this.truncateText(grouping.categoryName, this.consts.labelCharacterLimit);
-      var barBottom = Math.floor(this.consts.coverageBarMargin/2);
 
-      var startY = barBottom + (grouping.startIndex + id) * this.coverageBarSpacing;
+
+      var startY = (grouping.startIndex + id) * this.coverageBarSpacing;
       var endY = startY + grouping.count * this.coverageBarSpacing - this.consts.coverageBarMargin;
       var rightX = this.barX;
       var leftX = rightX - this.consts.textMargin;
       var textY = startY + this.props.coverageBarHeight - Math.floor(this.consts.textSize/2);
-      var textX = leftX - this.consts.textMargin;
+      var textX = this.consts.textMargin;
 
       var yAdjust = 7;
 
+      var separator = id === 0 ?
+        null :
+        <line
+          x1={0} y1={startY}
+          x2={this.effectiveWidth} y2={startY}
+          strokeWidth="2"
+          className="rf-category-divider"
+          stroke="#B0B0B0" />
+
+
       return (
-        <g>
+        <g key={"separator" + id}>
           <rect
-            x={0} y={startY - yAdjust}
+            x={0} y={startY}
             width={this.effectiveWidth} height={this.coverageBarSpacing}
             className="rf-category-background"
             fill="#E2E2E2" />
+            {separator}
           <text
             x={textX}
-            y={textY}
-            textAnchor="end"
+            y={textY + yAdjust}
+            textAnchor="start"
             className="rf-label rf-label-bold rf-category-label">
             {name}
           </text>
@@ -365,13 +367,50 @@ var ComponentMakerMixin = {
     }, this);
   },
 
+  makeGapFillers: function() {
+    var startX = 0;
+    var startWidth = this.valueLookup.byValue[this.state.start];
+
+    var endX = this.valueLookup.byValue[this.state.end];
+    var endWidth = this.barX + this.props.barWidth - endX;
+
+    if(this.needsScrollBar) {
+      endWidth += this.consts.scrollWidth;
+    }
+
+    var y = this.barBottom;
+    var height = this.consts.coverageGap;
+
+    var gapFillers = [];
+
+    gapFillers.push(
+      <rect
+        key="unselectedStart"
+        x={startX} y={y}
+        width={startWidth} height={height}
+        fill="#B0B0B0"
+        className="rf-gap-filler"/>
+    );
+
+    gapFillers.push(
+      <rect
+        key="unselectedEnd"
+        x={endX} y={y}
+        width={endWidth} height={height}
+        fill="#B0B0B0"
+        className="rf-gap-filler"/>
+    );
+
+    return gapFillers;
+  },
+
   makeUnselectedOverlay: function() {
     var startX = this.barX;
-    var endX = this.state.endSliderX;
+    var endX = this.valueLookup.byValue[this.state.end];
     var y = this.barBottom;
 
-    var startWidth = this.state.startSliderX - this.barX;
-    var endWidth = this.barX + this.props.barWidth - this.state.endSliderX;
+    var startWidth = this.valueLookup.byValue[this.state.start] - this.barX;
+    var endWidth = this.barX + this.props.barWidth - endX;
 
     var height = 
       Math.floor(this.consts.coverageBarMargin/2) +

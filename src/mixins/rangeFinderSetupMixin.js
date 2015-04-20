@@ -1,22 +1,30 @@
 var SetupMixin = {
   componentWillMount: function() {
-    if(this.props.series.length === 0) {
-      return;
-    }
-
-    this.setGroupedSeries();
-    this.setYearValues();
+    this.setupSeries(this.props.series);
   },
 
-  setGroupedSeries: function() {
-    this.seriesMapping = [];
-    this.seriesGrouping = [];
-    
-    if(this.props.series.length === 0) {
+  componentWillUpdate: function(nextProps) {
+    this.setupSeries(nextProps.series);
+  },
+
+  setupSeries: function(series) {
+    if(series === null || series.length === 0) {
       return;
     }
 
-    var series = this.props.series.slice(); //copies array
+    this.setGroupedSeries(series);
+    this.setYearValues(series);
+  },
+
+  setGroupedSeries: function(series) {
+    if(series.length === 0) {
+      return;
+    }
+
+    this.seriesMapping = [];
+    this.seriesGrouping = [];
+
+    series = series.slice(); //copies array
 
     var seriesLabels = this.props.schema.series;
     var valueLabel = this.props.schema.value;
@@ -100,7 +108,9 @@ var SetupMixin = {
       var mismatchedIndex = this.getMismatchedIndex(item, currentSeries);
 
       if(mismatchedIndex !== -1) {
-        coverage.push({start: start, end: end});
+        if(start !== null && end !== null) {
+          coverage.push({start: start, end: end});
+        }
 
         var seriesNames = [];
         seriesLabels.forEach(function(label) {
@@ -129,7 +139,9 @@ var SetupMixin = {
     }, this);
 
     //cleanup the last one
-    coverage.push({start: start, end: end});
+    if(start !== null && end !== null) {
+      coverage.push({start: start, end: end});
+    }
 
     var seriesNames = [];
     seriesLabels.forEach(function(label) {
@@ -178,13 +190,13 @@ var SetupMixin = {
     };
   },
 
-  setYearValues: function() {
+  setYearValues: function(series) {
     var totalSeries = this.seriesMapping.length;
     var valueKey = this.props.schema.value;
 
     var seriesDensity = []; //slicing becomes way easier with arrays.
 
-    this.props.series.forEach(function(item) {
+    series.forEach(function(item) {
       var value = item[valueKey];
 
       if(value === null) {
