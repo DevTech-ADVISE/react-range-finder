@@ -2,6 +2,7 @@ var minMajor = 3;
 var maxMajor = 5;
 var minMinor = 4;
 var maxMinor = 6;
+var sources = 3;
 
 
 function random(min, max) {
@@ -100,11 +101,22 @@ function clusterSeries(majorSeries, minorSeries) {
 function addYearData(seriesCluster, start, end) {
   var dataSet = [];
 
+  var sourceMap = {};
+
   for (var key in seriesCluster) {
     var seriesPair = seriesCluster[key];
 
+    var minor = seriesPair.minor;
+
+    if(!sourceMap[minor]) {
+      sourceMap[minor] = random(1, sources);
+    }
+
+    var source = "Source " + sourceMap[minor];
+    //minor += " S#" + sourceMap[minor];
+
     if(seriesPair.skip) {
-      dataSet.push({major: seriesPair.major, minor: seriesPair.minor, year: null});
+      dataSet.push({major: seriesPair.major, minor: minor, source: source, year: null});
       continue;
     }
 
@@ -114,7 +126,7 @@ function addYearData(seriesCluster, start, end) {
       var yearSet = yearSets[yearKey];
 
       for(var year = yearSet.start; year <= yearSet.end; year++) {
-        dataSet.push({major: seriesPair.major, minor: seriesPair.minor, year: year});
+        dataSet.push({major: seriesPair.major, minor: minor, source: source, year: year});
       }
     }
   }
@@ -144,7 +156,7 @@ function makeSchema() {
     'limegreen', 'darkgreen',
     'dodgerblue', 'darkblue'];
 
-  return {series:['major', 'minor'], value:'year', colors: colors};
+  return {series:['major', 'minor'], value:'year', colors: colors, metadata:"source"};
 }
 
 module.exports.makeData = makeData;

@@ -79,6 +79,7 @@ var SetupMixin = {
   mapSeries: function(sortedSeries) {
     var seriesLabels = this.props.schema.series;
     var valueLabel = this.props.schema.value;
+    var metadataLabel = this.props.schema.metadata;
 
     if(typeof seriesLabels === "string") {
       seriesLabels = [seriesLabels];
@@ -117,7 +118,17 @@ var SetupMixin = {
           seriesNames.push(currentSeries[label]);
         });
 
-        seriesMapping.push({seriesNames: seriesNames, coverage: coverage, colorIndeces: colorIndeces});
+        var seriesMap = {
+          seriesNames: seriesNames,
+          coverage: coverage,
+          colorIndeces: colorIndeces,
+        };
+
+        if(metadataLabel) {
+          seriesMap.metadata = currentSeries[metadataLabel];
+        }
+
+        seriesMapping.push(seriesMap);
 
 
         colorIndeces = colorIndeces.slice(); //Copy array by value

@@ -196,8 +196,13 @@ var ComponentMakerMixin = {
       var label = series.seriesNames[series.seriesNames.length - 1];
       var seriesText =
         "<span class='rf-label-bold'>" + 
-        series.seriesNames.join("<br/>") +
-        "</span>";
+        series.seriesNames.join("<br/>");
+
+      if(series.metadata) {
+        seriesText += "<br/><br/>" + series.metadata
+      }
+
+      seriesText += "</span>";
 
 
       if(series.seriesNames.length > 1) {
