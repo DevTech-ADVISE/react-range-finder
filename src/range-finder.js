@@ -108,7 +108,8 @@ var RangeFinder = React.createClass({
     schema: React.PropTypes.shape({
       series: React.PropTypes.oneOfType([React.PropTypes.arrayOf(React.PropTypes.string), React.PropTypes.string]).isRequired,
       value: React.PropTypes.string.isRequired,
-      colorScheme: React.PropTypes.array
+      colorScheme: React.PropTypes.array,
+      metadata: React.PropTypes.string,
     }),
 
     onStartDragMove: React.PropTypes.func,

@@ -101,9 +101,8 @@ var CoverageBar = React.createClass({
           y={y + textYAdjust}
           textAnchor="start"
           fill="#29333F"
-          className="rf-label rf-coverage-label">
-            {this.props.label}
-        </text>
+          dangerouslySetInnerHTML={{__html: this.props.label}}
+          className="rf-label rf-coverage-label"/>
       </g>
     );
   }
