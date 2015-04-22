@@ -26,11 +26,11 @@ var RangeFinder = React.createClass({
 
     var selectedRange = this.props.selectedRange || {};
 
-    var start = selectedRange.start || this.props.start;
-    var end = selectedRange.end || this.props.end;
+    var start = selectedRange.start || this.props.min;
+    var end = selectedRange.end || this.props.max;
 
-    start = Math.max(start, this.props.start);
-    end = Math.min(end, this.props.end);
+    start = Math.max(start, this.props.min);
+    end = Math.min(end, this.props.max);
 
     start = Math.min(start, end); //Limit start to end value
 
@@ -71,7 +71,7 @@ var RangeFinder = React.createClass({
       coverageBarHeight: 20,
       maxCoverageHeight: 750,
       stepSize: 1,
-      series: [],
+      data: [],
       title: "Value Range",
       densityLowColor: {r: 0, g: 0, b: 0},
       densityMidColor: null,
@@ -91,8 +91,8 @@ var RangeFinder = React.createClass({
     coverageBarHeight: React.PropTypes.number,
     maxCoverageHeight: React.PropTypes.number,
 
-    start: React.PropTypes.number.isRequired,
-    end: React.PropTypes.number.isRequired,
+    min: React.PropTypes.number.isRequired,
+    max: React.PropTypes.number.isRequired,
 
     selectedRange: React.PropTypes.shape({
       start: React.PropTypes.number,
@@ -104,9 +104,9 @@ var RangeFinder = React.createClass({
     title: React.PropTypes.string,
     consts: React.PropTypes.object,
 
-    series: React.PropTypes.arrayOf(React.PropTypes.object),
+    data: React.PropTypes.arrayOf(React.PropTypes.object),
     schema: React.PropTypes.shape({
-      series: React.PropTypes.oneOfType([React.PropTypes.arrayOf(React.PropTypes.string), React.PropTypes.string]).isRequired,
+      data: React.PropTypes.oneOfType([React.PropTypes.arrayOf(React.PropTypes.string), React.PropTypes.string]).isRequired,
       value: React.PropTypes.string.isRequired,
       colorScheme: React.PropTypes.array,
       metadata: React.PropTypes.string,
@@ -154,13 +154,13 @@ var RangeFinder = React.createClass({
       return 0;
     }
     
-    var seriesDensity = this.seriesDensity;
+    var dataDensity = this.dataDensity;
 
     var sum = 0;
 
     for(var i = start; i <= end; i++) {
-      if(seriesDensity[i]) {
-        sum += seriesDensity[i];
+      if(dataDensity[i]) {
+        sum += dataDensity[i];
       }
     }
 
@@ -263,7 +263,7 @@ var RangeFinder = React.createClass({
           fontSize={this.consts.textSize}
           textAnchor="start"
           className="rf-label rf-label-bold rf-value-label">
-          {this.props.start}
+          {this.props.min}
         </text>
         <text
           x={this.effectiveWidth - this.consts.labelSideMargin}
@@ -271,7 +271,7 @@ var RangeFinder = React.createClass({
           fontSize={this.consts.textSize}
           textAnchor="end"
           className="rf-label rf-label-bold rf-value-label">
-          {this.props.end}
+          {this.props.max}
         </text>
         {densityLabel}
         <g className="rf-ticks">{ticks}</g>

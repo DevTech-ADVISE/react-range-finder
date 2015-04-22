@@ -18,8 +18,8 @@ module.exports = React.createClass({
     return {
       height: 60,
       handleSize: 10,
-      onDragMove: function(value) {},
-      onDragEnd: function(value) {}
+      onDrag: function(value) {},
+      onRelease: function(value) {}
     };
   },
 
@@ -38,13 +38,13 @@ module.exports = React.createClass({
         var value = self.props.valueLookup.byLocation[x];
 
         self.setState({x: x, value: value});
-        self.props.onDragMove(value);
+        self.props.onDrag(value);
       })
       .on('dragend', function (event) {
         var x = event.pageX;
         var value = self.props.valueLookup.byLocation[x];
 
-        self.props.onDragEnd(value);
+        self.props.onRelease(value);
       });
   },
 
