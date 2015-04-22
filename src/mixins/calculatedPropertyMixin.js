@@ -63,7 +63,7 @@ var PropertyCalculatorMixin = {
   },
 
   calcStepCount: function(props, state) {
-    return (props.max - props.min) / props.stepSize;
+    return (state.max - state.min) / props.stepSize;
   },
 
   calcBarBottom: function(props, state) {
@@ -100,8 +100,8 @@ var PropertyCalculatorMixin = {
   },
 
   makeSnapGrid: function(props, state) {
-    var start = props.min;
-    var end = props.max;
+    var start = state.min;
+    var end = state.max;
 
     var stepCount = this.calcStepCount(props, state);
 

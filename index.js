@@ -40,8 +40,6 @@ function onDragEnd(start, end) {
 React.render(
   <RangeFinder 
     id="yearSelector"
-    min={start}
-    max={end}
     data={series}
     rowLabelProperties={schema.series}
     valueProperty={schema.value}

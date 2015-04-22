@@ -8,12 +8,6 @@ Range Finder is a tool that allows you to select a numeric range bewtween a star
 Properties
 ==========
 
-Required
---------
-
-* **min**: (Number) The minimum number.
-* **max**: (Number) The maximum number.
-
 Callbacks
 ---------
 
@@ -27,6 +21,8 @@ Callbacks
 Optional
 --------
 
+* **min**: (Number) The minimum number.
+* **max**: (Number) The maximum number.
 * **selectedRange**: ({start: Number, end: Number}) The initial selected range of the sliders (defaults to the entire range). `start` and `end` are both optional (i.e. you can pass in only one without the other).
 
 ### Sizing ###

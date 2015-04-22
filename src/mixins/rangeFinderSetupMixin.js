@@ -12,6 +12,7 @@ var SetupMixin = {
       return;
     }
 
+    this.setValueRange(data);
     this.setGroupedSeries(data);
     this.setYearValues(data);
   },
@@ -228,28 +229,40 @@ var SetupMixin = {
     this.dataDensity = dataDensity;
   },
 
-  // setValueRange: function() {
-  //   if(this.props.data.length === 0) {
-  //     return;
-  //   }
+  getValueRange: function(data) {
+    if(data.length === 0) {
+      return {min: this.props.min, max: this.props.max};
+    }
 
-  //   var start = null;
-  //   var end = null;
+    var start = this.props.min || null;
+    var end = this.props.max || null;
 
-  //   var value = this.props.valueProperty;
+    var value = this.props.valueProperty;
 
-  //   this.props.data.forEach(function(item){
-  //     if(start === null || item[value] < start) {
-  //       start = item[value];
-  //     }
+    this.props.data.forEach(function(item){
+      if(item[value] === null) {
+        return;
+      }
 
-  //     if(end === null || item[value] > end) {
-  //       end = item[value];
-  //     }
-  //   });
+      if(start === null || item[value] < start) {
+        start = item[value];
+      }
 
-  //   this.setState({start: start, end: end});
-  // },
+      if(end === null || item[value] > end) {
+        end = item[value];
+      }
+    });
+    
+    return {min: start, max: end};
+  },
+
+  setValueRange: function(data) {
+    if(data === this.props.data) {
+      return;
+    }
+
+    this.setState(this.getValueRange(data));
+  },
 };
 
 module.exports = SetupMixin;

@@ -22,19 +22,38 @@ Opentip.styles.close = {
 Opentip.defaultStyle = "close";
 
 var RangeFinder = React.createClass({
+  findValue: function() {
+    for(var key in arguments) {
+      var arg = arguments[key];
+
+      if(arg || arg === 0) {
+        return arg;
+      }
+    }
+
+    return 0;
+  },
+
   getInitialState: function() {
 
     var selectedRange = this.props.selectedRange || {};
 
-    var start = selectedRange.start || this.props.min;
-    var end = selectedRange.end || this.props.max;
+    var valueRange = this.getValueRange(this.props.data);
 
-    start = Math.max(start, this.props.min);
-    end = Math.min(end, this.props.max);
+    var min = this.findValue(this.props.min, valueRange.min, selectedRange.start, 0);
+    var max = this.findValue(this.props.max, valueRange.max, selectedRange.end, 100);
+
+    var start = selectedRange.start || min;
+    var end = selectedRange.end || max;
+
+    start = Math.max(start, min);
+    end = Math.min(end, max);
 
     start = Math.min(start, end); //Limit start to end value
 
     return {
+      min: min,
+      max: max,
       start: start,
       end: end,
       coverageOffset: 0
@@ -91,8 +110,8 @@ var RangeFinder = React.createClass({
     coverageBarHeight: React.PropTypes.number,
     maxCoverageHeight: React.PropTypes.number,
 
-    min: React.PropTypes.number.isRequired,
-    max: React.PropTypes.number.isRequired,
+    min: React.PropTypes.number,
+    max: React.PropTypes.number,
 
     selectedRange: React.PropTypes.shape({
       start: React.PropTypes.number,
@@ -263,7 +282,7 @@ var RangeFinder = React.createClass({
           fontSize={this.consts.textSize}
           textAnchor="start"
           className="rf-label rf-label-bold rf-value-label">
-          {this.props.min}
+          {this.state.min}
         </text>
         <text
           x={this.effectiveWidth - this.consts.labelSideMargin}
@@ -271,7 +290,7 @@ var RangeFinder = React.createClass({
           fontSize={this.consts.textSize}
           textAnchor="end"
           className="rf-label rf-label-bold rf-value-label">
-          {this.props.max}
+          {this.state.max}
         </text>
         {densityLabel}
         <g className="rf-ticks">{ticks}</g>

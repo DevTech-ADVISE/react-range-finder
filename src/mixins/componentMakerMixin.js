@@ -61,7 +61,7 @@ var ComponentMakerMixin = {
   },
 
   makeGradient: function() {
-    var length = this.props.max - this.props.min;
+    var length = this.state.max - this.state.min;
     var count = 0;
 
     if(length === 0) {
@@ -226,8 +226,8 @@ var ComponentMakerMixin = {
           width={this.props.barWidth}
           height={this.props.coverageBarHeight}
           color={colors[id]}
-          min={this.props.min}
-          max={this.props.max}
+          min={this.state.min}
+          max={this.state.max}
           coverage={data.coverage}
           dashSize={dashSize}
           textMargin={this.consts.textMargin}
