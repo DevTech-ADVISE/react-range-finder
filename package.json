@@ -1,6 +1,6 @@
 {
   "name": "react-range-finder",
-  "version": "2.1.0",
+  "version": "2.1.1",
   "description": "",
   "main": "lib/range-finder.js",
   "scripts": {
@@ -25,6 +25,7 @@
     "jsx-loader": "^0.12.2",
     "opentip": "git://github.com/enyo/opentip",
     "react": "^0.12.2",
+    "react-tools": "^0.13.2",
     "style-loader": "^0.8.3",
     "tinycolor2": "^1.1.2"
   }
