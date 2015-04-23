@@ -17,8 +17,8 @@ var CoverageBar = React.createClass({
     label: React.PropTypes.string,
     tooltip: React.PropTypes.string,
 
-    start: React.PropTypes.number.isRequired,
-    end: React.PropTypes.number.isRequired,
+    min: React.PropTypes.number.isRequired,
+    max: React.PropTypes.number.isRequired,
     coverage: React.PropTypes.arrayOf(
       React.PropTypes.shape({
         start: React.PropTypes.number,
@@ -36,8 +36,8 @@ var CoverageBar = React.createClass({
   },
 
   makeCoverageBar: function(barStart, barEnd, id) {
-    var start = this.props.start;
-    var end = this.props.end;
+    var start = this.props.min;
+    var end = this.props.max;
     var width = this.props.width;
 
     var range = end - start;
@@ -72,7 +72,7 @@ var CoverageBar = React.createClass({
         return this.makeCoverageBar(item.start, item.end, id);
       }, this);
 
-    dataDensity /= this.props.end - this.props.start + 1;
+    dataDensity /= this.props.max - this.props.min + 1;
 
     var x1 = this.props.x;
     var x2 = this.props.x + this.props.width;

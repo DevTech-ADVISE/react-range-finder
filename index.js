@@ -25,11 +25,6 @@ function onDragMove(start, end) {
   log("Current year set: " + start + " " + end);
 }
 
-function reportRange()
-{
-  log("Date Range: " + start + "-" + end);
-}
-
 function onStartDragEnd(value) {
   log("Selected start year: " + value);
 }
@@ -45,14 +40,15 @@ function onDragEnd(start, end) {
 React.render(
   <RangeFinder 
     id="yearSelector"
-    start={start}
-    end={end}
-    series={series}
-    schema={schema}
-    onStartDragMove={onStartDragMove}
-    onEndDragMove={onEndDragMove}
-    onDragMove={onDragMove}
-    onStartDragEnd={onStartDragEnd}
-    onEndDragEnd={onEndDragEnd}
-    onDragEnd={onDragEnd}/>,
+    data={series}
+    rowLabelProperties={schema.series}
+    valueProperty={schema.value}
+    metadataProperty={schema.metadata}
+    colors={schema.colors}
+    onDrag={onDragMove}
+    onDragRangeStart={onStartDragMove}
+    onDragRangeEnd={onEndDragMove}
+    onRelease={onDragEnd}
+    onReleaseRangeStart={onStartDragEnd}
+    onReleaseRangeEnd={onEndDragEnd}/>,
   document.getElementById('content'));

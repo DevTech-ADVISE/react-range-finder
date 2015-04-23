@@ -1,6 +1,6 @@
 {
   "name": "react-range-finder",
-  "version": "1.4.0",
+  "version": "2.1.0",
   "description": "",
   "main": "lib/range-finder.js",
   "scripts": {

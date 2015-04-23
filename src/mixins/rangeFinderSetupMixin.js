@@ -1,62 +1,63 @@
 var SetupMixin = {
   componentWillMount: function() {
-    this.setupSeries(this.props.series);
+    this.setupSeries(this.props.data);
   },
 
   componentWillUpdate: function(nextProps) {
-    this.setupSeries(nextProps.series);
+    this.setupSeries(nextProps.data);
   },
 
-  setupSeries: function(series) {
-    if(series === null || series.length === 0) {
+  setupSeries: function(data) {
+    if(data === null || data.length === 0) {
       return;
     }
 
-    this.setGroupedSeries(series);
-    this.setYearValues(series);
+    this.setValueRange(data);
+    this.setGroupedSeries(data);
+    this.setYearValues(data);
   },
 
-  setGroupedSeries: function(series) {
-    if(series.length === 0) {
+  setGroupedSeries: function(data) {
+    if(data.length === 0) {
       return;
     }
 
-    this.seriesMapping = [];
-    this.seriesGrouping = [];
+    this.dataMapping = [];
+    this.dataGrouping = [];
 
-    series = series.slice(); //copies array
+    data = data.slice(); //copies array
 
-    var seriesLabels = this.props.schema.series;
-    var valueLabel = this.props.schema.value;
+    var dataLabels = this.props.rowLabelProperties;
+    var valueLabel = this.props.valueProperty;
 
-    if(typeof seriesLabels === "string") {
-      seriesLabels = [seriesLabels];
+    if(typeof dataLabels === "string") {
+      dataLabels = [dataLabels];
     }
 
-    var sortFields = seriesLabels.slice();
+    var sortFields = dataLabels.slice();
     sortFields.push(valueLabel);
     
-    series.sort(this.getSortFunction(sortFields));
+    data.sort(this.getSortFunction(sortFields));
 
-    var seriesMapping = this.mapSeries(series);
-    this.seriesMapping = seriesMapping;
+    var dataMapping = this.mapSeries(data);
+    this.dataMapping = dataMapping;
 
-    var seriesGrouping = [];
+    var dataGrouping = [];
 
-    if(seriesLabels.length === 1) {
+    if(dataLabels.length === 1) {
       return;
     }
 
     var categoryStartIndex = 0;
-    var seriesNames = seriesMapping[0].seriesNames;
-    var currentCategory = seriesNames[seriesNames.length - 2];
+    var dataNames = dataMapping[0].dataNames;
+    var currentCategory = dataNames[dataNames.length - 2];
 
-    for(var i=1; i < seriesMapping.length; i++) {
-      seriesNames = seriesMapping[i].seriesNames;
-      var newCategory = seriesNames[seriesNames.length - 2];
+    for(var i=1; i < dataMapping.length; i++) {
+      dataNames = dataMapping[i].dataNames;
+      var newCategory = dataNames[dataNames.length - 2];
 
       if(newCategory !== currentCategory) {
-        seriesGrouping.push({
+        dataGrouping.push({
           categoryName: currentCategory,
           startIndex: categoryStartIndex,
           count: i - categoryStartIndex
@@ -67,25 +68,25 @@ var SetupMixin = {
       }
     }
 
-    seriesGrouping.push({
+    dataGrouping.push({
       categoryName: currentCategory,
       startIndex: categoryStartIndex,
-      count: seriesMapping.length - categoryStartIndex
+      count: dataMapping.length - categoryStartIndex
     });
 
-    this.seriesGrouping = seriesGrouping;
+    this.dataGrouping = dataGrouping;
   },
 
   mapSeries: function(sortedSeries) {
-    var seriesLabels = this.props.schema.series;
-    var valueLabel = this.props.schema.value;
-    var metadataLabel = this.props.schema.metadata;
+    var dataLabels = this.props.rowLabelProperties;
+    var valueLabel = this.props.valueProperty;
+    var metadataLabel = this.props.metadataProperty;
 
-    if(typeof seriesLabels === "string") {
-      seriesLabels = [seriesLabels];
+    if(typeof dataLabels === "string") {
+      dataLabels = [dataLabels];
     }
 
-    var seriesMapping = [];
+    var dataMapping = [];
 
     var coverage = [];
     var currentSeries = null;
@@ -93,11 +94,11 @@ var SetupMixin = {
     var end = null;
 
     var colorIndeces = [];
-    seriesLabels.forEach(function() { colorIndeces.push(0); });
+    dataLabels.forEach(function() { colorIndeces.push(0); });
 
     sortedSeries.forEach(function(item) {
       var value = item[valueLabel];
-
+      
       if(currentSeries === null) {
         currentSeries = item;
         start = value;
@@ -113,22 +114,22 @@ var SetupMixin = {
           coverage.push({start: start, end: end});
         }
 
-        var seriesNames = [];
-        seriesLabels.forEach(function(label) {
-          seriesNames.push(currentSeries[label]);
+        var dataNames = [];
+        dataLabels.forEach(function(label) {
+          dataNames.push(currentSeries[label]);
         });
 
-        var seriesMap = {
-          seriesNames: seriesNames,
+        var dataMap = {
+          dataNames: dataNames,
           coverage: coverage,
           colorIndeces: colorIndeces,
         };
 
         if(metadataLabel) {
-          seriesMap.metadata = currentSeries[metadataLabel];
+          dataMap.metadata = currentSeries[metadataLabel];
         }
 
-        seriesMapping.push(seriesMap);
+        dataMapping.push(dataMap);
 
 
         colorIndeces = colorIndeces.slice(); //Copy array by value
@@ -154,27 +155,27 @@ var SetupMixin = {
       coverage.push({start: start, end: end});
     }
 
-    var seriesNames = [];
-    seriesLabels.forEach(function(label) {
-      seriesNames.push(currentSeries[label]);
+    var dataNames = [];
+    dataLabels.forEach(function(label) {
+      dataNames.push(currentSeries[label]);
     });
 
-    seriesMapping.push({seriesNames: seriesNames, coverage: coverage, colorIndeces: colorIndeces});
+    dataMapping.push({dataNames: dataNames, coverage: coverage, colorIndeces: colorIndeces});
 
-    return seriesMapping;
+    return dataMapping;
   },
 
-  getMismatchedIndex: function(series1, series2) {
-    var seriesLabels = this.props.schema.series;
+  getMismatchedIndex: function(data1, data2) {
+    var dataLabels = this.props.rowLabelProperties;
 
-    if(typeof seriesLabels === "string") {
-      seriesLabels = [seriesLabels];
+    if(typeof dataLabels === "string") {
+      dataLabels = [dataLabels];
     }
 
-    for (var i = 0; i < seriesLabels.length; i++) {
-      var label = seriesLabels[i];
+    for (var i = 0; i < dataLabels.length; i++) {
+      var label = dataLabels[i];
 
-      if(series1[label] !== series2[label]) {
+      if(data1[label] !== data2[label]) {
         return i;
       }
     }
@@ -201,55 +202,67 @@ var SetupMixin = {
     };
   },
 
-  setYearValues: function(series) {
-    var totalSeries = this.seriesMapping.length;
-    var valueKey = this.props.schema.value;
+  setYearValues: function(data) {
+    var totalSeries = this.dataMapping.length;
+    var valueKey = this.props.valueProperty;
 
-    var seriesDensity = []; //slicing becomes way easier with arrays.
+    var dataDensity = []; //slicing becomes way easier with arrays.
 
-    series.forEach(function(item) {
+    data.forEach(function(item) {
       var value = item[valueKey];
 
       if(value === null) {
         return;
       }
 
-      if(!seriesDensity[value]) {
-        seriesDensity[value] = 0;
+      if(!dataDensity[value]) {
+        dataDensity[value] = 0;
       }
 
-      seriesDensity[value] += 1;
+      dataDensity[value] += 1;
     }, this);
 
-    seriesDensity.forEach(function(count, id, list) {
+    dataDensity.forEach(function(count, id, list) {
       list[id] = count/totalSeries;
     });
 
-    this.seriesDensity = seriesDensity;
+    this.dataDensity = dataDensity;
   },
 
-  // setValueRange: function() {
-  //   if(this.props.series.length === 0) {
-  //     return;
-  //   }
+  getValueRange: function(data) {
+    if(data.length === 0) {
+      return {min: this.props.min, max: this.props.max};
+    }
 
-  //   var start = null;
-  //   var end = null;
+    var start = this.props.min || null;
+    var end = this.props.max || null;
 
-  //   var value = this.props.schema.value;
+    var value = this.props.valueProperty;
 
-  //   this.props.series.forEach(function(item){
-  //     if(start === null || item[value] < start) {
-  //       start = item[value];
-  //     }
+    this.props.data.forEach(function(item){
+      if(item[value] === null) {
+        return;
+      }
 
-  //     if(end === null || item[value] > end) {
-  //       end = item[value];
-  //     }
-  //   });
+      if(start === null || item[value] < start) {
+        start = item[value];
+      }
 
-  //   this.setState({start: start, end: end});
-  // },
+      if(end === null || item[value] > end) {
+        end = item[value];
+      }
+    });
+    
+    return {min: start, max: end};
+  },
+
+  setValueRange: function(data) {
+    if(data === this.props.data) {
+      return;
+    }
+
+    this.setState(this.getValueRange(data));
+  },
 };
 
 module.exports = SetupMixin;

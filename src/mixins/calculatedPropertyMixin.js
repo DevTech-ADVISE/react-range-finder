@@ -63,7 +63,7 @@ var PropertyCalculatorMixin = {
   },
 
   calcStepCount: function(props, state) {
-    return (props.end - props.start) / props.stepSize;
+    return (state.max - state.min) / props.stepSize;
   },
 
   calcBarBottom: function(props, state) {
@@ -76,32 +76,32 @@ var PropertyCalculatorMixin = {
   },
 
   calcNeedsCoverage: function(props, state) {
-    return this.seriesMapping && this.seriesMapping.length > 0;
+    return this.dataMapping && this.dataMapping.length > 0;
   },
 
   calcNeedsGrouping: function(props, state) {
-    return this.seriesGrouping && this.seriesGrouping.length > 0;
+    return this.dataGrouping && this.dataGrouping.length > 0;
   },
 
   calcCoverageBarCount: function(props, state) {
-    if(!this.seriesMapping) {
+    if(!this.dataMapping) {
       return 0;
     }
 
-    return this.seriesMapping.length;
+    return this.dataMapping.length;
   },
 
   calcCoverageGroupingCount: function(props, state) {
-    if(!this.seriesGrouping) {
+    if(!this.dataGrouping) {
       return 0;
     }
 
-    return this.seriesGrouping.length;
+    return this.dataGrouping.length;
   },
 
   makeSnapGrid: function(props, state) {
-    var start = props.start;
-    var end = props.end;
+    var start = state.min;
+    var end = state.max;
 
     var stepCount = this.calcStepCount(props, state);
 

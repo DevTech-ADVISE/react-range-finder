@@ -61,8 +61,7 @@ var ComponentMakerMixin = {
   },
 
   makeGradient: function() {
-    var seriesDensity = this.seriesDensity;
-    var length = this.props.end - this.props.start;
+    var length = this.state.max - this.state.min;
     var count = 0;
 
     if(length === 0) {
@@ -73,7 +72,7 @@ var ComponentMakerMixin = {
 
     var gradientInfo = [];
 
-    this.seriesDensity.forEach(function(density, id) {
+    this.dataDensity.forEach(function(density, id) {
       var color = this.calculateDensityColor(density);
       var midOffset = count++ / length;
       var prevOffset = midOffset - factor;
@@ -128,8 +127,8 @@ var ComponentMakerMixin = {
         fontSize={this.consts.textSize}
         snapGrid={startSnapGrid}
         valueLookup={valueLookup}
-        onDragMove={this.onStartDragMove}
-        onDragEnd={this.onStartDragEnd}/>
+        onDrag={this.onDragRangeStart}
+        onRelease={this.onReleaseRangeStart}/>
     );
     sliders.push(
       <Slider
@@ -141,38 +140,38 @@ var ComponentMakerMixin = {
         fontSize={this.consts.textSize}
         snapGrid={endSnapGrid}
         valueLookup={valueLookup}
-        onDragMove={this.onEndDragMove}
-        onDragEnd={this.onEndDragEnd}/>
+        onDrag={this.onDragRangeEnd}
+        onRelease={this.onReleaseRangeEnd}/>
     );
 
     return sliders;
   },
 
-  onStartDragMove: function(start) {
+  onDragRangeStart: function(start) {
     this.setState({start: start});
-    this.props.onStartDragMove(start);
-    this.props.onDragMove(start, this.state.end);
+    this.props.onDragRangeStart(start);
+    this.props.onDrag(start, this.state.end);
   },
 
-  onEndDragMove: function(end) {
+  onDragRangeEnd: function(end) {
     this.setState({end: end});
 
-    this.props.onEndDragMove(end);
-    this.props.onDragMove(this.state.start, end);
+    this.props.onDragRangeEnd(end);
+    this.props.onDrag(this.state.start, end);
   },
 
-  onStartDragEnd: function(start) {
+  onReleaseRangeStart: function(start) {
     this.setState({start: start});
 
-    this.props.onStartDragEnd(start);
-    this.props.onDragEnd(start, this.state.end);
+    this.props.onReleaseRangeStart(start);
+    this.props.onRelease(start, this.state.end);
   },
 
-  onEndDragEnd: function(end) {
+  onReleaseRangeEnd: function(end) {
     this.setState({end: end});
 
-    this.props.onEndDragEnd(end);
-    this.props.onDragEnd(this.state.start, end);
+    this.props.onReleaseRangeEnd(end);
+    this.props.onRelease(this.state.start, end);
   },
 
   makeCoverage: function() {
@@ -192,21 +191,21 @@ var ComponentMakerMixin = {
 
     var coverageBars = []
 
-    this.seriesMapping.forEach(function(series, id) {
-      var label = series.seriesNames[series.seriesNames.length - 1];
-      var seriesText =
+    this.dataMapping.forEach(function(data, id) {
+      var label = data.dataNames[data.dataNames.length - 1];
+      var dataText =
         "<span class='rf-label-bold'>" + 
-        series.seriesNames.join("<br/>");
+        data.dataNames.join("<br/>");
 
-      if(series.metadata) {
-        seriesText += "<br/><br/>" + series.metadata
+      if(data.metadata) {
+        dataText += "<br/><br/>" + data.metadata
       }
 
-      seriesText += "</span>";
+      dataText += "</span>";
 
 
-      if(series.seriesNames.length > 1) {
-        var category = series.seriesNames[series.seriesNames.length - 2];
+      if(data.dataNames.length > 1) {
+        var category = data.dataNames[data.dataNames.length - 2];
 
         if(previousCategory !== category) {
           previousCategory = category;
@@ -227,13 +226,13 @@ var ComponentMakerMixin = {
           width={this.props.barWidth}
           height={this.props.coverageBarHeight}
           color={colors[id]}
-          start={this.props.start}
-          end={this.props.end}
-          coverage={series.coverage}
+          min={this.state.min}
+          max={this.state.max}
+          coverage={data.coverage}
           dashSize={dashSize}
           textMargin={this.consts.textMargin}
           label={this.truncateText(label, this.consts.labelCharacterLimit)}
-          tooltip={seriesText}/>
+          tooltip={dataText}/>
       );
 
       var lineY = y - this.consts.coverageBarMargin/2;// + this.coverageHeight + this.consts.coverageBarMargin;
@@ -258,31 +257,31 @@ var ComponentMakerMixin = {
       return colors;
     }
 
-    if(this.props.schema && this.props.schema.colors) {
-      colors = this.props.schema.colors;
+    if(this.props.schema && this.props.colors) {
+      colors = this.props.colors;
     }
 
-    var seriesMapping = this.seriesMapping;
+    var dataMapping = this.dataMapping;
 
     if(typeof colors === "string") {
-      return seriesMapping.map(function(item) {
+      return dataMapping.map(function(item) {
         return colors;
       });
     }
 
-  //   return seriesMapping.map(function(item) {
+  //   return dataMapping.map(function(item) {
   //     return colors[item.colorIndex];
   //   });
   // },
 
-    return seriesMapping.map(this.findColor);
+    return dataMapping.map(this.findColor);
   },
 
   //Old function for finding proper color
-  findColor: function(series) {
-    var colorIndeces = series.colorIndeces;
+  findColor: function(data) {
+    var colorIndeces = data.colorIndeces;
 
-    var selectedColor = this.props.schema.colors;
+    var selectedColor = this.props.colors;
 
     var end = colorIndeces.length - 1;
 
@@ -293,7 +292,7 @@ var ComponentMakerMixin = {
       //get the next color according to the color index
       var newColor = selectedColor[colorIndex % selectedColor.length];
 
-      //CASE: color list is less deep than series/category list
+      //CASE: color list is less deep than data/category list
       //
       //(except on the last loop, when we expect a string)
       //if the new color is a string, instead of sending the new color,
@@ -307,7 +306,7 @@ var ComponentMakerMixin = {
       selectedColor = newColor;
     }
 
-    //CASE: The color list is deeper than the series/category list
+    //CASE: The color list is deeper than the data/category list
     //
     //Get the first color we can find down in the heirarchy
     while(typeof selectedColor !== "string") {
@@ -329,7 +328,7 @@ var ComponentMakerMixin = {
       return [];
     }
 
-    return this.seriesGrouping.map(function(grouping, id) {
+    return this.dataGrouping.map(function(grouping, id) {
       var name = this.truncateText(grouping.categoryName, this.consts.labelCharacterLimit);
 
 
