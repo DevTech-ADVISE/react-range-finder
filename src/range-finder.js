@@ -95,12 +95,12 @@ var RangeFinder = React.createClass({
       densityLowColor: {r: 0, g: 0, b: 0},
       densityMidColor: null,
       densityHighColor: {r: 255, g: 255, b: 255},
-      onStartDragMove: function(value) {},
-      onStartDragEnd: function(value) {},
-      onDragMove: function(start, end) {},
-      onEndDragMove: function(value) {},
-      onEndDragEnd: function(value) {},
-      onDragEnd: function(start, end) {},
+      onDragRangeStart: function() {},
+      onReleaseRangeStart: function() {},
+      onDrag: function() {},
+      onDragRangeEnd: function() {},
+      onReleaseRangeEnd: function() {},
+      onRelease: function() {},
     };
   },
 
