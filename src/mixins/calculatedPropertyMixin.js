@@ -63,7 +63,8 @@ var PropertyCalculatorMixin = {
   },
 
   calcStepCount: function(props, state) {
-    return (state.max - state.min) / props.stepSize;
+    //+1 due to start/end not being able to overlap
+    return (state.max - state.min) / props.stepSize + 1;
   },
 
   calcBarBottom: function(props, state) {

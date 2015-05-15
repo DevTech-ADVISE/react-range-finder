@@ -96,7 +96,7 @@ var ComponentMakerMixin = {
 
   makeSliders: function(snapGrid) {
     var leftX = this.valueLookup.byValue[this.state.start];
-    var rightX = this.valueLookup.byValue[this.state.end];
+    var rightX = this.valueLookup.byValue[this.state.end + this.props.stepSize];
 
     var valueLookup = this.valueLookup;
 
@@ -107,10 +107,10 @@ var ComponentMakerMixin = {
       var snapObject = snapGrid[key];
       var x = snapObject.x;
 
-      if(x <= valueLookup.byValue[this.state.end]) {
+      if(x < rightX) {
         startSnapGrid.push(snapObject);
       }
-      if(x >= valueLookup.byValue[this.state.start]) {
+      if(x > leftX) {
         endSnapGrid.push(snapObject);
       }
     }
@@ -140,6 +140,7 @@ var ComponentMakerMixin = {
         fontSize={this.consts.textSize}
         snapGrid={endSnapGrid}
         valueLookup={valueLookup}
+        valueOffset={-this.props.stepSize}
         onDrag={this.onDragRangeEnd}
         onRelease={this.onReleaseRangeEnd}/>
     );
@@ -230,6 +231,7 @@ var ComponentMakerMixin = {
           max={this.state.max}
           coverage={data.coverage}
           dashSize={dashSize}
+          stepSize={this.props.stepSize}
           textMargin={this.consts.textMargin}
           label={this.truncateText(label, this.consts.labelCharacterLimit)}
           tooltip={dataText}/>
@@ -375,7 +377,7 @@ var ComponentMakerMixin = {
     var startX = 0;
     var startWidth = this.valueLookup.byValue[this.state.start];
 
-    var endX = this.valueLookup.byValue[this.state.end];
+    var endX = this.valueLookup.byValue[this.state.end + this.props.stepSize];
     var endWidth = this.barX + this.props.barWidth - endX;
 
     if(this.needsScrollBar) {
@@ -410,7 +412,7 @@ var ComponentMakerMixin = {
 
   makeUnselectedOverlay: function() {
     var startX = this.barX;
-    var endX = this.valueLookup.byValue[this.state.end];
+    var endX = this.valueLookup.byValue[this.state.end + this.props.stepSize];
     var y = this.barBottom;
 
     var startWidth = this.valueLookup.byValue[this.state.start] - this.barX;
