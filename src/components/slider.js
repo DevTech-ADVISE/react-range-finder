@@ -6,7 +6,7 @@ module.exports = React.createClass({
     var x = this.props.x;
     var value = this.props.valueLookup.byLocation[x];
 
-    return { x: x, value: value };
+    return { x: x };
   },
 
   consts: {
@@ -18,6 +18,7 @@ module.exports = React.createClass({
     return {
       height: 60,
       handleSize: 10,
+      valueOffset: 0,
       onDrag: function(value) {},
       onRelease: function(value) {}
     };
@@ -35,14 +36,14 @@ module.exports = React.createClass({
       })
       .on('dragmove', function (event) {
         var x = event.pageX;
-        var value = self.props.valueLookup.byLocation[x];
+        var value = self.props.valueLookup.byLocation[x] + self.props.valueOffset;
 
-        self.setState({x: x, value: value});
+        self.setState({x: x});
         self.props.onDrag(value);
       })
       .on('dragend', function (event) {
         var x = event.pageX;
-        var value = self.props.valueLookup.byLocation[x];
+        var value = self.props.valueLookup.byLocation[x] + self.props.valueOffset;
 
         self.props.onRelease(value);
       });
@@ -109,6 +110,8 @@ module.exports = React.createClass({
       leftX + "," + baseY + " " +
       leftX + "," + topY;
 
+    var value = this.props.valueLookup.byLocation[x] + this.props.valueOffset;
+
     return (
       <g className="rf-value-indicator">
         <polyline
@@ -127,7 +130,7 @@ module.exports = React.createClass({
           fontSize={this.props.fontSize}
           fill="red"
           className="rf-label rf-value-indicator-label">
-          {this.state.value}
+          {value}
         </text>
       </g>
     )

@@ -36,9 +36,13 @@ var CoverageBar = React.createClass({
   },
 
   makeCoverageBar: function(barStart, barEnd, id) {
+    var tooltip = barStart + " to " + barEnd;
+
     var start = this.props.min;
-    var end = this.props.max;
+    var end = this.props.max + this.props.stepSize;
     var width = this.props.width;
+
+    barEnd += this.props.stepSize;
 
     var range = end - start;
     var barRange = barEnd - barStart;
@@ -52,7 +56,7 @@ var CoverageBar = React.createClass({
     return (
       <rect
         key={"coverageBar" + id}
-        data-ot={barStart + " to " + barEnd}
+        data-ot={tooltip}
         data-ot-show-effect-duration="0"
         x={barX}
         y={this.props.y}
