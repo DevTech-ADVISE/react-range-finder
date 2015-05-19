@@ -66,7 +66,7 @@ var RangeFinder = React.createClass({
     barMarginTop: 0,
     barMarginLeft: 160,
     barMarginRight: 25,
-    barMarginBottom: 10,
+    barMarginBottom: 60,
     coverageBarMargin: 10,
     labelCharacterLimit: 20,
     tickSize: 10,
