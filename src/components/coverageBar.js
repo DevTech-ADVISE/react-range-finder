@@ -17,8 +17,8 @@ var CoverageBar = React.createClass({
     label: React.PropTypes.string,
     tooltip: React.PropTypes.string,
 
-    start: React.PropTypes.number.isRequired,
-    end: React.PropTypes.number.isRequired,
+    min: React.PropTypes.number.isRequired,
+    max: React.PropTypes.number.isRequired,
     coverage: React.PropTypes.arrayOf(
       React.PropTypes.shape({
         start: React.PropTypes.number,
@@ -30,15 +30,19 @@ var CoverageBar = React.createClass({
   getDefaultProps: function() {
     return {
       height: 5,
-      textMargin: 5,
+      textMargin: 20,
       color: "black"
     };
   },
 
   makeCoverageBar: function(barStart, barEnd, id) {
-    var start = this.props.start;
-    var end = this.props.end;
+    var tooltip = barStart + " to " + barEnd;
+
+    var start = this.props.min;
+    var end = this.props.max + this.props.stepSize;
     var width = this.props.width;
+
+    barEnd += this.props.stepSize;
 
     var range = end - start;
     var barRange = barEnd - barStart;
@@ -47,10 +51,12 @@ var CoverageBar = React.createClass({
     var barWidth = width * barRange / range;
     var barX = this.props.x + width * barOffset / range;
 
+    barWidth = Math.max(barWidth, 1);
+
     return (
       <rect
         key={"coverageBar" + id}
-        data-ot={barStart + " to " + barEnd}
+        data-ot={tooltip}
         data-ot-show-effect-duration="0"
         x={barX}
         y={this.props.y}
@@ -61,19 +67,25 @@ var CoverageBar = React.createClass({
     );
   },
 
-  makeCoverageBars: function() {
-    return this.props.coverage.map(function (item, id) {
-      return this.makeCoverageBar(item.start, item.end, id);
-    }, this);
-  },
-
   render: function() {
-    var bars = this.makeCoverageBars();
+    var dataDensity = 0;
+    var dashSize = Math.max(this.props.dashSize, 1);
+
+    var bars = this.props.coverage.map(function (item, id) {
+        dataDensity += item.end - item.start + 1;
+        return this.makeCoverageBar(item.start, item.end, id);
+      }, this);
+
+    dataDensity /= this.props.max - this.props.min + 1;
 
     var x1 = this.props.x;
     var x2 = this.props.x + this.props.width;
 
     var y = this.props.y + this.props.height/2;
+    var textYAdjust = 5;
+
+    var tooltip = this.props.tooltip;
+    tooltip += "<br/><br/>" + Math.floor(dataDensity * 100) + "% covered";
 
     return (
       <g className="rf-coverage">
@@ -82,19 +94,19 @@ var CoverageBar = React.createClass({
           x2={x2} y2={y}
           strokeWidth="1"
           stroke={this.props.color}
-          strokeDasharray="5, 5"
+          strokeDasharray={dashSize + ", " + dashSize}
           className="rf-coverage-line"/>
 
         {bars}
 
         <text
-          data-ot={this.props.tooltip}
-          x={x2 + this.props.textMargin}
-          y={y + this.props.height/2}
+          data-ot={tooltip}
+          x={this.props.textMargin}
+          y={y + textYAdjust}
           textAnchor="start"
-          className="rf-label rf-coverage-label">
-            {this.props.label}
-        </text>
+          fill="#29333F"
+          dangerouslySetInnerHTML={{__html: this.props.label}}
+          className="rf-label rf-coverage-label"/>
       </g>
     );
   }

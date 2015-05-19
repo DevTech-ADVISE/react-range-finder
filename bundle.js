@@ -45,58 +45,58 @@
 /***/ function(module, exports, __webpack_require__) {
 
 	var React = __webpack_require__(1);
-	var RangeFinder = __webpack_require__(2);
-	var dataGenerator = __webpack_require__(3);
+	var RangeFinder = __webpack_require__(3);
+	var dataGenerator = __webpack_require__(2);
 	
 	
-	var start = 1915;
+	var start = 1965;
 	var end = 2015;
 	
 	var series = dataGenerator.makeData(start, end);
 	var schema = dataGenerator.makeSchema();
 	
+	function log(message) {
+	  console.log(message);
+	}
+	
 	function onStartDragMove(value) {
-	  console.log("Current start year: " + value);
+	  log("Current start year: " + value);
 	}
 	
 	function onEndDragMove(value) {
-	  console.log("Current end year: " + value);
+	  log("Current end year: " + value);
 	}
 	
 	function onDragMove(start, end) {
-	  console.log("Current year set:", start, end);
-	}
-	
-	function reportRange()
-	{
-	  console.log("Date Range: " + start + "-" + end);
+	  log("Current year set: " + start + " " + end);
 	}
 	
 	function onStartDragEnd(value) {
-	  console.log("Selected start year: " + value);
+	  log("Selected start year: " + value);
 	}
 	
 	function onEndDragEnd(value) {
-	  console.log("Selected end year: " + value);
+	  log("Selected end year: " + value);
 	}
 	
 	function onDragEnd(start, end) {
-	  console.log("Date Range: " + start + "-" + end + ", " + (end - start + 1) + " years selected");
+	  log("Date Range: " + start + "-" + end + ", " + (end - start + 1) + " years selected");
 	}
 	
 	React.render(
 	  React.createElement(RangeFinder, {
 	    id: "yearSelector", 
-	    start: start, 
-	    end: end, 
-	    series: series, 
-	    schema: schema, 
-	    onStartDragMove: onStartDragMove, 
-	    onEndDragMove: onEndDragMove, 
-	    onDragMove: onDragMove, 
-	    onStartDragEnd: onStartDragEnd, 
-	    onEndDragEnd: onEndDragEnd, 
-	    onDragEnd: onDragEnd}),
+	    data: series, 
+	    rowLabelProperties: schema.series, 
+	    valueProperty: schema.value, 
+	    metadataProperty: schema.metadata, 
+	    colors: schema.colors, 
+	    onDrag: onDragMove, 
+	    onDragRangeStart: onStartDragMove, 
+	    onDragRangeEnd: onEndDragMove, 
+	    onRelease: onDragEnd, 
+	    onReleaseRangeStart: onStartDragEnd, 
+	    onReleaseRangeEnd: onEndDragEnd}),
 	  document.getElementById('content'));
 
 /***/ },
@@ -109,205 +109,11 @@
 /* 2 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var React = __webpack_require__(1);
-	var SetupMixin = __webpack_require__(4);
-	var MakerMixin = __webpack_require__(5);
-	
-	var ScrollableSVG = __webpack_require__(6);
-	
-	
-	__webpack_require__(7);
-	__webpack_require__(10);
-	
-	__webpack_require__(8);
-	
-	var RangeFinder = React.createClass({displayName: "RangeFinder",
-	  getInitialState: function() {
-	    return {
-	      start: this.props.start,
-	      end: this.props.end,
-	      startSliderX: this.consts.barMarginLeft,
-	      endSliderX: this.consts.barMarginLeft + this.props.barWidth,
-	      coverageOffset: 0
-	    };
-	  },
-	
-	  mixins: [SetupMixin, MakerMixin],
-	
-	  consts: {
-	    barMarginTop: 50,
-	    barMarginLeft: 120,
-	    barMarginRight: 120,
-	    barMarginBottom: 20,
-	    coverageBarMargin: 10,
-	    labelCharacterLimit: 10,
-	    tickMargin: 2,
-	    tickSize: 5,
-	    sliderRadius: 5,
-	    sliderMargin: 5,
-	    textMargin: 5,
-	  },
-	
-	  getDefaultProps: function() {
-	    return {
-	      barWidth: 300,
-	      barHeight: 10,
-	      coverageBarHeight: 8,
-	      maxCoverageHeight: 300,
-	      stepSize: 1,
-	      series: [],
-	      onStartDragMove: function(value) {},
-	      onStartDragEnd: function(value) {},
-	      onDragMove: function(start, end) {},
-	      onEndDragMove: function(value) {},
-	      onEndDragEnd: function(value) {},
-	      onDragEnd: function(start, end) {},
-	    };
-	  },
-	
-	  propTypes: {
-	    barWidth: React.PropTypes.number,
-	    barHeight: React.PropTypes.number,
-	    coverageBarHeight: React.PropTypes.number,
-	    maxCoverageHeight: React.PropTypes.number,
-	
-	    start: React.PropTypes.number.isRequired,
-	    end: React.PropTypes.number.isRequired,
-	
-	    stepSize: React.PropTypes.number,
-	
-	    series: React.PropTypes.arrayOf(React.PropTypes.object),
-	    schema: React.PropTypes.shape({
-	      series: React.PropTypes.oneOfType([React.PropTypes.arrayOf(React.PropTypes.string), React.PropTypes.string]).isRequired,
-	      value: React.PropTypes.string.isRequired,
-	      colorScheme: React.PropTypes.array
-	    }),
-	
-	    onStartDragMove: React.PropTypes.func,
-	    onStartDragEnd: React.PropTypes.func,
-	    onEndDragMove: React.PropTypes.func,
-	    onEndDragEnd: React.PropTypes.func,
-	  },
-	
-	  componentWillMount: function() {
-	    this.barX = this.consts.barMarginLeft;
-	    this.barY = this.consts.barMarginTop;
-	
-	    if(this.props.series.length === 0) {
-	      return;
-	    }
-	
-	    this.setValueRange();
-	    this.setGroupedSeries();
-	  },
-	
-	  makeSnapGrid: function() {
-	    var start = this.props.start;
-	    var end = this.props.end;
-	
-	    var stepCount = (end - start) / this.props.stepSize;
-	    var stepWidth = this.props.barWidth / stepCount;
-	
-	    var snapTargets = [];
-	
-	    for(var i = 0; i <= stepCount; i++) {
-	      var x = this.barX + i * stepWidth;
-	      var value = start + i * this.props.stepSize;
-	
-	      snapTargets.push({ x: x, value: value });
-	    }
-	
-	    return snapTargets;
-	  },
-	
-	  render: function() {
-	    var snapGrid = this.makeSnapGrid();
-	
-	    var ticks = this.makeTicks(snapGrid);
-	    var sliders = this.makeSliders(snapGrid);
-	
-	    var coverage = this.makeCoverage();
-	    var coverageGrouping = this.makeCoverageGrouping();
-	    var unselected = this.makeUnselectedOverlay();
-	
-	    var width =
-	      this.props.barWidth +
-	      this.consts.barMarginLeft +
-	      this.consts.barMarginRight;
-	
-	    var height = 
-	      this.consts.barMarginTop +
-	      this.consts.barMarginBottom +
-	      this.consts.tickSize +
-	      this.consts.tickMargin +
-	      this.props.barHeight;
-	
-	    var coverageDetails = null;
-	
-	    if(coverage.length > 0) {
-	      var fullCoverageHeight = this.seriesMapping.length * (this.props.coverageBarHeight + this.consts.coverageBarMargin);
-	
-	      var coverageHeight = fullCoverageHeight > this.props.maxCoverageHeight
-	        ? this.props.maxCoverageHeight
-	        : fullCoverageHeight;
-	
-	      height += coverageHeight;
-	
-	      var barBottom = this.barY + this.props.barHeight + Math.ceil(this.consts.coverageBarMargin/2);
-	
-	      coverageDetails = (
-	        React.createElement(ScrollableSVG, {
-	          y: barBottom, 
-	          width: width, height: fullCoverageHeight, 
-	          maxDisplayedHeight: this.props.maxCoverageHeight, 
-	          className: "rf-coverage-section"}, 
-	          coverage, 
-	          coverageGrouping
-	        )
-	      )
-	    }
-	
-	    return (
-	      React.createElement("svg", {id: this.props.id, width: width, height: height, className: "range-finder"}, 
-	        React.createElement("g", {className: "rf-ticks"}, ticks), 
-	        React.createElement("text", {
-	          x: this.barX - this.consts.textMargin, 
-	          y: this.barY + this.props.barHeight, 
-	          textAnchor: "end", 
-	          className: "rf-label rf-value-label"}, 
-	          this.props.start
-	        ), 
-	        React.createElement("rect", {
-	          x: this.barX, y: this.barY, 
-	          width: this.props.barWidth, height: this.props.barHeight, 
-	          fill: "darkgreen", 
-	          stroke: "darkgreen", 
-	          className: "rf-range-bar"}), 
-	        React.createElement("text", {
-	          x: this.barX + this.props.barWidth + this.consts.textMargin, 
-	          y: this.barY + this.props.barHeight, 
-	          textAnchor: "start", 
-	          className: "rf-label rf-value-label"}, 
-	          this.props.end
-	        ), 
-	        coverageDetails, 
-	        sliders, 
-	        unselected
-	      )
-	    )
-	  }
-	});
-	
-	module.exports = RangeFinder
-
-/***/ },
-/* 3 */
-/***/ function(module, exports, __webpack_require__) {
-
 	var minMajor = 3;
 	var maxMajor = 5;
 	var minMinor = 4;
 	var maxMinor = 6;
+	var sources = 3;
 	
 	
 	function random(min, max) {
@@ -406,11 +212,22 @@
 	function addYearData(seriesCluster, start, end) {
 	  var dataSet = [];
 	
+	  var sourceMap = {};
+	
 	  for (var key in seriesCluster) {
 	    var seriesPair = seriesCluster[key];
 	
+	    var minor = seriesPair.minor;
+	
+	    if(!sourceMap[minor]) {
+	      sourceMap[minor] = random(1, sources);
+	    }
+	
+	    var source = "Source " + sourceMap[minor];
+	    //minor += " S#" + sourceMap[minor];
+	
 	    if(seriesPair.skip) {
-	      dataSet.push({major: seriesPair.major, minor: seriesPair.minor, year: null});
+	      dataSet.push({major: seriesPair.major, minor: minor, source: source, year: null});
 	      continue;
 	    }
 	
@@ -420,7 +237,7 @@
 	      var yearSet = yearSets[yearKey];
 	
 	      for(var year = yearSet.start; year <= yearSet.end; year++) {
-	        dataSet.push({major: seriesPair.major, minor: seriesPair.minor, year: year});
+	        dataSet.push({major: seriesPair.major, minor: minor, source: source, year: year});
 	      }
 	    }
 	  }
@@ -434,71 +251,403 @@
 	
 	  var seriesCluster = clusterSeries(majorSeries, minorSeries);
 	
-	  var fakeDataSet = addYearData(seriesCluster, start, end)
+	  var fakeDataSet = addYearData(seriesCluster, start, end);
 	
 	  return fakeDataSet;
 	}
 	
 	function makeSchema() {
-	  var colors = [
-	    ['red', 'darkred'],
-	    ['limegreen', 'darkgreen'],
-	    ['dodgerblue', 'darkblue']
-	  ];
+	  // var colors = [
+	  //   ['red', 'darkred'],
+	  //   ['limegreen', 'darkgreen'],
+	  //   ['dodgerblue', 'darkblue']
+	  // ];
+	  var colors =
+	    ['red', 'darkred',
+	    'limegreen', 'darkgreen',
+	    'dodgerblue', 'darkblue'];
 	
-	  return {series:['major', 'minor'], value:'year', colors: colors};
+	  return {series:['major', 'minor'], value:'year', colors: colors, metadata:"source"};
 	}
 	
 	module.exports.makeData = makeData;
 	module.exports.makeSchema = makeSchema;
 
 /***/ },
+/* 3 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var React = __webpack_require__(1);
+	
+	var SetupMixin = __webpack_require__(4);
+	var MakerMixin = __webpack_require__(5);
+	var CalcMixin = __webpack_require__(6);
+	
+	var ScrollableSVG = __webpack_require__(7);
+	
+	var Opentip = __webpack_require__(8);
+	__webpack_require__(11);
+	
+	__webpack_require__(9);
+	
+	Opentip.styles.close = {
+	  extends: "standard",
+	  offset: [-3,-3],
+	  background: "#CFCFCF",
+	  borderColor: "#CFCFCF",
+	  className: "rf-tooltip"
+	};
+	
+	Opentip.defaultStyle = "close";
+	
+	var RangeFinder = React.createClass({displayName: "RangeFinder",
+	  findValue: function() {
+	    for(var key in arguments) {
+	      var arg = arguments[key];
+	
+	      if(arg || arg === 0) {
+	        return arg;
+	      }
+	    }
+	
+	    return 0;
+	  },
+	
+	  getInitialState: function() {
+	
+	    var selectedRange = this.props.selectedRange || {};
+	
+	    var valueRange = this.getValueRange(this.props.data);
+	
+	    var min = this.findValue(this.props.min, valueRange.min, selectedRange.start, 0);
+	    var max = this.findValue(this.props.max, valueRange.max, selectedRange.end, 100);
+	
+	    var start = selectedRange.start || min;
+	    var end = selectedRange.end || max;
+	
+	    start = Math.max(start, min);
+	    end = Math.min(end, max);
+	
+	    start = Math.min(start, end); //Limit start to end value
+	
+	    return {
+	      min: min,
+	      max: max,
+	      start: start,
+	      end: end,
+	      coverageOffset: 0
+	    };
+	  },
+	
+	  mixins: [SetupMixin, MakerMixin, CalcMixin],
+	
+	  consts: {
+	    barMarginTop: 0,
+	    barMarginLeft: 160,
+	    barMarginRight: 25,
+	    barMarginBottom: 60,
+	    coverageBarMargin: 10,
+	    labelCharacterLimit: 20,
+	    tickSize: 10,
+	    sliderMargin: 5,
+	    sliderRadius: 5,
+	    labelSideMargin: 1,
+	    labelVertMargin: 2,
+	    textMargin: 20,
+	    textSize: 15,
+	    densityBadgeMargin: 45,
+	    gradientId: "mainGradient",
+	    scrollWidth: 10,
+	    borderRadius: 5,
+	    coverageGap: 4,
+	  },
+	
+	  getDefaultProps: function() {
+	    return {
+	      barWidth: 700,
+	      barHeight: 50,
+	      coverageBarHeight: 20,
+	      maxCoverageHeight: 750,
+	      stepSize: 1,
+	      data: [],
+	      title: "Value Range",
+	      densityLowColor: {r: 0, g: 0, b: 0},
+	      densityMidColor: null,
+	      densityHighColor: {r: 255, g: 255, b: 255},
+	      onDragRangeStart: function() {},
+	      onReleaseRangeStart: function() {},
+	      onDrag: function() {},
+	      onDragRangeEnd: function() {},
+	      onReleaseRangeEnd: function() {},
+	      onRelease: function() {},
+	    };
+	  },
+	
+	  propTypes: {
+	    barWidth: React.PropTypes.number,
+	    barHeight: React.PropTypes.number,
+	    coverageBarHeight: React.PropTypes.number,
+	    maxCoverageHeight: React.PropTypes.number,
+	
+	    min: React.PropTypes.number,
+	    max: React.PropTypes.number,
+	
+	    selectedRange: React.PropTypes.shape({
+	      start: React.PropTypes.number,
+	      end: React.PropTypes.number,
+	    }),
+	
+	    stepSize: React.PropTypes.number,
+	
+	    title: React.PropTypes.string,
+	    consts: React.PropTypes.object,
+	
+	    data: React.PropTypes.arrayOf(React.PropTypes.object),
+	    schema: React.PropTypes.shape({
+	      data: React.PropTypes.oneOfType([React.PropTypes.arrayOf(React.PropTypes.string), React.PropTypes.string]).isRequired,
+	      value: React.PropTypes.string.isRequired,
+	      colorScheme: React.PropTypes.array,
+	      metadata: React.PropTypes.string,
+	    }),
+	
+	    onStartDragMove: React.PropTypes.func,
+	    onStartDragEnd: React.PropTypes.func,
+	    onEndDragMove: React.PropTypes.func,
+	    onEndDragEnd: React.PropTypes.func,
+	  },
+	
+	  componentWillMount: function() {
+	    for (var key in this.props.consts) {
+	      this.consts[key] = this.props.consts[key];
+	    }
+	
+	    this.barX = this.consts.barMarginLeft;
+	    this.barY = this.consts.barMarginTop;
+	  },
+	
+	  //function for outputting tag/class guide
+	  //Ignore this
+	  reportCoverage: function(element, indent) {
+	    var classPart = element.className && element.className.baseVal ? " class='" + element.className.baseVal + "'" : "";
+	    if(!element.children || element.children.length === 0) {
+	      if(!element.tagName) return "";
+	      return indent + "<" + element.tagName + classPart + "/>\n";
+	    }
+	
+	    var toReturn = indent + "<" + element.tagName + classPart + ">\n";
+	    
+	    for(var key in element.children) {
+	      var child = element.children[key];
+	      toReturn += this.reportCoverage(child, indent + "  ");
+	    }
+	    
+	
+	    toReturn += indent + "</" + element.tagName + ">\n";
+	
+	    return toReturn;
+	  },
+	
+	  calculateCoverage: function(start, end) {
+	    if(!this.needsCoverage) {
+	      return 0;
+	    }
+	    
+	    var dataDensity = this.dataDensity;
+	
+	    var sum = 0;
+	
+	    for(var i = start; i <= end; i++) {
+	      if(dataDensity[i]) {
+	        sum += dataDensity[i];
+	      }
+	    }
+	
+	    return sum / (end - start + 1);
+	  },
+	
+	  render: function() {
+	    var snapGrid = this.snapGrid;
+	    var gradient = null; //this.makeGradient();
+	
+	    var ticks = this.makeTicks(snapGrid);
+	    var sliders = this.makeSliders(snapGrid);
+	
+	    var coverage = this.makeCoverage();
+	    var coverageGrouping = this.makeCoverageGrouping();
+	    var gapFillers = this.makeGapFillers();
+	    var unselected = this.makeUnselectedOverlay();
+	
+	    var titleX = this.consts.barMarginLeft / 2;
+	
+	    var valueLabelY = this.barY + (this.props.barHeight - this.consts.tickSize) / 2 + this.consts.textSize / 2;
+	
+	    var coverageDetails = null;
+	    var densityLabel = null;
+	
+	    if(coverage.length > 0) {
+	      var barBottom = this.barY + this.props.barHeight + this.consts.coverageGap;
+	
+	      coverageDetails = (
+	        React.createElement(ScrollableSVG, {
+	          y: barBottom, 
+	          width: this.componentWidth, height: this.fullCoverageHeight, 
+	          maxDisplayedHeight: this.props.maxCoverageHeight, 
+	          scrollWidth: this.consts.scrollWidth, 
+	          className: "rf-coverage-section"}, 
+	          React.createElement("rect", {
+	            x: 0, y: 0, 
+	            width: this.effectiveWidth, 
+	            height: this.fullCoverageHeight, 
+	            className: "rf-coverage-background", 
+	            fill: "#F4F4F4"}), 
+	          coverage, 
+	          coverageGrouping
+	        )
+	      )
+	
+	      var density = this.calculateCoverage(this.state.start, this.state.end);
+	      densityLabel = 
+	        React.createElement("text", {
+	          x: titleX, 
+	          y: this.barY + this.props.barHeight/2 + this.consts.textSize, 
+	          fontSize: 12, 
+	          textAnchor: "middle", 
+	          className: "rf-label rf-label-bold rf-density-label"}, 
+	          Math.floor(100 * density) + "% coverage"
+	        );
+	    }
+	
+	    var topBarWidth = this.effectiveWidth;
+	    var topBarHeight = this.props.barHeight + this.consts.borderRadius;
+	
+	    if(this.needsScrollBar) {
+	      topBarWidth += this.consts.scrollWidth;
+	    }
+	
+	    var offset = 100 - 100 * (this.consts.borderRadius / topBarHeight);
+	    offset += "%"
+	
+	    return (
+	      React.createElement("svg", {
+	        id: this.props.id, 
+	        width: this.componentWidth, 
+	        height: this.componentHeight, 
+	        className: "range-finder"}, 
+	        React.createElement("defs", null, 
+	          React.createElement("linearGradient", {id: this.consts.gradientId, x1: "0%", x2: "0%", y1: "0%", y2: "100%"}, 
+	            React.createElement("stop", {offset: "0%", stopColor: "#CFCFCF", stopOpacity: "100%"}), 
+	            React.createElement("stop", {offset: offset, stopColor: "#CFCFCF", stopOpacity: "100%"}), 
+	            React.createElement("stop", {offset: offset, stopColor: "#CFCFCF", stopOpacity: "0%"}), 
+	            React.createElement("stop", {offset: "100%", stopColor: "#CFCFCF", stopOpacity: "0%"})
+	          )
+	        ), 
+	        React.createElement("rect", {
+	          x: 0, y: this.barY, 
+	          width: topBarWidth, height: topBarHeight, 
+	          rx: this.consts.borderRadius, ry: this.consts.borderRadius, 
+	          stroke: "url(#" + this.consts.gradientId + ")", 
+	          fill: "url(#" + this.consts.gradientId + ")", 
+	          className: "rf-range-bar"}), 
+	        React.createElement("text", {
+	          x: titleX, 
+	          y: this.barY + this.props.barHeight/2, 
+	          textAnchor: "middle", 
+	          className: "rf-label rf-label-bold rf-title-label"}, 
+	          this.props.title
+	        ), 
+	        React.createElement("text", {
+	          x: this.barX, 
+	          y: valueLabelY, 
+	          fontSize: this.consts.textSize, 
+	          textAnchor: "start", 
+	          className: "rf-label rf-label-bold rf-value-label"}, 
+	          this.state.min
+	        ), 
+	        React.createElement("text", {
+	          x: this.effectiveWidth - this.consts.labelSideMargin, 
+	          y: valueLabelY, 
+	          fontSize: this.consts.textSize, 
+	          textAnchor: "end", 
+	          className: "rf-label rf-label-bold rf-value-label"}, 
+	          this.state.max
+	        ), 
+	        densityLabel, 
+	        React.createElement("g", {className: "rf-ticks"}, ticks), 
+	        coverageDetails, 
+	        gapFillers, 
+	        unselected, 
+	        sliders
+	      )
+	    )
+	  }
+	});
+	
+	module.exports = RangeFinder
+
+/***/ },
 /* 4 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var SetupMixin = {
+	  componentWillMount: function() {
+	    this.setupSeries(this.props.data);
+	  },
 	
-	  setGroupedSeries: function() {
-	    this.seriesMapping = [];
-	    this.seriesGrouping = [];
-	    
-	    if(this.props.series.length === 0) {
+	  componentWillUpdate: function(nextProps) {
+	    this.setupSeries(nextProps.data);
+	  },
+	
+	  setupSeries: function(data) {
+	    if(data === null || data.length === 0) {
 	      return;
 	    }
 	
-	    var series = this.props.series.slice(); //copies array
+	    this.setValueRange(data);
+	    this.setGroupedSeries(data);
+	    this.setYearValues(data);
+	  },
 	
-	    var seriesLabels = this.props.schema.series;
-	    var valueLabel = this.props.schema.value;
-	
-	    if(typeof seriesLabels === "string") {
-	      seriesLabels = [seriesLabels];
+	  setGroupedSeries: function(data) {
+	    if(data.length === 0) {
+	      return;
 	    }
 	
-	    var sortFields = seriesLabels.slice();
+	    this.dataMapping = [];
+	    this.dataGrouping = [];
+	
+	    data = data.slice(); //copies array
+	
+	    var dataLabels = this.props.rowLabelProperties;
+	    var valueLabel = this.props.valueProperty;
+	
+	    if(typeof dataLabels === "string") {
+	      dataLabels = [dataLabels];
+	    }
+	
+	    var sortFields = dataLabels.slice();
 	    sortFields.push(valueLabel);
 	    
-	    series.sort(this.getSortFunction(sortFields));
+	    data.sort(this.getSortFunction(sortFields));
 	
-	    var seriesMapping = this.mapSeries(series);
-	    this.seriesMapping = seriesMapping;
+	    var dataMapping = this.mapSeries(data);
+	    this.dataMapping = dataMapping;
 	
-	    var seriesGrouping = [];
+	    var dataGrouping = [];
 	
-	    if(seriesLabels.length === 1) {
+	    if(dataLabels.length === 1) {
 	      return;
 	    }
 	
 	    var categoryStartIndex = 0;
-	    var seriesNames = seriesMapping[0].seriesNames;
-	    var currentCategory = seriesNames[seriesNames.length - 2];
+	    var dataNames = dataMapping[0].dataNames;
+	    var currentCategory = dataNames[dataNames.length - 2];
 	
-	    for(var i=1; i < seriesMapping.length; i++) {
-	      seriesNames = seriesMapping[i].seriesNames;
-	      var newCategory = seriesNames[seriesNames.length - 2];
+	    for(var i=1; i < dataMapping.length; i++) {
+	      dataNames = dataMapping[i].dataNames;
+	      var newCategory = dataNames[dataNames.length - 2];
 	
 	      if(newCategory !== currentCategory) {
-	        seriesGrouping.push({
+	        dataGrouping.push({
 	          categoryName: currentCategory,
 	          startIndex: categoryStartIndex,
 	          count: i - categoryStartIndex
@@ -509,24 +658,25 @@
 	      }
 	    }
 	
-	    seriesGrouping.push({
+	    dataGrouping.push({
 	      categoryName: currentCategory,
 	      startIndex: categoryStartIndex,
-	      count: seriesMapping.length - categoryStartIndex
+	      count: dataMapping.length - categoryStartIndex
 	    });
 	
-	    this.seriesGrouping = seriesGrouping;
+	    this.dataGrouping = dataGrouping;
 	  },
 	
 	  mapSeries: function(sortedSeries) {
-	    var seriesLabels = this.props.schema.series;
-	    var valueLabel = this.props.schema.value;
+	    var dataLabels = this.props.rowLabelProperties;
+	    var valueLabel = this.props.valueProperty;
+	    var metadataLabel = this.props.metadataProperty;
 	
-	    if(typeof seriesLabels === "string") {
-	      seriesLabels = [seriesLabels];
+	    if(typeof dataLabels === "string") {
+	      dataLabels = [dataLabels];
 	    }
 	
-	    var seriesMapping = [];
+	    var dataMapping = [];
 	
 	    var coverage = [];
 	    var currentSeries = null;
@@ -534,11 +684,11 @@
 	    var end = null;
 	
 	    var colorIndeces = [];
-	    seriesLabels.forEach(function() { colorIndeces.push(0); });
+	    dataLabels.forEach(function() { colorIndeces.push(0); });
 	
 	    sortedSeries.forEach(function(item) {
 	      var value = item[valueLabel];
-	
+	      
 	      if(currentSeries === null) {
 	        currentSeries = item;
 	        start = value;
@@ -550,14 +700,26 @@
 	      var mismatchedIndex = this.getMismatchedIndex(item, currentSeries);
 	
 	      if(mismatchedIndex !== -1) {
-	        coverage.push({start: start, end: end});
+	        if(start !== null && end !== null) {
+	          coverage.push({start: start, end: end});
+	        }
 	
-	        var seriesNames = [];
-	        seriesLabels.forEach(function(label) {
-	          seriesNames.push(currentSeries[label]);
+	        var dataNames = [];
+	        dataLabels.forEach(function(label) {
+	          dataNames.push(currentSeries[label]);
 	        });
 	
-	        seriesMapping.push({seriesNames: seriesNames, coverage: coverage, colorIndeces: colorIndeces});
+	        var dataMap = {
+	          dataNames: dataNames,
+	          coverage: coverage,
+	          colorIndeces: colorIndeces,
+	        };
+	
+	        if(metadataLabel) {
+	          dataMap.metadata = currentSeries[metadataLabel];
+	        }
+	
+	        dataMapping.push(dataMap);
 	
 	
 	        colorIndeces = colorIndeces.slice(); //Copy array by value
@@ -579,29 +741,31 @@
 	    }, this);
 	
 	    //cleanup the last one
-	    coverage.push({start: start, end: end});
-	
-	    var seriesNames = [];
-	    seriesLabels.forEach(function(label) {
-	      seriesNames.push(currentSeries[label]);
-	    });
-	
-	    seriesMapping.push({seriesNames: seriesNames, coverage: coverage, colorIndeces: colorIndeces});
-	
-	    return seriesMapping;
-	  },
-	
-	  getMismatchedIndex: function(series1, series2) {
-	    var seriesLabels = this.props.schema.series;
-	
-	    if(typeof seriesLabels === "string") {
-	      seriesLabels = [seriesLabels];
+	    if(start !== null && end !== null) {
+	      coverage.push({start: start, end: end});
 	    }
 	
-	    for (var i = 0; i < seriesLabels.length; i++) {
-	      var label = seriesLabels[i];
+	    var dataNames = [];
+	    dataLabels.forEach(function(label) {
+	      dataNames.push(currentSeries[label]);
+	    });
 	
-	      if(series1[label] !== series2[label]) {
+	    dataMapping.push({dataNames: dataNames, coverage: coverage, colorIndeces: colorIndeces});
+	
+	    return dataMapping;
+	  },
+	
+	  getMismatchedIndex: function(data1, data2) {
+	    var dataLabels = this.props.rowLabelProperties;
+	
+	    if(typeof dataLabels === "string") {
+	      dataLabels = [dataLabels];
+	    }
+	
+	    for (var i = 0; i < dataLabels.length; i++) {
+	      var label = dataLabels[i];
+	
+	      if(data1[label] !== data2[label]) {
 	        return i;
 	      }
 	    }
@@ -628,17 +792,48 @@
 	    };
 	  },
 	
-	  setValueRange: function() {
-	    if(this.props.series.length === 0) {
-	      return;
+	  setYearValues: function(data) {
+	    var totalSeries = this.dataMapping.length;
+	    var valueKey = this.props.valueProperty;
+	
+	    var dataDensity = []; //slicing becomes way easier with arrays.
+	
+	    data.forEach(function(item) {
+	      var value = item[valueKey];
+	
+	      if(value === null) {
+	        return;
+	      }
+	
+	      if(!dataDensity[value]) {
+	        dataDensity[value] = 0;
+	      }
+	
+	      dataDensity[value] += 1;
+	    }, this);
+	
+	    dataDensity.forEach(function(count, id, list) {
+	      list[id] = count/totalSeries;
+	    });
+	
+	    this.dataDensity = dataDensity;
+	  },
+	
+	  getValueRange: function(data) {
+	    if(data.length === 0) {
+	      return {min: this.props.min, max: this.props.max};
 	    }
 	
-	    var start = null;
-	    var end = null;
+	    var start = this.props.min || null;
+	    var end = this.props.max || null;
 	
-	    var value = this.props.schema.value;
+	    var value = this.props.valueProperty;
 	
-	    this.props.series.forEach(function(item){
+	    this.props.data.forEach(function(item){
+	      if(item[value] === null) {
+	        return;
+	      }
+	
 	      if(start === null || item[value] < start) {
 	        start = item[value];
 	      }
@@ -647,8 +842,16 @@
 	        end = item[value];
 	      }
 	    });
+	    
+	    return {min: start, max: end};
+	  },
 	
-	    this.setState({start: start, end: end});
+	  setValueRange: function(data) {
+	    if(data === this.props.data) {
+	      return;
+	    }
+	
+	    this.setState(this.getValueRange(data));
 	  },
 	};
 	
@@ -658,12 +861,15 @@
 /* 5 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var Slider = __webpack_require__(12);
-	var CoverageBar = __webpack_require__(13);
+	var React = __webpack_require__(1);
+	var Slider = __webpack_require__(14);
+	var CoverageBar = __webpack_require__(15);
+	
+	var tinyColor = __webpack_require__(16);
 	
 	var ComponentMakerMixin = {
 	  makeTicks: function(snapGrid) {
-	    var y1 = this.barY - this.consts.tickMargin;
+	    var y1 = this.barY + this.props.barHeight;
 	    var y2 = y1 - this.consts.tickSize;
 	
 	    var ticks = [];
@@ -677,51 +883,85 @@
 	          x1: x, y1: y1, 
 	          x2: x, y2: y2, 
 	          strokeWidth: "1", 
-	          stroke: "grey"})
+	          stroke: "#A8A8A8"})
 	      );
 	    }
 	
 	    return ticks;
 	  },
 	
-	  makeSliders: function(snapGrid) {
-	    var leftX = this.barX;
-	    var leftY = this.barY - this.consts.sliderRadius - this.consts.sliderMargin - this.consts.tickMargin - this.consts.tickSize;
+	  calculateDensityColor: function(factor) {
+	    var scale = 100 * factor;
 	
-	    var rightX = this.barX + this.props.barWidth;
-	    var rightY = leftY;
+	    var fromColor = tinyColor(this.props.densityLowColor);
+	    var toColor = tinyColor(this.props.densityHighColor);
 	
-	    var coverageHeight = 0;
+	    if(this.props.densityMidColor === null) {
+	      return tinyColor.mix(fromColor, toColor, scale).toRgbString();
+	    }
 	
-	    if(this.seriesMapping) {
-	      coverageHeight = this.seriesMapping.length * (this.props.coverageBarHeight + this.consts.coverageBarMargin);
+	    scale *= 2;
+	
+	    switch(scale) {
+	      case 0:
+	        return tinyColor(this.props.densityLowColor).toRgbString();
+	      case 100:
+	        return tinyColor(this.props.densityMidColor).toRgbString();
+	      case 200:
+	        return tinyColor(this.props.densityHighColor).toRgbString();
+	    }
+	
+	    if(scale > 100) {
+	      scale -= 100;
+	      fromColor = tinyColor(this.props.densityMidColor);
+	      toColor = tinyColor(this.props.densityHighColor);
+	    } else {
+	      fromColor = tinyColor(this.props.densityLowColor);
+	      toColor = tinyColor(this.props.densityMidColor);
+	    }
+	
+	    return tinyColor.mix(fromColor, toColor, scale).toRgbString();
+	  },
+	
+	  makeGradient: function() {
+	    var length = this.state.max - this.state.min;
+	    var count = 0;
+	
+	    if(length === 0) {
+	      return null;
+	    }
+	
+	    var factor = 1/length;
+	
+	    var gradientInfo = [];
+	
+	    this.dataDensity.forEach(function(density, id) {
+	      var color = this.calculateDensityColor(density);
+	      var midOffset = count++ / length;
+	      var prevOffset = midOffset - factor;
+	      var nextOffset = midOffset + factor;
 	      
-	      if(this.props.maxCoverageHeight < coverageHeight) {
-	        coverageHeight = this.props.maxCoverageHeight;
-	      }
+	      var lowerOffset = 100 * Math.max((midOffset + prevOffset) / 2, 0) + "%";
+	      var higherOffset = 100 * Math.min((nextOffset + midOffset) / 2, 1) + "%";
 	
-	      coverageHeight += Math.ceil(this.consts.coverageBarMargin/2);
-	    }
+	      gradientInfo.push(React.createElement("stop", {key: id + "l", offset: lowerOffset, stopColor: color}));
+	      gradientInfo.push(React.createElement("stop", {key: id + "h", offset: higherOffset, stopColor: color}));
+	    }, this);
 	
-	    var sliderHeight = 
-	      2 * this.consts.sliderRadius +
-	      2 * this.consts.sliderMargin +
-	      this.consts.tickSize +
-	      this.consts.tickMargin +
-	      this.props.barHeight +
-	      coverageHeight;
+	    return (
+	      React.createElement("defs", null, 
+	        React.createElement("linearGradient", {id: this.consts.gradientId}, 
+	          gradientInfo
+	        )
+	      )
+	    );
+	  },
 	
-	    var valueLookup = {};
-	    valueLookup.byValue = {};
-	    valueLookup.byLocation = {};
+	  makeSliders: function(snapGrid) {
+	    var leftX = this.valueLookup.byValue[this.state.start];
+	    var rightX = this.valueLookup.byValue[this.state.end + this.props.stepSize];
 	
-	    for (var key in snapGrid) {
-	      var xLocation = snapGrid[key].x;
-	      var value = snapGrid[key].value;
-	
-	      valueLookup.byValue[value] = xLocation;
-	      valueLookup.byLocation[xLocation] = value;
-	    }
+	    var valueLookup = this.valueLookup;
 	
 	    var startSnapGrid = [];
 	    var endSnapGrid = [];
@@ -730,13 +970,19 @@
 	      var snapObject = snapGrid[key];
 	      var x = snapObject.x;
 	
-	      if(x <= valueLookup.byValue[this.state.end]) {
+	      if(x < rightX) {
 	        startSnapGrid.push(snapObject);
 	      }
-	      if(x >= valueLookup.byValue[this.state.start]) {
+	      if(x > leftX) {
 	        endSnapGrid.push(snapObject);
 	      }
 	    }
+	
+	    var stepWidth = this.props.barWidth / this.stepCount;
+	
+	    var startX = snapGrid[0].x - stepWidth*3;
+	    var endX = snapGrid[snapGrid.length-1].x + stepWidth;
+	
 	
 	    var sliders = [];
 	
@@ -744,78 +990,109 @@
 	      React.createElement(Slider, {
 	        key: "leftSlider", 
 	        x: leftX, 
-	        y: leftY, 
-	        height: sliderHeight, 
-	        handleAnchor: 1, 
+	        y: this.sliderY, 
+	        height: this.sliderHeight, 
+	        handleSize: this.consts.sliderRadius, 
+	        fontSize: this.consts.textSize, 
 	        snapGrid: startSnapGrid, 
 	        valueLookup: valueLookup, 
-	        onDragMove: this.onStartDragMove, 
-	        onDragEnd: this.onStartDragEnd})
+	        startX: startX, 
+	        endX: rightX, 
+	        onDrag: this.onDragRangeStart, 
+	        onRelease: this.onReleaseRangeStart})
 	    );
 	    sliders.push(
 	      React.createElement(Slider, {
 	        key: "rightSlider", 
 	        x: rightX, 
-	        y: rightY, 
-	        height: sliderHeight, 
-	        handleAnchor: 0, 
+	        y: this.sliderY, 
+	        height: this.sliderHeight, 
+	        handleSize: this.consts.sliderRadius, 
+	        fontSize: this.consts.textSize, 
 	        snapGrid: endSnapGrid, 
 	        valueLookup: valueLookup, 
-	        onDragMove: this.onEndDragMove, 
-	        onDragEnd: this.onEndDragEnd})
+	        startX: leftX, 
+	        endX: endX, 
+	        valueOffset: -this.props.stepSize, 
+	        onDrag: this.onDragRangeEnd, 
+	        onRelease: this.onReleaseRangeEnd})
 	    );
 	
 	    return sliders;
 	  },
 	
-	  onStartDragMove: function(start, xLocation) {
-	    this.setState({startSliderX: xLocation});
-	
-	    this.props.onStartDragMove(start);
-	    this.props.onDragMove(start, this.state.end);
-	  },
-	
-	  onEndDragMove: function(end, xLocation) {
-	    this.setState({endSliderX: xLocation});
-	
-	    this.props.onEndDragMove(end);
-	    this.props.onDragMove(this.state.start, end);
-	  },
-	
-	  onStartDragEnd: function(start) {
+	  onDragRangeStart: function(start) {
 	    this.setState({start: start});
-	
-	    this.props.onStartDragEnd(start);
-	    this.props.onDragEnd(start, this.state.end);
+	    this.props.onDragRangeStart(start);
+	    this.props.onDrag(start, this.state.end);
 	  },
 	
-	  onEndDragEnd: function(end) {
+	  onDragRangeEnd: function(end) {
 	    this.setState({end: end});
 	
-	    this.props.onEndDragEnd(end);
-	    this.props.onDragEnd(this.state.start, end);
+	    this.props.onDragRangeEnd(end);
+	    this.props.onDrag(this.state.start, end);
+	  },
+	
+	  onReleaseRangeStart: function(start) {
+	    this.setState({start: start});
+	
+	    this.props.onReleaseRangeStart(start);
+	    this.props.onRelease(start, this.state.end);
+	  },
+	
+	  onReleaseRangeEnd: function(end) {
+	    this.setState({end: end});
+	
+	    this.props.onReleaseRangeEnd(end);
+	    this.props.onRelease(this.state.start, end);
 	  },
 	
 	  makeCoverage: function() {
-	    if(!this.seriesMapping) {
+	    if(!this.needsCoverage) {
 	      return [];
 	    }
 	
 	    var x = this.barX;
 	    var startY = Math.floor(this.consts.coverageBarMargin/2);
 	
-	    var yearCount = (this.props.end - this.props.start) / this.props.stepSize;
-	    var dashSize = this.props.barWidth / yearCount;
+	    var dashSize = this.props.barWidth / this.stepCount;
 	
 	    var colors = this.makeColors();
 	
-	    return this.seriesMapping.map(function(series, id) {
-	      var y = startY + id * (this.props.coverageBarHeight + this.consts.coverageBarMargin);
+	    var previousCategory = null;
+	    var yOffset = 0
 	
-	      var label = series.seriesNames[series.seriesNames.length - 1];
-	      var seriesText = series.seriesNames.join("<br/>");
+	    var coverageBars = []
 	
-	      return (
+	    this.dataMapping.forEach(function(data, id) {
+	      var label = data.dataNames[data.dataNames.length - 1];
+	      var dataText =
+	        "<span class='rf-label-bold'>" + 
+	        data.dataNames.join("<br/>");
+	
+	      if(data.metadata) {
+	        dataText += "<br/><br/>" + data.metadata
+	      }
+	
+	      dataText += "</span>";
+	
+	
+	      if(data.dataNames.length > 1) {
+	        var category = data.dataNames[data.dataNames.length - 2];
+	
+	        if(previousCategory !== category) {
+	          previousCategory = category;
+	          yOffset += this.coverageBarSpacing;
+	        }
+	      }
+	
+	      var y =
+	        startY +
+	        id * this.coverageBarSpacing +
+	        yOffset;
+	
+	      coverageBars.push(
 	        React.createElement(CoverageBar, {
 	          key: "coverage" + id, 
 	          x: x, 
@@ -823,136 +1100,200 @@
 	          width: this.props.barWidth, 
 	          height: this.props.coverageBarHeight, 
 	          color: colors[id], 
-	          start: this.props.start, 
-	          end: this.props.end, 
-	          coverage: series.coverage, 
+	          min: this.state.min, 
+	          max: this.state.max, 
+	          coverage: data.coverage, 
 	          dashSize: dashSize, 
+	          stepSize: this.props.stepSize, 
+	          textMargin: this.consts.textMargin, 
 	          label: this.truncateText(label, this.consts.labelCharacterLimit), 
-	          tooltip: seriesText})
+	          tooltip: dataText})
 	      );
+	
+	      var lineY = y - this.consts.coverageBarMargin/2;// + this.coverageHeight + this.consts.coverageBarMargin;
+	
+	      coverageBars.push(
+	        React.createElement("line", {
+	          key: "line" + id, 
+	          x1: 0, y1: lineY, 
+	          x2: x, y2: lineY, 
+	          stroke: "#D7D7D7"})
+	      );
+	
 	    }, this);
+	
+	    return coverageBars;
 	  },
 	
 	  makeColors: function() {
 	    var colors = ["black", "gray"];
 	
-	    if(!this.seriesMapping) {
+	    if(!this.needsCoverage) {
 	      return colors;
 	    }
 	
-	    if(this.props.schema && this.props.schema.colors) {
-	      colors = this.props.schema.colors;
+	    if(this.props.schema && this.props.colors) {
+	      colors = this.props.colors;
 	    }
 	
-	    var seriesMapping = this.seriesMapping;
+	    var dataMapping = this.dataMapping;
 	
 	    if(typeof colors === "string") {
-	      return seriesMapping.map(function(item) {
+	      return dataMapping.map(function(item) {
 	        return colors;
 	      });
 	    }
 	
-	    return seriesMapping.map(function(item) {
-	      var colorIndeces = item.colorIndeces;
-	      var selectedColor = colors;
+	  //   return dataMapping.map(function(item) {
+	  //     return colors[item.colorIndex];
+	  //   });
+	  // },
 	
-	      for(var i = 0; i < colorIndeces.length; i++) {
-	        var colorIndex = colorIndeces[i];
+	    return dataMapping.map(this.findColor);
+	  },
 	
-	        if(typeof selectedColor === "string") {
-	          return selectedColor;
-	        }
+	  //Old function for finding proper color
+	  findColor: function(data) {
+	    var colorIndeces = data.colorIndeces;
 	
-	        selectedColor = selectedColor[colorIndex % selectedColor.length];
+	    var selectedColor = this.props.colors;
+	
+	    var end = colorIndeces.length - 1;
+	
+	    //loop through color indeces, finding the correct color to apply
+	    for(var i = 0; i < colorIndeces.length; i++) {
+	      var colorIndex = colorIndeces[i];
+	
+	      //get the next color according to the color index
+	      var newColor = selectedColor[colorIndex % selectedColor.length];
+	
+	      //CASE: color list is less deep than data/category list
+	      //
+	      //(except on the last loop, when we expect a string)
+	      //if the new color is a string, instead of sending the new color,
+	      //find the selected color from the last index in the indeces.
+	      //This will solve the issue of exitting too early
+	      if(i < end && typeof newColor === "string") {
+	        return selectedColor[colorIndeces[end] % selectedColor.length];
 	      }
 	
-	      while(typeof selectedColor !== "string") {
-	        selectedColor = selectedColor[0];
-	      }
+	      //assing the selected color  and re-iterate
+	      selectedColor = newColor;
+	    }
 	
-	      return selectedColor;
-	    });
+	    //CASE: The color list is deeper than the data/category list
+	    //
+	    //Get the first color we can find down in the heirarchy
+	    while(typeof selectedColor !== "string") {
+	      selectedColor = selectedColor[0];
+	    }
+	  
+	    return selectedColor;
 	  },
 	
 	  truncateText: function(text, charLimit) {
-	    if(text.length <= charLimit + 3) { // +3 for the dots.
+	    if(text === null || text.length <= charLimit + 3) { // +3 for the dots.
 	      return text;
 	    }
 	    return text.substring(0, charLimit) + "...";
 	  },
 	
 	  makeCoverageGrouping: function() {
-	    if(!this.seriesGrouping) {
+	    if(!this.needsGrouping) {
 	      return [];
 	    }
 	
-	    return this.seriesGrouping.map(function(grouping, id) {
+	    return this.dataGrouping.map(function(grouping, id) {
 	      var name = this.truncateText(grouping.categoryName, this.consts.labelCharacterLimit);
-	      var barBottom = Math.floor(this.consts.coverageBarMargin/2);
 	
-	      var barSpacing = this.consts.coverageBarMargin + this.props.coverageBarHeight;
 	
-	      var startY = barBottom + grouping.startIndex * barSpacing;
-	      var endY = startY + grouping.count * barSpacing - this.consts.coverageBarMargin;
+	      var startY = (grouping.startIndex + id) * this.coverageBarSpacing;
+	      var endY = startY + grouping.count * this.coverageBarSpacing - this.consts.coverageBarMargin;
 	      var rightX = this.barX;
 	      var leftX = rightX - this.consts.textMargin;
-	      var textY = startY + (endY - startY) / 2;
-	      var textX = leftX - this.consts.textMargin;
+	      var textY = startY + this.props.coverageBarHeight - Math.floor(this.consts.textSize/2);
+	      var textX = this.consts.textMargin;
 	
-	      var points = this.makePointList(leftX, rightX, startY, endY);
+	      var yAdjust = 7;
+	
+	      var separator = id === 0 ?
+	        null :
+	        React.createElement("line", {
+	          x1: 0, y1: startY, 
+	          x2: this.effectiveWidth, y2: startY, 
+	          strokeWidth: "2", 
+	          className: "rf-category-divider", 
+	          stroke: "#B0B0B0"})
+	
 	
 	      return (
-	        React.createElement("g", {key: "grouping" + id, className: "rf-category"}, 
+	        React.createElement("g", {key: "separator" + id}, 
+	          React.createElement("rect", {
+	            x: 0, y: startY, 
+	            width: this.effectiveWidth, height: this.coverageBarSpacing, 
+	            className: "rf-category-background", 
+	            fill: "#E2E2E2"}), 
+	            separator, 
 	          React.createElement("text", {
-	            "data-ot": grouping.categoryName, 
 	            x: textX, 
-	            y: textY, 
-	            textAnchor: "end", 
-	            className: "rf-label rf-category-label"}, 
+	            y: textY + yAdjust, 
+	            textAnchor: "start", 
+	            className: "rf-label rf-label-bold rf-category-label"}, 
 	            name
-	          ), 
-	          React.createElement("polyline", {
-	            fill: "none", 
-	            stroke: "black", 
-	            strokeWidth: "1", 
-	            points: points, 
-	            className: "rf-category-grouping"})
+	          )
 	        )
 	      );
 	    }, this);
 	  },
 	
-	  makePointList: function(leftX, rightX, startY, endY) {
-	    return rightX + ',' + startY + ' ' +
-	           leftX + ',' + startY + ' ' +
-	           leftX + ',' + endY + ' ' +
-	           rightX + ',' + endY;
+	  makeGapFillers: function() {
+	    var startX = 0;
+	    var startWidth = this.valueLookup.byValue[this.state.start];
+	
+	    var endX = this.valueLookup.byValue[this.state.end + this.props.stepSize];
+	    var endWidth = this.barX + this.props.barWidth - endX;
+	
+	    if(this.needsScrollBar) {
+	      endWidth += this.consts.scrollWidth;
+	    }
+	
+	    var y = this.barBottom;
+	    var height = this.consts.coverageGap;
+	
+	    var gapFillers = [];
+	
+	    gapFillers.push(
+	      React.createElement("rect", {
+	        key: "unselectedStart", 
+	        x: startX, y: y, 
+	        width: startWidth, height: height, 
+	        fill: "#B0B0B0", 
+	        className: "rf-gap-filler"})
+	    );
+	
+	    gapFillers.push(
+	      React.createElement("rect", {
+	        key: "unselectedEnd", 
+	        x: endX, y: y, 
+	        width: endWidth, height: height, 
+	        fill: "#B0B0B0", 
+	        className: "rf-gap-filler"})
+	    );
+	
+	    return gapFillers;
 	  },
 	
 	  makeUnselectedOverlay: function() {
 	    var startX = this.barX;
-	    var endX = this.state.endSliderX;
-	    var y = this.barY;
+	    var endX = this.valueLookup.byValue[this.state.end + this.props.stepSize];
+	    var y = this.barBottom;
 	
-	    var startWidth = this.state.startSliderX - this.barX;
-	    var endWidth = this.barX + this.props.barWidth - this.state.endSliderX;
-	
-	    var coverageHeight = 0;
-	
-	    if(this.seriesMapping) {
-	      coverageHeight = this.seriesMapping.length *
-	        (this.consts.coverageBarMargin + this.props.coverageBarHeight);
-	
-	      if(coverageHeight > this.props.maxCoverageHeight) {
-	        coverageHeight = this.props.maxCoverageHeight;
-	      }
-	
-	      coverageHeight += Math.ceil(this.consts.coverageBarMargin/2);
-	    }
+	    var startWidth = this.valueLookup.byValue[this.state.start] - this.barX;
+	    var endWidth = this.barX + this.props.barWidth - endX;
 	
 	    var height = 
-	      this.props.barHeight +
-	      coverageHeight;
+	      Math.floor(this.consts.coverageBarMargin/2) +
+	      this.coverageHeight;
 	
 	    var unselectedRanges = [];
 	
@@ -986,8 +1327,187 @@
 /* 6 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var react = __webpack_require__(1);
-	var interact = __webpack_require__(17);
+	var PropertyCalculatorMixin = {
+	  //The full height of the entire component
+	  calcComponentHeight: function(props, state) {
+	    return this.consts.barMarginTop +
+	      this.consts.barMarginBottom +
+	      props.barHeight +
+	      this.calcCoverageHeight(props, state);
+	  },
+	
+	  //the full width of the entire component
+	  calcComponentWidth: function(props, state) {
+	    return props.barWidth +
+	      this.consts.barMarginLeft +
+	      this.consts.scrollWidth;
+	  },
+	
+	  calcEffectiveHeight: function(props, state) {
+	    return this.consts.barMarginTop +
+	      props.barHeight +
+	      this.consts.coverageBarMargin/2 +
+	      this.calcCoverageHeight(props, state);
+	  },
+	
+	  //the full width of the entire component
+	  calcEffectiveWidth: function(props, state) {
+	    return props.barWidth +
+	      this.consts.barMarginLeft;
+	  },
+	
+	  //The full height of the coverage bars
+	  calcFullCoverageHeight: function(props, state) {
+	    return (this.calcCoverageBarCount(props, state) + this.calcCoverageGroupingCount(props, state)) *
+	        (props.coverageBarHeight + this.consts.coverageBarMargin);
+	  },
+	
+	  //the actual displayed height of the coverage bars
+	  calcCoverageHeight: function(props, state) {
+	    var fullHeight = this.calcFullCoverageHeight(props, state);
+	
+	    return Math.min(fullHeight, props.maxCoverageHeight);
+	  },
+	
+	  //the starting Y position of the sliders
+	  calcSliderY: function(props, state) {
+	    return this.calcBarBottom(props, state) + this.consts.coverageGap/2;
+	  },
+	
+	  //the height of each slider
+	  calcSliderHeight: function(props, state) {
+	    var coverageHeight = this.calcCoverageHeight(props, state);
+	
+	    if(coverageHeight === 0) {
+	      return 0;
+	    }
+	
+	    return coverageHeight + this.consts.coverageGap/2;
+	  },
+	
+	  //The total space a coverage bar represents (bar and margin)
+	  calcCoverageBarSpacing: function(props, state) {
+	    return props.coverageBarHeight +
+	    this.consts.coverageBarMargin;
+	  },
+	
+	  calcStepCount: function(props, state) {
+	    //+1 due to start/end not being able to overlap
+	    return (state.max - state.min) / props.stepSize + 1;
+	  },
+	
+	  calcBarBottom: function(props, state) {
+	    return this.consts.barMarginTop +
+	      props.barHeight;
+	  },
+	
+	  calcNeedsScrollBar: function(props, state) {
+	    return this.calcFullCoverageHeight(props, state) > props.maxCoverageHeight;
+	  },
+	
+	  calcNeedsCoverage: function(props, state) {
+	    return this.dataMapping && this.dataMapping.length > 0;
+	  },
+	
+	  calcNeedsGrouping: function(props, state) {
+	    return this.dataGrouping && this.dataGrouping.length > 0;
+	  },
+	
+	  calcCoverageBarCount: function(props, state) {
+	    if(!this.dataMapping) {
+	      return 0;
+	    }
+	
+	    return this.dataMapping.length;
+	  },
+	
+	  calcCoverageGroupingCount: function(props, state) {
+	    if(!this.dataGrouping) {
+	      return 0;
+	    }
+	
+	    return this.dataGrouping.length;
+	  },
+	
+	  makeSnapGrid: function(props, state) {
+	    var start = state.min;
+	    var end = state.max;
+	
+	    var stepCount = this.calcStepCount(props, state);
+	
+	    var stepWidth = props.barWidth / stepCount;
+	
+	    var snapTargets = [];
+	
+	    for(var i = 0; i <= stepCount; i++) {
+	      var x = this.consts.barMarginLeft + i * stepWidth;
+	      var value = start + i * props.stepSize;
+	
+	      snapTargets.push({ x: x, value: value, isEndPoint: i === 0 || i === stepCount });
+	    }
+	
+	    return snapTargets;
+	  },
+	
+	  makeValueLookup: function(props, state) {
+	    var snapGrid = this.makeSnapGrid(props, state);
+	
+	    var valueLookup = {};
+	    valueLookup.byValue = {};
+	    valueLookup.byLocation = {};
+	    valueLookup.isEndPoint = {};
+	
+	    for (var key in snapGrid) {
+	      var xLocation = snapGrid[key].x;
+	      var value = snapGrid[key].value;
+	
+	      valueLookup.byValue[value] = xLocation;
+	      valueLookup.byLocation[xLocation] = value;
+	      valueLookup.isEndPoint[xLocation] = snapGrid[key].isEndPoint;
+	    }
+	
+	    return valueLookup;
+	  },
+	
+	  updateCalculations: function(props, state) {
+	    this.componentHeight = this.calcComponentHeight(props, state);
+	    this.componentWidth = this.calcComponentWidth(props, state);
+	    this.effectiveHeight = this.calcEffectiveHeight(props, state);
+	    this.effectiveWidth = this.calcEffectiveWidth(props, state);
+	    this.fullCoverageHeight = this.calcFullCoverageHeight(props, state);
+	    this.coverageHeight = this.calcCoverageHeight(props, state);
+	    this.sliderY = this.calcSliderY(props, state);
+	    this.sliderHeight = this.calcSliderHeight(props, state);
+	    this.coverageBarSpacing = this.calcCoverageBarSpacing(props, state);
+	    this.stepCount = this.calcStepCount(props, state);
+	    this.barBottom = this.calcBarBottom(props, state);
+	    this.needsScrollBar = this.calcNeedsScrollBar(props, state);
+	    this.needsCoverage = this.calcNeedsCoverage(props, state);
+	    this.needsGrouping = this.calcNeedsGrouping(props, state);
+	    this.coverageBarCount = this.calcCoverageBarCount(props, state);
+	    this.coverageGroupingCount = this.calcCoverageGroupingCount(props, state);
+	
+	    this.snapGrid = this.makeSnapGrid(props, state);
+	    this.valueLookup = this.makeValueLookup(props, state);
+	  },
+	
+	  componentWillUpdate: function(props, state) {
+	    this.updateCalculations(props, state);
+	  },
+	
+	  componentWillMount: function() {
+	    this.updateCalculations(this.props, this.state);
+	  },
+	};
+	
+	module.exports = PropertyCalculatorMixin;
+
+/***/ },
+/* 7 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var React = __webpack_require__(1);
+	var interact = __webpack_require__(20);
 	
 	var ScrollableSVG = React.createClass({displayName: "ScrollableSVG",
 	  getInitialState: function() {
@@ -998,13 +1518,12 @@
 	    return {
 	      x: 0,
 	      y: 0,
-	      scrollMod: 20,
 	    };
 	  },
 	
 	  consts: {
-	    scrollWidth: 10,
-	    scrollButtonMargin: 3,
+	    scrollBarPadding: 2,
+	    gradientId: "scrollBarGradient",
 	  },
 	
 	  propTypes: {
@@ -1012,12 +1531,16 @@
 	    y: React.PropTypes.number,
 	    width: React.PropTypes.number.isRequired,
 	    height: React.PropTypes.number.isRequired,
-	    //maxDisplayedWidth: React.PropTypes.number.isRequired, //Future plan?
+	    scrollWidth: React.PropTypes.number.isRequired,
 	    maxDisplayedHeight: React.PropTypes.number.isRequired,
 	  },
 	
 	  componentDidMount: function() {
 	    this.setInteraction();
+	  },
+	
+	  componentWillReceiveProps: function(newProps) {
+	    this.setState({offsetY: 0});
 	  },
 	  
 	  setInteraction: function() {
@@ -1036,8 +1559,7 @@
 	      .on('dragmove', function (event) {
 	        var scrollAreaHeight =
 	          self.props.maxDisplayedHeight -
-	          2 * self.consts.scrollButtonMargin -
-	          2 * self.consts.scrollWidth;
+	          2 * self.consts.scrollBarPadding;
 	
 	        var scrollFactor = self.props.height / scrollAreaHeight;
 	        
@@ -1055,11 +1577,13 @@
 	
 	  onWheel: function(event) {
 	    this.scrollElement(event.deltaY);
+	    event.preventDefault();
+	    event.returnValue = false;
 	  },
 	
 	  scrollElement: function(deltaY) {
 	    var newOffset = this.state.offsetY + deltaY;
-	
+	    
 	    newOffset = Math.min(newOffset, this.props.height - this.props.maxDisplayedHeight);
 	    newOffset = Math.max(newOffset, 0);
 	
@@ -1090,6 +1614,23 @@
 	    );
 	  },
 	
+	  onTouchStart: function(event) {
+	    var initialTouch = event.targetTouches[0];
+	
+	    this.touchY = initialTouch.pageY;
+	  },
+	
+	  onTouchMove: function(event) {
+	    var newTouch = event.targetTouches[0];
+	
+	    this.scrollElement(this.touchY - newTouch.pageY);
+	
+	    this.touchY = newTouch.pageY;
+	
+	    event.preventDefault();
+	    event.returnValue = false;
+	  },
+	
 	  render: function() {
 	    if(this.props.maxDisplayedHeight >= this.props.height) {
 	      return (
@@ -1105,26 +1646,26 @@
 	    var actualWidth = this.props.width;
 	    var actualHeight = this.props.maxDisplayedHeight;
 	
-	    var scrollX = this.props.width - this.consts.scrollWidth;
-	    var scrollWidth = this.consts.scrollWidth;
+	    var scrollAreaX = this.props.width - this.props.scrollWidth;
+	    var scrollAreaWidth = this.props.scrollWidth;
 	
-	    var scrollAreaY = this.props.y + this.consts.scrollButtonMargin + scrollWidth;
-	    var scrollAreaHeight =
-	      this.props.maxDisplayedHeight -
-	      2 * this.consts.scrollButtonMargin -
-	      2 * scrollWidth;
+	    var scrollBarX = scrollAreaX + this.consts.scrollBarPadding;
+	    var scrollBarWidth = scrollAreaWidth - 2 * this.consts.scrollBarPadding;
 	
-	    var scrollBarHeight = scrollAreaHeight * this.props.maxDisplayedHeight / this.props.height;
+	    var scrollAreaY = this.props.y;
+	    var scrollAreaHeight = this.props.maxDisplayedHeight;
 	
-	    var effectiveBarArea = scrollAreaHeight - scrollBarHeight;
+	    var scrollBarHeight = (scrollAreaHeight - 2 * this.consts.scrollBarPadding) * this.props.maxDisplayedHeight / this.props.height;
+	
+	    var effectiveBarArea = scrollAreaHeight - scrollBarHeight - 2 * this.consts.scrollBarPadding;
 	    var effectiveOffsetMax = this.props.height - this.props.maxDisplayedHeight;
 	
-	    var scrollBarY = scrollAreaY + this.state.offsetY / effectiveOffsetMax * effectiveBarArea;
+	    var scrollBarY = scrollAreaY + this.consts.scrollBarPadding + this.state.offsetY / effectiveOffsetMax * effectiveBarArea;
 	
 	    var topScrollButtonY = this.props.y;
 	    var bottomScrollButtonY = this.props.y +
 	      this.props.maxDisplayedHeight -
-	      this.consts.scrollWidth;
+	      this.props.scrollWidth;
 	
 	    return (
 	      React.createElement("g", {className: this.props.className}, 
@@ -1132,40 +1673,36 @@
 	          x: this.props.x, y: this.props.y, 
 	          width: actualWidth, height: actualHeight, 
 	          viewBox: this.makeViewBox(), 
-	          onWheel: this.onWheel}, 
+	          onWheel: this.onWheel, 
+	          onTouchStart: this.onTouchStart, 
+	          onTouchMove: this.onTouchMove}, 
 	          React.createElement("rect", {//Fixes mouse wheel scrolling on blank parts
-	            x: this.props.x, y: this.props.y, 
+	            x: 0, y: 0, 
 	            width: actualWidth, height: this.props.height, 
 	            opacity: "0"}), 
 	          this.props.children
 	        ), 
 	
-	        this.makeTriangle(scrollX, topScrollButtonY, scrollWidth, scrollWidth, "up"), 
-	        React.createElement("rect", {
-	          x: scrollX, y: topScrollButtonY, 
-	          width: scrollWidth, height: scrollWidth, 
-	          fill: "gray", opacity: "0.5", 
-	          onClick: this.scrollElement.bind(this, -this.props.scrollMod), 
-	          className: "rf-scroll-button"}), 
+	        React.createElement("defs", null, 
+	          React.createElement("linearGradient", {id: this.consts.gradientId}, 
+	            React.createElement("stop", {offset: "0%", stopColor: "#CFCFCF"}), 
+	            React.createElement("stop", {offset: "10%", stopColor: "white"}), 
+	            React.createElement("stop", {offset: "90%", stopColor: "white"}), 
+	            React.createElement("stop", {offset: "100%", stopColor: "#CFCFCF"})
+	          )
+	        ), 
 	
 	        React.createElement("rect", {ref: "scrollArea", 
-	          x: scrollX, y: scrollAreaY, 
-	          width: scrollWidth, height: scrollAreaHeight, 
-	          fill: "gray", opacity: "0.5", 
+	          x: scrollAreaX, y: scrollAreaY, 
+	          width: scrollAreaWidth, height: scrollAreaHeight, 
+	          fill: "url(#" + this.consts.gradientId + ")", 
 	          className: "rf-scroll-area"}), 
 	        React.createElement("rect", {ref: "scrollBar", 
-	          x: scrollX, y: scrollBarY, 
-	          width: scrollWidth, height: scrollBarHeight, 
-	          fill: "gray", opacity: "0.8", 
-	          className: "rf-scroll-bar"}), 
-	
-	        this.makeTriangle(scrollX, bottomScrollButtonY, scrollWidth, scrollWidth, "down"), 
-	        React.createElement("rect", {
-	          x: scrollX, y: bottomScrollButtonY, 
-	          width: scrollWidth, height: scrollWidth, 
-	          fill: "gray", opacity: "0.5", 
-	          onClick: this.scrollElement.bind(this, this.props.scrollMod), 
-	          className: "rf-scroll-button"})
+	          x: scrollBarX, y: scrollBarY, 
+	          width: scrollBarWidth, height: scrollBarHeight, 
+	          rx: scrollBarWidth/2, ry: scrollBarWidth/2, 
+	          fill: "#989898", 
+	          className: "rf-scroll-bar"})
 	      )
 	    );
 	  },
@@ -1174,17 +1711,17 @@
 	module.exports = ScrollableSVG;
 
 /***/ },
-/* 7 */
+/* 8 */
 /***/ function(module, exports, __webpack_require__) {
 
 	// Copyright (c) 2012 Matias Meno <m@tias.me>
 	
 	
 	// The index.js file for component
-	var Opentip = __webpack_require__(15);
+	var Opentip = __webpack_require__(17);
 	
 	
-	var Adapter = __webpack_require__(16);
+	var Adapter = __webpack_require__(18);
 	
 	// Add the adapter to the list
 	Opentip.addAdapter(new Adapter());
@@ -1194,16 +1731,16 @@
 	module.exports = Opentip;
 
 /***/ },
-/* 8 */
+/* 9 */
 /***/ function(module, exports, __webpack_require__) {
 
 	// style-loader: Adds some css to the DOM by adding a <style> tag
 	
 	// load the styles
-	var content = __webpack_require__(9);
+	var content = __webpack_require__(10);
 	if(typeof content === 'string') content = [[module.id, content, '']];
 	// add the styles to the DOM
-	var update = __webpack_require__(14)(content, {});
+	var update = __webpack_require__(13)(content, {});
 	// Hot Module Replacement
 	if(false) {
 		// When the styles change, update the <style> tags
@@ -1217,23 +1754,23 @@
 	}
 
 /***/ },
-/* 9 */
+/* 10 */
 /***/ function(module, exports, __webpack_require__) {
 
-	exports = module.exports = __webpack_require__(18)();
-	exports.push([module.id, ".rf-unselected {\n    pointer-events: none;\n}", ""]);
+	exports = module.exports = __webpack_require__(19)();
+	exports.push([module.id, ".rf-unselected {\n    pointer-events: none;\n}\n\n.rf-label {\n    font-family: Helvetica;\n}\n\n.rf-label-bold {\n    font-family: Helvetica-bold;\n}\n\n.rf-title-label {\n    fill: #273441;\n    font-size: 18px;\n}\n\n.rf-density-label {\n    fill: #366894;\n    font-size: 15px;\n}\n\n.rf-value-label {\n    fill: #8c8d8c;\n    font-size: 13px;\n}\n\n.rf-category-label {\n    fill: #366894;\n    font-size: 14px;\n}\n\n.rf-coverage-label {\n    fill: #273441;\n    font-size: 13px;\n}\n\n.rf-footnotes {\n    fill: #273441;\n    font-size: 12px;\n}\n\n.rf-value-indicator-label {\n    fill: red;\n    font-size: 13px;\n}\n\n.rf-tooltip{\n    font-size: 13px;\n    color: #273441;\n}", ""]);
 
 /***/ },
-/* 10 */
+/* 11 */
 /***/ function(module, exports, __webpack_require__) {
 
 	// style-loader: Adds some css to the DOM by adding a <style> tag
 	
 	// load the styles
-	var content = __webpack_require__(11);
+	var content = __webpack_require__(12);
 	if(typeof content === 'string') content = [[module.id, content, '']];
 	// add the styles to the DOM
-	var update = __webpack_require__(14)(content, {});
+	var update = __webpack_require__(13)(content, {});
 	// Hot Module Replacement
 	if(false) {
 		// When the styles change, update the <style> tags
@@ -1247,229 +1784,14 @@
 	}
 
 /***/ },
-/* 11 */
-/***/ function(module, exports, __webpack_require__) {
-
-	exports = module.exports = __webpack_require__(18)();
-	exports.push([module.id, ".opentip-container,\n.opentip-container * {\n  -webkit-box-sizing: border-box;\n  -moz-box-sizing: border-box;\n  box-sizing: border-box;\n}\n.opentip-container {\n  position: absolute;\n  max-width: 300px;\n  z-index: 100;\n  -webkit-transition: -webkit-transform 1s ease-in-out;\n  -moz-transition: -moz-transform 1s ease-in-out;\n  -o-transition: -o-transform 1s ease-in-out;\n  -ms-transition: -ms-transform 1s ease-in-out;\n  transition: transform 1s ease-in-out;\n  pointer-events: none;\n  -webkit-transform: translateX(0) translateY(0);\n  -moz-transform: translateX(0) translateY(0);\n  -o-transform: translateX(0) translateY(0);\n  -ms-transform: translateX(0) translateY(0);\n  transform: translateX(0) translateY(0);\n}\n.opentip-container.ot-fixed.ot-hidden.stem-top.stem-center,\n.opentip-container.ot-fixed.ot-going-to-show.stem-top.stem-center,\n.opentip-container.ot-fixed.ot-hiding.stem-top.stem-center {\n  -webkit-transform: translateY(-5px);\n  -moz-transform: translateY(-5px);\n  -o-transform: translateY(-5px);\n  -ms-transform: translateY(-5px);\n  transform: translateY(-5px);\n}\n.opentip-container.ot-fixed.ot-hidden.stem-top.stem-right,\n.opentip-container.ot-fixed.ot-going-to-show.stem-top.stem-right,\n.opentip-container.ot-fixed.ot-hiding.stem-top.stem-right {\n  -webkit-transform: translateY(-5px) translateX(5px);\n  -moz-transform: translateY(-5px) translateX(5px);\n  -o-transform: translateY(-5px) translateX(5px);\n  -ms-transform: translateY(-5px) translateX(5px);\n  transform: translateY(-5px) translateX(5px);\n}\n.opentip-container.ot-fixed.ot-hidden.stem-middle.stem-right,\n.opentip-container.ot-fixed.ot-going-to-show.stem-middle.stem-right,\n.opentip-container.ot-fixed.ot-hiding.stem-middle.stem-right {\n  -webkit-transform: translateX(5px);\n  -moz-transform: translateX(5px);\n  -o-transform: translateX(5px);\n  -ms-transform: translateX(5px);\n  transform: translateX(5px);\n}\n.opentip-container.ot-fixed.ot-hidden.stem-bottom.stem-right,\n.opentip-container.ot-fixed.ot-going-to-show.stem-bottom.stem-right,\n.opentip-container.ot-fixed.ot-hiding.stem-bottom.stem-right {\n  -webkit-transform: translateY(5px) translateX(5px);\n  -moz-transform: translateY(5px) translateX(5px);\n  -o-transform: translateY(5px) translateX(5px);\n  -ms-transform: translateY(5px) translateX(5px);\n  transform: translateY(5px) translateX(5px);\n}\n.opentip-container.ot-fixed.ot-hidden.stem-bottom.stem-center,\n.opentip-container.ot-fixed.ot-going-to-show.stem-bottom.stem-center,\n.opentip-container.ot-fixed.ot-hiding.stem-bottom.stem-center {\n  -webkit-transform: translateY(5px);\n  -moz-transform: translateY(5px);\n  -o-transform: translateY(5px);\n  -ms-transform: translateY(5px);\n  transform: translateY(5px);\n}\n.opentip-container.ot-fixed.ot-hidden.stem-bottom.stem-left,\n.opentip-container.ot-fixed.ot-going-to-show.stem-bottom.stem-left,\n.opentip-container.ot-fixed.ot-hiding.stem-bottom.stem-left {\n  -webkit-transform: translateY(5px) translateX(-5px);\n  -moz-transform: translateY(5px) translateX(-5px);\n  -o-transform: translateY(5px) translateX(-5px);\n  -ms-transform: translateY(5px) translateX(-5px);\n  transform: translateY(5px) translateX(-5px);\n}\n.opentip-container.ot-fixed.ot-hidden.stem-middle.stem-left,\n.opentip-container.ot-fixed.ot-going-to-show.stem-middle.stem-left,\n.opentip-container.ot-fixed.ot-hiding.stem-middle.stem-left {\n  -webkit-transform: translateX(-5px);\n  -moz-transform: translateX(-5px);\n  -o-transform: translateX(-5px);\n  -ms-transform: translateX(-5px);\n  transform: translateX(-5px);\n}\n.opentip-container.ot-fixed.ot-hidden.stem-top.stem-left,\n.opentip-container.ot-fixed.ot-going-to-show.stem-top.stem-left,\n.opentip-container.ot-fixed.ot-hiding.stem-top.stem-left {\n  -webkit-transform: translateY(-5px) translateX(-5px);\n  -moz-transform: translateY(-5px) translateX(-5px);\n  -o-transform: translateY(-5px) translateX(-5px);\n  -ms-transform: translateY(-5px) translateX(-5px);\n  transform: translateY(-5px) translateX(-5px);\n}\n.opentip-container.ot-fixed .opentip {\n  pointer-events: auto;\n}\n.opentip-container.ot-hidden {\n  display: none;\n}\n.opentip-container .opentip {\n  position: relative;\n  font-size: 13px;\n  line-height: 120%;\n  padding: 9px 14px;\n  color: #4f4b47;\n  text-shadow: -1px -1px 0px rgba(255,255,255,0.2);\n}\n.opentip-container .opentip .header {\n  margin: 0;\n  padding: 0;\n}\n.opentip-container .opentip .ot-close {\n  pointer-events: auto;\n  display: block;\n  position: absolute;\n  top: -12px;\n  left: 60px;\n  color: rgba(0,0,0,0.5);\n  background: rgba(0,0,0,0);\n  text-decoration: none;\n}\n.opentip-container .opentip .ot-close span {\n  display: none;\n}\n.opentip-container .opentip .ot-loading-indicator {\n  display: none;\n}\n.opentip-container.ot-loading .ot-loading-indicator {\n  width: 30px;\n  height: 30px;\n  font-size: 30px;\n  line-height: 30px;\n  font-weight: bold;\n  display: block;\n}\n.opentip-container.ot-loading .ot-loading-indicator span {\n  display: block;\n  -webkit-animation: otloading 2s linear infinite;\n  -moz-animation: otloading 2s linear infinite;\n  -o-animation: otloading 2s linear infinite;\n  -ms-animation: otloading 2s linear infinite;\n  animation: otloading 2s linear infinite;\n  text-align: center;\n}\n.opentip-container.style-dark .opentip,\n.opentip-container.style-alert .opentip {\n  color: #f8f8f8;\n  text-shadow: 1px 1px 0px rgba(0,0,0,0.2);\n}\n.opentip-container.style-glass .opentip {\n  padding: 15px 25px;\n  color: #317cc5;\n  text-shadow: 1px 1px 8px rgba(0,94,153,0.3);\n}\n.opentip-container.ot-hide-effect-fade {\n  -webkit-transition: -webkit-transform 0.5s ease-in-out, opacity 1s ease-in-out;\n  -moz-transition: -moz-transform 0.5s ease-in-out, opacity 1s ease-in-out;\n  -o-transition: -o-transform 0.5s ease-in-out, opacity 1s ease-in-out;\n  -ms-transition: -ms-transform 0.5s ease-in-out, opacity 1s ease-in-out;\n  transition: transform 0.5s ease-in-out, opacity 1s ease-in-out;\n  opacity: 1;\n  -ms-filter: none;\n  filter: none;\n}\n.opentip-container.ot-hide-effect-fade.ot-hiding {\n  opacity: 0;\n  filter: alpha(opacity=0);\n  -ms-filter: \"progid:DXImageTransform.Microsoft.Alpha(Opacity=0)\";\n}\n.opentip-container.ot-show-effect-appear.ot-going-to-show,\n.opentip-container.ot-show-effect-appear.ot-showing {\n  -webkit-transition: -webkit-transform 0.5s ease-in-out, opacity 1s ease-in-out;\n  -moz-transition: -moz-transform 0.5s ease-in-out, opacity 1s ease-in-out;\n  -o-transition: -o-transform 0.5s ease-in-out, opacity 1s ease-in-out;\n  -ms-transition: -ms-transform 0.5s ease-in-out, opacity 1s ease-in-out;\n  transition: transform 0.5s ease-in-out, opacity 1s ease-in-out;\n}\n.opentip-container.ot-show-effect-appear.ot-going-to-show {\n  opacity: 0;\n  filter: alpha(opacity=0);\n  -ms-filter: \"progid:DXImageTransform.Microsoft.Alpha(Opacity=0)\";\n}\n.opentip-container.ot-show-effect-appear.ot-showing {\n  opacity: 1;\n  -ms-filter: none;\n  filter: none;\n}\n.opentip-container.ot-show-effect-appear.ot-visible {\n  opacity: 1;\n  -ms-filter: none;\n  filter: none;\n}\n@-moz-keyframes otloading {\n  0% {\n    -webkit-transform: rotate(0deg);\n    -moz-transform: rotate(0deg);\n    -o-transform: rotate(0deg);\n    -ms-transform: rotate(0deg);\n    transform: rotate(0deg);\n  }\n\n  100% {\n    -webkit-transform: rotate(360deg);\n    -moz-transform: rotate(360deg);\n    -o-transform: rotate(360deg);\n    -ms-transform: rotate(360deg);\n    transform: rotate(360deg);\n  }\n}\n@-webkit-keyframes otloading {\n  0% {\n    -webkit-transform: rotate(0deg);\n    -moz-transform: rotate(0deg);\n    -o-transform: rotate(0deg);\n    -ms-transform: rotate(0deg);\n    transform: rotate(0deg);\n  }\n\n  100% {\n    -webkit-transform: rotate(360deg);\n    -moz-transform: rotate(360deg);\n    -o-transform: rotate(360deg);\n    -ms-transform: rotate(360deg);\n    transform: rotate(360deg);\n  }\n}\n@-o-keyframes otloading {\n  0% {\n    -webkit-transform: rotate(0deg);\n    -moz-transform: rotate(0deg);\n    -o-transform: rotate(0deg);\n    -ms-transform: rotate(0deg);\n    transform: rotate(0deg);\n  }\n\n  100% {\n    -webkit-transform: rotate(360deg);\n    -moz-transform: rotate(360deg);\n    -o-transform: rotate(360deg);\n    -ms-transform: rotate(360deg);\n    transform: rotate(360deg);\n  }\n}\n@-ms-keyframes otloading {\n  0% {\n    -webkit-transform: rotate(0deg);\n    -moz-transform: rotate(0deg);\n    -o-transform: rotate(0deg);\n    -ms-transform: rotate(0deg);\n    transform: rotate(0deg);\n  }\n\n  100% {\n    -webkit-transform: rotate(360deg);\n    -moz-transform: rotate(360deg);\n    -o-transform: rotate(360deg);\n    -ms-transform: rotate(360deg);\n    transform: rotate(360deg);\n  }\n}\n@keyframes otloading {\n  0% {\n    -webkit-transform: rotate(0deg);\n    -moz-transform: rotate(0deg);\n    -o-transform: rotate(0deg);\n    -ms-transform: rotate(0deg);\n    transform: rotate(0deg);\n  }\n\n  100% {\n    -webkit-transform: rotate(360deg);\n    -moz-transform: rotate(360deg);\n    -o-transform: rotate(360deg);\n    -ms-transform: rotate(360deg);\n    transform: rotate(360deg);\n  }\n}\n", ""]);
-
-/***/ },
 /* 12 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var React = __webpack_require__(1);
-	var interact = __webpack_require__(17);
-	
-	module.exports = React.createClass({displayName: "exports",
-	  getInitialState: function() {
-	    var x = this.props.x;
-	    var value = this.props.valueLookup.byLocation[x];
-	
-	    return { x: x, value: value };
-	  },
-	
-	  consts: {
-	    textMargin: 2
-	  },
-	
-	  getDefaultProps: function() {
-	    return {
-	      height: 60,
-	      handleSize: 10,
-	      onDragMove: function(value) {},
-	      onDragEnd: function(value) {}
-	    };
-	  },
-	
-	  componentDidMount: function() {
-	    var self = this;
-	
-	    interact(self.getDOMNode())
-	      .draggable({
-	        snap: {
-	          targets: this.props.snapGrid,
-	          range: Infinity,
-	        }
-	      })
-	      .on('dragmove', function (event) {
-	        var x = event.clientX;
-	        var value = self.props.valueLookup.byLocation[x];
-	
-	        self.setState({x: x, value: value});
-	        self.props.onDragMove(value, x);
-	      })
-	      .on('dragend', function (event) {
-	        var x = event.clientX;
-	        var value = self.props.valueLookup.byLocation[x];
-	
-	        self.props.onDragEnd(value);
-	      });
-	  },
-	
-	  componentDidUpdate: function() {
-	    var self = this;
-	
-	    interact(self.getDOMNode())
-	      .draggable({
-	        snap: {
-	          targets: this.props.snapGrid,
-	          range: Infinity,
-	        }
-	      });
-	  },
-	
-	  render: function() {
-	    var x = this.state.x;
-	    var y = this.props.y;
-	    var height = this.props.height;
-	    var handleSize = this.props.handleSize;
-	    var handleAnchor = this.props.handleAnchor;
-	    var textMargin = this.consts.textMargin;
-	
-	    var handleOffset = handleSize * handleAnchor;
-	    var handleX = x - handleOffset;
-	    var handleY = y - 0.5 * handleSize;
-	    return (
-	      React.createElement("g", {className: "rf-slider"}, 
-	        React.createElement("text", {
-	          x: x, y: handleY - textMargin, 
-	          textAnchor: handleAnchor === 0 ? "start" : "end", 
-	          className: "rf-label rf-slider-label"}, 
-	          this.state.value
-	        ), 
-	        React.createElement("rect", {
-	          x: handleX, y: handleY, 
-	          width: handleSize, height: handleSize, 
-	          strokeWidth: "2", 
-	          stroke: "black", 
-	          className: "rf-slider-handle"}), 
-	        React.createElement("line", {
-	          x1: x, y1: y, 
-	          x2: x, y2: y + height, 
-	          strokeWidth: "2", 
-	          stroke: "black", 
-	          className: "rf-slider-bar"}), 
-	        React.createElement("rect", {
-	          x: handleX, y: handleY + height, 
-	          width: handleSize, height: handleSize, 
-	          strokeWidth: "2", 
-	          stroke: "black", 
-	          className: "rf-slider-handle"})
-	      )
-	    )
-	  }
-	});
+	exports = module.exports = __webpack_require__(19)();
+	exports.push([module.id, ".opentip-container,\n.opentip-container * {\n  -webkit-box-sizing: border-box;\n  -moz-box-sizing: border-box;\n  box-sizing: border-box;\n}\n.opentip-container {\n  position: absolute;\n  max-width: 300px;\n  z-index: 100;\n  -webkit-transition: -webkit-transform 1s ease-in-out;\n  -moz-transition: -moz-transform 1s ease-in-out;\n  -o-transition: -o-transform 1s ease-in-out;\n  -ms-transition: -ms-transform 1s ease-in-out;\n  transition: transform 1s ease-in-out;\n  pointer-events: none;\n  -webkit-transform: translateX(0) translateY(0);\n  -moz-transform: translateX(0) translateY(0);\n  -o-transform: translateX(0) translateY(0);\n  -ms-transform: translateX(0) translateY(0);\n  transform: translateX(0) translateY(0);\n}\n.opentip-container.ot-fixed.ot-hidden.stem-top.stem-center,\n.opentip-container.ot-fixed.ot-going-to-show.stem-top.stem-center,\n.opentip-container.ot-fixed.ot-hiding.stem-top.stem-center {\n  -webkit-transform: translateY(-5px);\n  -moz-transform: translateY(-5px);\n  -o-transform: translateY(-5px);\n  -ms-transform: translateY(-5px);\n  transform: translateY(-5px);\n}\n.opentip-container.ot-fixed.ot-hidden.stem-top.stem-right,\n.opentip-container.ot-fixed.ot-going-to-show.stem-top.stem-right,\n.opentip-container.ot-fixed.ot-hiding.stem-top.stem-right {\n  -webkit-transform: translateY(-5px) translateX(5px);\n  -moz-transform: translateY(-5px) translateX(5px);\n  -o-transform: translateY(-5px) translateX(5px);\n  -ms-transform: translateY(-5px) translateX(5px);\n  transform: translateY(-5px) translateX(5px);\n}\n.opentip-container.ot-fixed.ot-hidden.stem-middle.stem-right,\n.opentip-container.ot-fixed.ot-going-to-show.stem-middle.stem-right,\n.opentip-container.ot-fixed.ot-hiding.stem-middle.stem-right {\n  -webkit-transform: translateX(5px);\n  -moz-transform: translateX(5px);\n  -o-transform: translateX(5px);\n  -ms-transform: translateX(5px);\n  transform: translateX(5px);\n}\n.opentip-container.ot-fixed.ot-hidden.stem-bottom.stem-right,\n.opentip-container.ot-fixed.ot-going-to-show.stem-bottom.stem-right,\n.opentip-container.ot-fixed.ot-hiding.stem-bottom.stem-right {\n  -webkit-transform: translateY(5px) translateX(5px);\n  -moz-transform: translateY(5px) translateX(5px);\n  -o-transform: translateY(5px) translateX(5px);\n  -ms-transform: translateY(5px) translateX(5px);\n  transform: translateY(5px) translateX(5px);\n}\n.opentip-container.ot-fixed.ot-hidden.stem-bottom.stem-center,\n.opentip-container.ot-fixed.ot-going-to-show.stem-bottom.stem-center,\n.opentip-container.ot-fixed.ot-hiding.stem-bottom.stem-center {\n  -webkit-transform: translateY(5px);\n  -moz-transform: translateY(5px);\n  -o-transform: translateY(5px);\n  -ms-transform: translateY(5px);\n  transform: translateY(5px);\n}\n.opentip-container.ot-fixed.ot-hidden.stem-bottom.stem-left,\n.opentip-container.ot-fixed.ot-going-to-show.stem-bottom.stem-left,\n.opentip-container.ot-fixed.ot-hiding.stem-bottom.stem-left {\n  -webkit-transform: translateY(5px) translateX(-5px);\n  -moz-transform: translateY(5px) translateX(-5px);\n  -o-transform: translateY(5px) translateX(-5px);\n  -ms-transform: translateY(5px) translateX(-5px);\n  transform: translateY(5px) translateX(-5px);\n}\n.opentip-container.ot-fixed.ot-hidden.stem-middle.stem-left,\n.opentip-container.ot-fixed.ot-going-to-show.stem-middle.stem-left,\n.opentip-container.ot-fixed.ot-hiding.stem-middle.stem-left {\n  -webkit-transform: translateX(-5px);\n  -moz-transform: translateX(-5px);\n  -o-transform: translateX(-5px);\n  -ms-transform: translateX(-5px);\n  transform: translateX(-5px);\n}\n.opentip-container.ot-fixed.ot-hidden.stem-top.stem-left,\n.opentip-container.ot-fixed.ot-going-to-show.stem-top.stem-left,\n.opentip-container.ot-fixed.ot-hiding.stem-top.stem-left {\n  -webkit-transform: translateY(-5px) translateX(-5px);\n  -moz-transform: translateY(-5px) translateX(-5px);\n  -o-transform: translateY(-5px) translateX(-5px);\n  -ms-transform: translateY(-5px) translateX(-5px);\n  transform: translateY(-5px) translateX(-5px);\n}\n.opentip-container.ot-fixed .opentip {\n  pointer-events: auto;\n}\n.opentip-container.ot-hidden {\n  display: none;\n}\n.opentip-container .opentip {\n  position: relative;\n  font-size: 13px;\n  line-height: 120%;\n  padding: 9px 14px;\n  color: #4f4b47;\n  text-shadow: -1px -1px 0px rgba(255,255,255,0.2);\n}\n.opentip-container .opentip .header {\n  margin: 0;\n  padding: 0;\n}\n.opentip-container .opentip .ot-close {\n  pointer-events: auto;\n  display: block;\n  position: absolute;\n  top: -12px;\n  left: 60px;\n  color: rgba(0,0,0,0.5);\n  background: rgba(0,0,0,0);\n  text-decoration: none;\n}\n.opentip-container .opentip .ot-close span {\n  display: none;\n}\n.opentip-container .opentip .ot-loading-indicator {\n  display: none;\n}\n.opentip-container.ot-loading .ot-loading-indicator {\n  width: 30px;\n  height: 30px;\n  font-size: 30px;\n  line-height: 30px;\n  font-weight: bold;\n  display: block;\n}\n.opentip-container.ot-loading .ot-loading-indicator span {\n  display: block;\n  -webkit-animation: otloading 2s linear infinite;\n  -moz-animation: otloading 2s linear infinite;\n  -o-animation: otloading 2s linear infinite;\n  -ms-animation: otloading 2s linear infinite;\n  animation: otloading 2s linear infinite;\n  text-align: center;\n}\n.opentip-container.style-dark .opentip,\n.opentip-container.style-alert .opentip {\n  color: #f8f8f8;\n  text-shadow: 1px 1px 0px rgba(0,0,0,0.2);\n}\n.opentip-container.style-glass .opentip {\n  padding: 15px 25px;\n  color: #317cc5;\n  text-shadow: 1px 1px 8px rgba(0,94,153,0.3);\n}\n.opentip-container.ot-hide-effect-fade {\n  -webkit-transition: -webkit-transform 0.5s ease-in-out, opacity 1s ease-in-out;\n  -moz-transition: -moz-transform 0.5s ease-in-out, opacity 1s ease-in-out;\n  -o-transition: -o-transform 0.5s ease-in-out, opacity 1s ease-in-out;\n  -ms-transition: -ms-transform 0.5s ease-in-out, opacity 1s ease-in-out;\n  transition: transform 0.5s ease-in-out, opacity 1s ease-in-out;\n  opacity: 1;\n  -ms-filter: none;\n  filter: none;\n}\n.opentip-container.ot-hide-effect-fade.ot-hiding {\n  opacity: 0;\n  filter: alpha(opacity=0);\n  -ms-filter: \"progid:DXImageTransform.Microsoft.Alpha(Opacity=0)\";\n}\n.opentip-container.ot-show-effect-appear.ot-going-to-show,\n.opentip-container.ot-show-effect-appear.ot-showing {\n  -webkit-transition: -webkit-transform 0.5s ease-in-out, opacity 1s ease-in-out;\n  -moz-transition: -moz-transform 0.5s ease-in-out, opacity 1s ease-in-out;\n  -o-transition: -o-transform 0.5s ease-in-out, opacity 1s ease-in-out;\n  -ms-transition: -ms-transform 0.5s ease-in-out, opacity 1s ease-in-out;\n  transition: transform 0.5s ease-in-out, opacity 1s ease-in-out;\n}\n.opentip-container.ot-show-effect-appear.ot-going-to-show {\n  opacity: 0;\n  filter: alpha(opacity=0);\n  -ms-filter: \"progid:DXImageTransform.Microsoft.Alpha(Opacity=0)\";\n}\n.opentip-container.ot-show-effect-appear.ot-showing {\n  opacity: 1;\n  -ms-filter: none;\n  filter: none;\n}\n.opentip-container.ot-show-effect-appear.ot-visible {\n  opacity: 1;\n  -ms-filter: none;\n  filter: none;\n}\n@-moz-keyframes otloading {\n  0% {\n    -webkit-transform: rotate(0deg);\n    -moz-transform: rotate(0deg);\n    -o-transform: rotate(0deg);\n    -ms-transform: rotate(0deg);\n    transform: rotate(0deg);\n  }\n\n  100% {\n    -webkit-transform: rotate(360deg);\n    -moz-transform: rotate(360deg);\n    -o-transform: rotate(360deg);\n    -ms-transform: rotate(360deg);\n    transform: rotate(360deg);\n  }\n}\n@-webkit-keyframes otloading {\n  0% {\n    -webkit-transform: rotate(0deg);\n    -moz-transform: rotate(0deg);\n    -o-transform: rotate(0deg);\n    -ms-transform: rotate(0deg);\n    transform: rotate(0deg);\n  }\n\n  100% {\n    -webkit-transform: rotate(360deg);\n    -moz-transform: rotate(360deg);\n    -o-transform: rotate(360deg);\n    -ms-transform: rotate(360deg);\n    transform: rotate(360deg);\n  }\n}\n@-o-keyframes otloading {\n  0% {\n    -webkit-transform: rotate(0deg);\n    -moz-transform: rotate(0deg);\n    -o-transform: rotate(0deg);\n    -ms-transform: rotate(0deg);\n    transform: rotate(0deg);\n  }\n\n  100% {\n    -webkit-transform: rotate(360deg);\n    -moz-transform: rotate(360deg);\n    -o-transform: rotate(360deg);\n    -ms-transform: rotate(360deg);\n    transform: rotate(360deg);\n  }\n}\n@-ms-keyframes otloading {\n  0% {\n    -webkit-transform: rotate(0deg);\n    -moz-transform: rotate(0deg);\n    -o-transform: rotate(0deg);\n    -ms-transform: rotate(0deg);\n    transform: rotate(0deg);\n  }\n\n  100% {\n    -webkit-transform: rotate(360deg);\n    -moz-transform: rotate(360deg);\n    -o-transform: rotate(360deg);\n    -ms-transform: rotate(360deg);\n    transform: rotate(360deg);\n  }\n}\n@keyframes otloading {\n  0% {\n    -webkit-transform: rotate(0deg);\n    -moz-transform: rotate(0deg);\n    -o-transform: rotate(0deg);\n    -ms-transform: rotate(0deg);\n    transform: rotate(0deg);\n  }\n\n  100% {\n    -webkit-transform: rotate(360deg);\n    -moz-transform: rotate(360deg);\n    -o-transform: rotate(360deg);\n    -ms-transform: rotate(360deg);\n    transform: rotate(360deg);\n  }\n}\n", ""]);
 
 /***/ },
 /* 13 */
-/***/ function(module, exports, __webpack_require__) {
-
-	var React = __webpack_require__(1);
-	
-	
-	var CoverageBar = React.createClass({displayName: "CoverageBar",
-	  getInitialState: function() {
-	    return {};
-	  },
-	
-	  propTypes: {
-	    x: React.PropTypes.number.isRequired,
-	    y: React.PropTypes.number.isRequired,
-	    width: React.PropTypes.number.isRequired,
-	    height: React.PropTypes.number,
-	    color: React.PropTypes.string,
-	
-	    textMargin: React.PropTypes.number,
-	    label: React.PropTypes.string,
-	    tooltip: React.PropTypes.string,
-	
-	    start: React.PropTypes.number.isRequired,
-	    end: React.PropTypes.number.isRequired,
-	    coverage: React.PropTypes.arrayOf(
-	      React.PropTypes.shape({
-	        start: React.PropTypes.number,
-	        end: React.PropTypes.number
-	      })
-	    ).isRequired
-	  },
-	
-	  getDefaultProps: function() {
-	    return {
-	      height: 5,
-	      textMargin: 5,
-	      color: "black"
-	    };
-	  },
-	
-	  makeCoverageBar: function(barStart, barEnd, id) {
-	    var start = this.props.start;
-	    var end = this.props.end;
-	    var width = this.props.width;
-	
-	    var range = end - start;
-	    var barRange = barEnd - barStart;
-	    var barOffset = barStart - start;
-	
-	    var barWidth = width * barRange / range;
-	    var barX = this.props.x + width * barOffset / range;
-	
-	    return (
-	      React.createElement("rect", {
-	        key: "coverageBar" + id, 
-	        "data-ot": barStart + " to " + barEnd, 
-	        "data-ot-show-effect-duration": "0", 
-	        x: barX, 
-	        y: this.props.y, 
-	        width: barWidth, 
-	        height: this.props.height, 
-	        fill: this.props.color, 
-	        className: "rf-coverage-bar"})
-	    );
-	  },
-	
-	  makeCoverageBars: function() {
-	    return this.props.coverage.map(function (item, id) {
-	      return this.makeCoverageBar(item.start, item.end, id);
-	    }, this);
-	  },
-	
-	  render: function() {
-	    var bars = this.makeCoverageBars();
-	
-	    var x1 = this.props.x;
-	    var x2 = this.props.x + this.props.width;
-	
-	    var y = this.props.y + this.props.height/2;
-	
-	    return (
-	      React.createElement("g", {className: "rf-coverage"}, 
-	        React.createElement("line", {
-	          x1: x1, y1: y, 
-	          x2: x2, y2: y, 
-	          strokeWidth: "1", 
-	          stroke: this.props.color, 
-	          strokeDasharray: "5, 5", 
-	          className: "rf-coverage-line"}), 
-	
-	        bars, 
-	
-	        React.createElement("text", {
-	          "data-ot": this.props.tooltip, 
-	          x: x2 + this.props.textMargin, 
-	          y: y + this.props.height/2, 
-	          textAnchor: "start", 
-	          className: "rf-label rf-coverage-label"}, 
-	            this.props.label
-	        )
-	      )
-	    );
-	  }
-	});
-	
-	module.exports = CoverageBar
-
-/***/ },
-/* 14 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/*
@@ -1665,12 +1987,1503 @@
 
 
 /***/ },
+/* 14 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var React = __webpack_require__(1);
+	var interact = __webpack_require__(20);
+	
+	module.exports = React.createClass({displayName: "exports",
+	  getInitialState: function() {
+	    var x = this.props.x;
+	    var value = this.props.valueLookup.byLocation[x];
+	
+	    return { x: x };
+	  },
+	
+	  consts: {
+	    textMargin: 12,
+	    borderRadius: 4,
+	  },
+	
+	  getDefaultProps: function() {
+	    return {
+	      height: 60,
+	      handleSize: 10,
+	      valueOffset: 0,
+	      onDrag: function(value) {},
+	      onRelease: function(value) {}
+	    };
+	  },
+	
+	  componentDidMount: function() {
+	    var self = this;
+	
+	    interact(self.getDOMNode())
+	      .draggable({
+	        snap: {
+	          targets: this.props.snapGrid,
+	          range: Infinity,
+	        }
+	      })
+	      .on('dragmove', function (event) {
+	        var x = event.pageX;
+	        var value = self.props.valueLookup.byLocation[x] + self.props.valueOffset;
+	
+	        self.setState({x: x});
+	        self.props.onDrag(value);
+	      })
+	      .on('dragend', function (event) {
+	        var x = event.pageX;
+	        var value = self.props.valueLookup.byLocation[x] + self.props.valueOffset;
+	
+	        self.props.onRelease(value);
+	      });
+	  },
+	
+	  componentDidUpdate: function() {
+	    var self = this;
+	
+	    interact(self.getDOMNode())
+	      .draggable({
+	        snap: {
+	          targets: this.props.snapGrid,
+	          range: Infinity,
+	        }
+	      });
+	  },
+	
+	  restrictToGrid: function(midX, width) {
+	    var thisLeft = midX - width/2;
+	    var thisRight = thisLeft + width;
+	
+	    var startX = this.props.startX;
+	    var endX = this.props.endX;
+	
+	    var startRight = startX + width/2;
+	    var endLeft = endX - width/2;
+	
+	    var startOverlapAdjust = Math.max(startRight - thisLeft, 0)/2;
+	    var endOverlapAdjust = Math.max(thisRight - endLeft, 0)/2;
+	
+	    return thisLeft + startOverlapAdjust - endOverlapAdjust;
+	  },
+	
+	  makeLabel: function(x, y) {
+	    if(this.props.valueLookup.isEndPoint[x]) {
+	      return null;
+	    }
+	
+	    var tailOffsetY = -12;
+	
+	    var pointWidth = 16;
+	    var pointHeight = 10;
+	
+	    var bgWidth = 48;
+	    var bgHeight = 25;
+	    var bgX = this.restrictToGrid(x, bgWidth);
+	    var bgY = y - bgHeight - pointHeight + tailOffsetY;
+	
+	    var textX = bgX + bgWidth/2;
+	    var textY = bgY + bgHeight * 0.65;
+	
+	    var midX = x;
+	    var leftX = Math.max(x - pointWidth/2, bgX);
+	    var rightX = Math.min(x + pointWidth/2, bgX + bgWidth);
+	
+	    var baseY = bgY + bgHeight;
+	    var bottomY = baseY + pointHeight;
+	    var topY = baseY - this.consts.borderRadius;
+	
+	    var points =
+	      rightX + "," + topY + " " +
+	      rightX + "," + baseY + " " +
+	      midX + "," + bottomY + " " +
+	      leftX + "," + baseY + " " +
+	      leftX + "," + topY;
+	
+	    var value = this.props.valueLookup.byLocation[x] + this.props.valueOffset;
+	
+	    return (
+	      React.createElement("g", {className: "rf-value-indicator"}, 
+	        React.createElement("polyline", {
+	          fill: "white", 
+	          points: points, 
+	          className: "rf-value-indicator-balloon"}), 
+	        React.createElement("rect", {
+	          x: bgX, y: bgY, 
+	          rx: this.consts.borderRadius, ry: this.consts.borderRadius, 
+	          width: bgWidth, height: bgHeight, 
+	          fill: "white", 
+	          className: "rf-value-indicator-balloon"}), 
+	        React.createElement("text", {
+	          x: textX, y: textY, 
+	          textAnchor: "middle", 
+	          fontSize: this.props.fontSize, 
+	          fill: "red", 
+	          className: "rf-label rf-value-indicator-label"}, 
+	          value
+	        )
+	      )
+	    )
+	  },
+	
+	  render: function() {
+	    var x = this.state.x;
+	    var y = this.props.y;
+	    var height = this.props.height;
+	    var handleSize = this.props.handleSize;
+	    var textMargin = this.consts.textMargin;
+	
+	    var handleOffset = handleSize;
+	    var handleX = x - handleOffset;
+	    var handleY = y;
+	
+	    var ghostSizeModifier = 6;
+	    var ghostSize = ghostSizeModifier * handleSize;
+	
+	    var ghostX = this.restrictToGrid(x, ghostSize*2) + ghostSize;
+	    var ghostOpacity = 0;
+	
+	    var label = this.makeLabel(x, handleY);
+	
+	    return (
+	      React.createElement("g", {className: "rf-slider", draggable: "true"}, 
+	        React.createElement("line", {
+	          x1: x, y1: y, 
+	          x2: x, y2: y + height, 
+	          strokeWidth: "2", 
+	          stroke: "black", 
+	          className: "rf-slider-bar"}), 
+	        React.createElement("circle", {
+	          cx: x, cy: handleY, 
+	          r: handleSize, 
+	          strokeWidth: "2", 
+	          stroke: "#376893", 
+	          fill: "white", 
+	          ref: "topSlider", 
+	          className: "rf-slider-handle"}), 
+	        React.createElement("circle", {
+	          cx: x, cy: handleY + height, 
+	          r: handleSize, 
+	          strokeWidth: "2", 
+	          stroke: "#376893", 
+	          fill: "white", 
+	          className: "rf-slider-handle"}), 
+	        label, 
+	        React.createElement("circle", {
+	          cx: ghostX, cy: handleY, 
+	          r: ghostSize, 
+	          opacity: ghostOpacity}), 
+	        React.createElement("circle", {
+	          cx: ghostX, cy: handleY + height, 
+	          r: ghostSize, 
+	          opacity: ghostOpacity}), 
+	        React.createElement("rect", {
+	          x: ghostX - ghostSize, y: handleY, 
+	          width: ghostSize*2, height: height, 
+	          opacity: ghostOpacity})
+	      )
+	    )
+	  }
+	});
+
+/***/ },
 /* 15 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var React = __webpack_require__(1);
+	
+	
+	var CoverageBar = React.createClass({displayName: "CoverageBar",
+	  getInitialState: function() {
+	    return {};
+	  },
+	
+	  propTypes: {
+	    x: React.PropTypes.number.isRequired,
+	    y: React.PropTypes.number.isRequired,
+	    width: React.PropTypes.number.isRequired,
+	    height: React.PropTypes.number,
+	    color: React.PropTypes.string,
+	
+	    textMargin: React.PropTypes.number,
+	    label: React.PropTypes.string,
+	    tooltip: React.PropTypes.string,
+	
+	    min: React.PropTypes.number.isRequired,
+	    max: React.PropTypes.number.isRequired,
+	    coverage: React.PropTypes.arrayOf(
+	      React.PropTypes.shape({
+	        start: React.PropTypes.number,
+	        end: React.PropTypes.number
+	      })
+	    ).isRequired
+	  },
+	
+	  getDefaultProps: function() {
+	    return {
+	      height: 5,
+	      textMargin: 20,
+	      color: "black"
+	    };
+	  },
+	
+	  makeCoverageBar: function(barStart, barEnd, id) {
+	    var tooltip = barStart + " to " + barEnd;
+	
+	    var start = this.props.min;
+	    var end = this.props.max + this.props.stepSize;
+	    var width = this.props.width;
+	
+	    barEnd += this.props.stepSize;
+	
+	    var range = end - start;
+	    var barRange = barEnd - barStart;
+	    var barOffset = barStart - start;
+	
+	    var barWidth = width * barRange / range;
+	    var barX = this.props.x + width * barOffset / range;
+	
+	    barWidth = Math.max(barWidth, 1);
+	
+	    return (
+	      React.createElement("rect", {
+	        key: "coverageBar" + id, 
+	        "data-ot": tooltip, 
+	        "data-ot-show-effect-duration": "0", 
+	        x: barX, 
+	        y: this.props.y, 
+	        width: barWidth, 
+	        height: this.props.height, 
+	        fill: this.props.color, 
+	        className: "rf-coverage-bar"})
+	    );
+	  },
+	
+	  render: function() {
+	    var dataDensity = 0;
+	    var dashSize = Math.max(this.props.dashSize, 1);
+	
+	    var bars = this.props.coverage.map(function (item, id) {
+	        dataDensity += item.end - item.start + 1;
+	        return this.makeCoverageBar(item.start, item.end, id);
+	      }, this);
+	
+	    dataDensity /= this.props.max - this.props.min + 1;
+	
+	    var x1 = this.props.x;
+	    var x2 = this.props.x + this.props.width;
+	
+	    var y = this.props.y + this.props.height/2;
+	    var textYAdjust = 5;
+	
+	    var tooltip = this.props.tooltip;
+	    tooltip += "<br/><br/>" + Math.floor(dataDensity * 100) + "% covered";
+	
+	    return (
+	      React.createElement("g", {className: "rf-coverage"}, 
+	        React.createElement("line", {
+	          x1: x1, y1: y, 
+	          x2: x2, y2: y, 
+	          strokeWidth: "1", 
+	          stroke: this.props.color, 
+	          strokeDasharray: dashSize + ", " + dashSize, 
+	          className: "rf-coverage-line"}), 
+	
+	        bars, 
+	
+	        React.createElement("text", {
+	          "data-ot": tooltip, 
+	          x: this.props.textMargin, 
+	          y: y + textYAdjust, 
+	          textAnchor: "start", 
+	          fill: "#29333F", 
+	          dangerouslySetInnerHTML: {__html: this.props.label}, 
+	          className: "rf-label rf-coverage-label"})
+	      )
+	    );
+	  }
+	});
+	
+	module.exports = CoverageBar
+
+/***/ },
+/* 16 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var __WEBPACK_AMD_DEFINE_RESULT__;// TinyColor v1.1.2
+	// https://github.com/bgrins/TinyColor
+	// Brian Grinstead, MIT License
+	
+	(function() {
+	
+	var trimLeft = /^[\s,#]+/,
+	    trimRight = /\s+$/,
+	    tinyCounter = 0,
+	    math = Math,
+	    mathRound = math.round,
+	    mathMin = math.min,
+	    mathMax = math.max,
+	    mathRandom = math.random;
+	
+	function tinycolor (color, opts) {
+	
+	    color = (color) ? color : '';
+	    opts = opts || { };
+	
+	    // If input is already a tinycolor, return itself
+	    if (color instanceof tinycolor) {
+	       return color;
+	    }
+	    // If we are called as a function, call using new instead
+	    if (!(this instanceof tinycolor)) {
+	        return new tinycolor(color, opts);
+	    }
+	
+	    var rgb = inputToRGB(color);
+	    this._originalInput = color,
+	    this._r = rgb.r,
+	    this._g = rgb.g,
+	    this._b = rgb.b,
+	    this._a = rgb.a,
+	    this._roundA = mathRound(100*this._a) / 100,
+	    this._format = opts.format || rgb.format;
+	    this._gradientType = opts.gradientType;
+	
+	    // Don't let the range of [0,255] come back in [0,1].
+	    // Potentially lose a little bit of precision here, but will fix issues where
+	    // .5 gets interpreted as half of the total, instead of half of 1
+	    // If it was supposed to be 128, this was already taken care of by `inputToRgb`
+	    if (this._r < 1) { this._r = mathRound(this._r); }
+	    if (this._g < 1) { this._g = mathRound(this._g); }
+	    if (this._b < 1) { this._b = mathRound(this._b); }
+	
+	    this._ok = rgb.ok;
+	    this._tc_id = tinyCounter++;
+	}
+	
+	tinycolor.prototype = {
+	    isDark: function() {
+	        return this.getBrightness() < 128;
+	    },
+	    isLight: function() {
+	        return !this.isDark();
+	    },
+	    isValid: function() {
+	        return this._ok;
+	    },
+	    getOriginalInput: function() {
+	      return this._originalInput;
+	    },
+	    getFormat: function() {
+	        return this._format;
+	    },
+	    getAlpha: function() {
+	        return this._a;
+	    },
+	    getBrightness: function() {
+	        //http://www.w3.org/TR/AERT#color-contrast
+	        var rgb = this.toRgb();
+	        return (rgb.r * 299 + rgb.g * 587 + rgb.b * 114) / 1000;
+	    },
+	    getLuminance: function() {
+	        //http://www.w3.org/TR/2008/REC-WCAG20-20081211/#relativeluminancedef
+	        var rgb = this.toRgb();
+	        var RsRGB, GsRGB, BsRGB, R, G, B;
+	        RsRGB = rgb.r/255;
+	        GsRGB = rgb.g/255;
+	        BsRGB = rgb.b/255;
+	
+	        if (RsRGB <= 0.03928) {R = RsRGB / 12.92;} else {R = Math.pow(((RsRGB + 0.055) / 1.055), 2.4);}
+	        if (GsRGB <= 0.03928) {G = GsRGB / 12.92;} else {G = Math.pow(((GsRGB + 0.055) / 1.055), 2.4);}
+	        if (BsRGB <= 0.03928) {B = BsRGB / 12.92;} else {B = Math.pow(((BsRGB + 0.055) / 1.055), 2.4);}
+	        return (0.2126 * R) + (0.7152 * G) + (0.0722 * B);
+	    },
+	    setAlpha: function(value) {
+	        this._a = boundAlpha(value);
+	        this._roundA = mathRound(100*this._a) / 100;
+	        return this;
+	    },
+	    toHsv: function() {
+	        var hsv = rgbToHsv(this._r, this._g, this._b);
+	        return { h: hsv.h * 360, s: hsv.s, v: hsv.v, a: this._a };
+	    },
+	    toHsvString: function() {
+	        var hsv = rgbToHsv(this._r, this._g, this._b);
+	        var h = mathRound(hsv.h * 360), s = mathRound(hsv.s * 100), v = mathRound(hsv.v * 100);
+	        return (this._a == 1) ?
+	          "hsv("  + h + ", " + s + "%, " + v + "%)" :
+	          "hsva(" + h + ", " + s + "%, " + v + "%, "+ this._roundA + ")";
+	    },
+	    toHsl: function() {
+	        var hsl = rgbToHsl(this._r, this._g, this._b);
+	        return { h: hsl.h * 360, s: hsl.s, l: hsl.l, a: this._a };
+	    },
+	    toHslString: function() {
+	        var hsl = rgbToHsl(this._r, this._g, this._b);
+	        var h = mathRound(hsl.h * 360), s = mathRound(hsl.s * 100), l = mathRound(hsl.l * 100);
+	        return (this._a == 1) ?
+	          "hsl("  + h + ", " + s + "%, " + l + "%)" :
+	          "hsla(" + h + ", " + s + "%, " + l + "%, "+ this._roundA + ")";
+	    },
+	    toHex: function(allow3Char) {
+	        return rgbToHex(this._r, this._g, this._b, allow3Char);
+	    },
+	    toHexString: function(allow3Char) {
+	        return '#' + this.toHex(allow3Char);
+	    },
+	    toHex8: function() {
+	        return rgbaToHex(this._r, this._g, this._b, this._a);
+	    },
+	    toHex8String: function() {
+	        return '#' + this.toHex8();
+	    },
+	    toRgb: function() {
+	        return { r: mathRound(this._r), g: mathRound(this._g), b: mathRound(this._b), a: this._a };
+	    },
+	    toRgbString: function() {
+	        return (this._a == 1) ?
+	          "rgb("  + mathRound(this._r) + ", " + mathRound(this._g) + ", " + mathRound(this._b) + ")" :
+	          "rgba(" + mathRound(this._r) + ", " + mathRound(this._g) + ", " + mathRound(this._b) + ", " + this._roundA + ")";
+	    },
+	    toPercentageRgb: function() {
+	        return { r: mathRound(bound01(this._r, 255) * 100) + "%", g: mathRound(bound01(this._g, 255) * 100) + "%", b: mathRound(bound01(this._b, 255) * 100) + "%", a: this._a };
+	    },
+	    toPercentageRgbString: function() {
+	        return (this._a == 1) ?
+	          "rgb("  + mathRound(bound01(this._r, 255) * 100) + "%, " + mathRound(bound01(this._g, 255) * 100) + "%, " + mathRound(bound01(this._b, 255) * 100) + "%)" :
+	          "rgba(" + mathRound(bound01(this._r, 255) * 100) + "%, " + mathRound(bound01(this._g, 255) * 100) + "%, " + mathRound(bound01(this._b, 255) * 100) + "%, " + this._roundA + ")";
+	    },
+	    toName: function() {
+	        if (this._a === 0) {
+	            return "transparent";
+	        }
+	
+	        if (this._a < 1) {
+	            return false;
+	        }
+	
+	        return hexNames[rgbToHex(this._r, this._g, this._b, true)] || false;
+	    },
+	    toFilter: function(secondColor) {
+	        var hex8String = '#' + rgbaToHex(this._r, this._g, this._b, this._a);
+	        var secondHex8String = hex8String;
+	        var gradientType = this._gradientType ? "GradientType = 1, " : "";
+	
+	        if (secondColor) {
+	            var s = tinycolor(secondColor);
+	            secondHex8String = s.toHex8String();
+	        }
+	
+	        return "progid:DXImageTransform.Microsoft.gradient("+gradientType+"startColorstr="+hex8String+",endColorstr="+secondHex8String+")";
+	    },
+	    toString: function(format) {
+	        var formatSet = !!format;
+	        format = format || this._format;
+	
+	        var formattedString = false;
+	        var hasAlpha = this._a < 1 && this._a >= 0;
+	        var needsAlphaFormat = !formatSet && hasAlpha && (format === "hex" || format === "hex6" || format === "hex3" || format === "name");
+	
+	        if (needsAlphaFormat) {
+	            // Special case for "transparent", all other non-alpha formats
+	            // will return rgba when there is transparency.
+	            if (format === "name" && this._a === 0) {
+	                return this.toName();
+	            }
+	            return this.toRgbString();
+	        }
+	        if (format === "rgb") {
+	            formattedString = this.toRgbString();
+	        }
+	        if (format === "prgb") {
+	            formattedString = this.toPercentageRgbString();
+	        }
+	        if (format === "hex" || format === "hex6") {
+	            formattedString = this.toHexString();
+	        }
+	        if (format === "hex3") {
+	            formattedString = this.toHexString(true);
+	        }
+	        if (format === "hex8") {
+	            formattedString = this.toHex8String();
+	        }
+	        if (format === "name") {
+	            formattedString = this.toName();
+	        }
+	        if (format === "hsl") {
+	            formattedString = this.toHslString();
+	        }
+	        if (format === "hsv") {
+	            formattedString = this.toHsvString();
+	        }
+	
+	        return formattedString || this.toHexString();
+	    },
+	
+	    _applyModification: function(fn, args) {
+	        var color = fn.apply(null, [this].concat([].slice.call(args)));
+	        this._r = color._r;
+	        this._g = color._g;
+	        this._b = color._b;
+	        this.setAlpha(color._a);
+	        return this;
+	    },
+	    lighten: function() {
+	        return this._applyModification(lighten, arguments);
+	    },
+	    brighten: function() {
+	        return this._applyModification(brighten, arguments);
+	    },
+	    darken: function() {
+	        return this._applyModification(darken, arguments);
+	    },
+	    desaturate: function() {
+	        return this._applyModification(desaturate, arguments);
+	    },
+	    saturate: function() {
+	        return this._applyModification(saturate, arguments);
+	    },
+	    greyscale: function() {
+	        return this._applyModification(greyscale, arguments);
+	    },
+	    spin: function() {
+	        return this._applyModification(spin, arguments);
+	    },
+	
+	    _applyCombination: function(fn, args) {
+	        return fn.apply(null, [this].concat([].slice.call(args)));
+	    },
+	    analogous: function() {
+	        return this._applyCombination(analogous, arguments);
+	    },
+	    complement: function() {
+	        return this._applyCombination(complement, arguments);
+	    },
+	    monochromatic: function() {
+	        return this._applyCombination(monochromatic, arguments);
+	    },
+	    splitcomplement: function() {
+	        return this._applyCombination(splitcomplement, arguments);
+	    },
+	    triad: function() {
+	        return this._applyCombination(triad, arguments);
+	    },
+	    tetrad: function() {
+	        return this._applyCombination(tetrad, arguments);
+	    }
+	};
+	
+	// If input is an object, force 1 into "1.0" to handle ratios properly
+	// String input requires "1.0" as input, so 1 will be treated as 1
+	tinycolor.fromRatio = function(color, opts) {
+	    if (typeof color == "object") {
+	        var newColor = {};
+	        for (var i in color) {
+	            if (color.hasOwnProperty(i)) {
+	                if (i === "a") {
+	                    newColor[i] = color[i];
+	                }
+	                else {
+	                    newColor[i] = convertToPercentage(color[i]);
+	                }
+	            }
+	        }
+	        color = newColor;
+	    }
+	
+	    return tinycolor(color, opts);
+	};
+	
+	// Given a string or object, convert that input to RGB
+	// Possible string inputs:
+	//
+	//     "red"
+	//     "#f00" or "f00"
+	//     "#ff0000" or "ff0000"
+	//     "#ff000000" or "ff000000"
+	//     "rgb 255 0 0" or "rgb (255, 0, 0)"
+	//     "rgb 1.0 0 0" or "rgb (1, 0, 0)"
+	//     "rgba (255, 0, 0, 1)" or "rgba 255, 0, 0, 1"
+	//     "rgba (1.0, 0, 0, 1)" or "rgba 1.0, 0, 0, 1"
+	//     "hsl(0, 100%, 50%)" or "hsl 0 100% 50%"
+	//     "hsla(0, 100%, 50%, 1)" or "hsla 0 100% 50%, 1"
+	//     "hsv(0, 100%, 100%)" or "hsv 0 100% 100%"
+	//
+	function inputToRGB(color) {
+	
+	    var rgb = { r: 0, g: 0, b: 0 };
+	    var a = 1;
+	    var ok = false;
+	    var format = false;
+	
+	    if (typeof color == "string") {
+	        color = stringInputToObject(color);
+	    }
+	
+	    if (typeof color == "object") {
+	        if (color.hasOwnProperty("r") && color.hasOwnProperty("g") && color.hasOwnProperty("b")) {
+	            rgb = rgbToRgb(color.r, color.g, color.b);
+	            ok = true;
+	            format = String(color.r).substr(-1) === "%" ? "prgb" : "rgb";
+	        }
+	        else if (color.hasOwnProperty("h") && color.hasOwnProperty("s") && color.hasOwnProperty("v")) {
+	            color.s = convertToPercentage(color.s);
+	            color.v = convertToPercentage(color.v);
+	            rgb = hsvToRgb(color.h, color.s, color.v);
+	            ok = true;
+	            format = "hsv";
+	        }
+	        else if (color.hasOwnProperty("h") && color.hasOwnProperty("s") && color.hasOwnProperty("l")) {
+	            color.s = convertToPercentage(color.s);
+	            color.l = convertToPercentage(color.l);
+	            rgb = hslToRgb(color.h, color.s, color.l);
+	            ok = true;
+	            format = "hsl";
+	        }
+	
+	        if (color.hasOwnProperty("a")) {
+	            a = color.a;
+	        }
+	    }
+	
+	    a = boundAlpha(a);
+	
+	    return {
+	        ok: ok,
+	        format: color.format || format,
+	        r: mathMin(255, mathMax(rgb.r, 0)),
+	        g: mathMin(255, mathMax(rgb.g, 0)),
+	        b: mathMin(255, mathMax(rgb.b, 0)),
+	        a: a
+	    };
+	}
+	
+	
+	// Conversion Functions
+	// --------------------
+	
+	// `rgbToHsl`, `rgbToHsv`, `hslToRgb`, `hsvToRgb` modified from:
+	// <http://mjijackson.com/2008/02/rgb-to-hsl-and-rgb-to-hsv-color-model-conversion-algorithms-in-javascript>
+	
+	// `rgbToRgb`
+	// Handle bounds / percentage checking to conform to CSS color spec
+	// <http://www.w3.org/TR/css3-color/>
+	// *Assumes:* r, g, b in [0, 255] or [0, 1]
+	// *Returns:* { r, g, b } in [0, 255]
+	function rgbToRgb(r, g, b){
+	    return {
+	        r: bound01(r, 255) * 255,
+	        g: bound01(g, 255) * 255,
+	        b: bound01(b, 255) * 255
+	    };
+	}
+	
+	// `rgbToHsl`
+	// Converts an RGB color value to HSL.
+	// *Assumes:* r, g, and b are contained in [0, 255] or [0, 1]
+	// *Returns:* { h, s, l } in [0,1]
+	function rgbToHsl(r, g, b) {
+	
+	    r = bound01(r, 255);
+	    g = bound01(g, 255);
+	    b = bound01(b, 255);
+	
+	    var max = mathMax(r, g, b), min = mathMin(r, g, b);
+	    var h, s, l = (max + min) / 2;
+	
+	    if(max == min) {
+	        h = s = 0; // achromatic
+	    }
+	    else {
+	        var d = max - min;
+	        s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+	        switch(max) {
+	            case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+	            case g: h = (b - r) / d + 2; break;
+	            case b: h = (r - g) / d + 4; break;
+	        }
+	
+	        h /= 6;
+	    }
+	
+	    return { h: h, s: s, l: l };
+	}
+	
+	// `hslToRgb`
+	// Converts an HSL color value to RGB.
+	// *Assumes:* h is contained in [0, 1] or [0, 360] and s and l are contained [0, 1] or [0, 100]
+	// *Returns:* { r, g, b } in the set [0, 255]
+	function hslToRgb(h, s, l) {
+	    var r, g, b;
+	
+	    h = bound01(h, 360);
+	    s = bound01(s, 100);
+	    l = bound01(l, 100);
+	
+	    function hue2rgb(p, q, t) {
+	        if(t < 0) t += 1;
+	        if(t > 1) t -= 1;
+	        if(t < 1/6) return p + (q - p) * 6 * t;
+	        if(t < 1/2) return q;
+	        if(t < 2/3) return p + (q - p) * (2/3 - t) * 6;
+	        return p;
+	    }
+	
+	    if(s === 0) {
+	        r = g = b = l; // achromatic
+	    }
+	    else {
+	        var q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+	        var p = 2 * l - q;
+	        r = hue2rgb(p, q, h + 1/3);
+	        g = hue2rgb(p, q, h);
+	        b = hue2rgb(p, q, h - 1/3);
+	    }
+	
+	    return { r: r * 255, g: g * 255, b: b * 255 };
+	}
+	
+	// `rgbToHsv`
+	// Converts an RGB color value to HSV
+	// *Assumes:* r, g, and b are contained in the set [0, 255] or [0, 1]
+	// *Returns:* { h, s, v } in [0,1]
+	function rgbToHsv(r, g, b) {
+	
+	    r = bound01(r, 255);
+	    g = bound01(g, 255);
+	    b = bound01(b, 255);
+	
+	    var max = mathMax(r, g, b), min = mathMin(r, g, b);
+	    var h, s, v = max;
+	
+	    var d = max - min;
+	    s = max === 0 ? 0 : d / max;
+	
+	    if(max == min) {
+	        h = 0; // achromatic
+	    }
+	    else {
+	        switch(max) {
+	            case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+	            case g: h = (b - r) / d + 2; break;
+	            case b: h = (r - g) / d + 4; break;
+	        }
+	        h /= 6;
+	    }
+	    return { h: h, s: s, v: v };
+	}
+	
+	// `hsvToRgb`
+	// Converts an HSV color value to RGB.
+	// *Assumes:* h is contained in [0, 1] or [0, 360] and s and v are contained in [0, 1] or [0, 100]
+	// *Returns:* { r, g, b } in the set [0, 255]
+	 function hsvToRgb(h, s, v) {
+	
+	    h = bound01(h, 360) * 6;
+	    s = bound01(s, 100);
+	    v = bound01(v, 100);
+	
+	    var i = math.floor(h),
+	        f = h - i,
+	        p = v * (1 - s),
+	        q = v * (1 - f * s),
+	        t = v * (1 - (1 - f) * s),
+	        mod = i % 6,
+	        r = [v, q, p, p, t, v][mod],
+	        g = [t, v, v, q, p, p][mod],
+	        b = [p, p, t, v, v, q][mod];
+	
+	    return { r: r * 255, g: g * 255, b: b * 255 };
+	}
+	
+	// `rgbToHex`
+	// Converts an RGB color to hex
+	// Assumes r, g, and b are contained in the set [0, 255]
+	// Returns a 3 or 6 character hex
+	function rgbToHex(r, g, b, allow3Char) {
+	
+	    var hex = [
+	        pad2(mathRound(r).toString(16)),
+	        pad2(mathRound(g).toString(16)),
+	        pad2(mathRound(b).toString(16))
+	    ];
+	
+	    // Return a 3 character hex if possible
+	    if (allow3Char && hex[0].charAt(0) == hex[0].charAt(1) && hex[1].charAt(0) == hex[1].charAt(1) && hex[2].charAt(0) == hex[2].charAt(1)) {
+	        return hex[0].charAt(0) + hex[1].charAt(0) + hex[2].charAt(0);
+	    }
+	
+	    return hex.join("");
+	}
+	    // `rgbaToHex`
+	    // Converts an RGBA color plus alpha transparency to hex
+	    // Assumes r, g, b and a are contained in the set [0, 255]
+	    // Returns an 8 character hex
+	    function rgbaToHex(r, g, b, a) {
+	
+	        var hex = [
+	            pad2(convertDecimalToHex(a)),
+	            pad2(mathRound(r).toString(16)),
+	            pad2(mathRound(g).toString(16)),
+	            pad2(mathRound(b).toString(16))
+	        ];
+	
+	        return hex.join("");
+	    }
+	
+	// `equals`
+	// Can be called with any tinycolor input
+	tinycolor.equals = function (color1, color2) {
+	    if (!color1 || !color2) { return false; }
+	    return tinycolor(color1).toRgbString() == tinycolor(color2).toRgbString();
+	};
+	tinycolor.random = function() {
+	    return tinycolor.fromRatio({
+	        r: mathRandom(),
+	        g: mathRandom(),
+	        b: mathRandom()
+	    });
+	};
+	
+	
+	// Modification Functions
+	// ----------------------
+	// Thanks to less.js for some of the basics here
+	// <https://github.com/cloudhead/less.js/blob/master/lib/less/functions.js>
+	
+	function desaturate(color, amount) {
+	    amount = (amount === 0) ? 0 : (amount || 10);
+	    var hsl = tinycolor(color).toHsl();
+	    hsl.s -= amount / 100;
+	    hsl.s = clamp01(hsl.s);
+	    return tinycolor(hsl);
+	}
+	
+	function saturate(color, amount) {
+	    amount = (amount === 0) ? 0 : (amount || 10);
+	    var hsl = tinycolor(color).toHsl();
+	    hsl.s += amount / 100;
+	    hsl.s = clamp01(hsl.s);
+	    return tinycolor(hsl);
+	}
+	
+	function greyscale(color) {
+	    return tinycolor(color).desaturate(100);
+	}
+	
+	function lighten (color, amount) {
+	    amount = (amount === 0) ? 0 : (amount || 10);
+	    var hsl = tinycolor(color).toHsl();
+	    hsl.l += amount / 100;
+	    hsl.l = clamp01(hsl.l);
+	    return tinycolor(hsl);
+	}
+	
+	function brighten(color, amount) {
+	    amount = (amount === 0) ? 0 : (amount || 10);
+	    var rgb = tinycolor(color).toRgb();
+	    rgb.r = mathMax(0, mathMin(255, rgb.r - mathRound(255 * - (amount / 100))));
+	    rgb.g = mathMax(0, mathMin(255, rgb.g - mathRound(255 * - (amount / 100))));
+	    rgb.b = mathMax(0, mathMin(255, rgb.b - mathRound(255 * - (amount / 100))));
+	    return tinycolor(rgb);
+	}
+	
+	function darken (color, amount) {
+	    amount = (amount === 0) ? 0 : (amount || 10);
+	    var hsl = tinycolor(color).toHsl();
+	    hsl.l -= amount / 100;
+	    hsl.l = clamp01(hsl.l);
+	    return tinycolor(hsl);
+	}
+	
+	// Spin takes a positive or negative amount within [-360, 360] indicating the change of hue.
+	// Values outside of this range will be wrapped into this range.
+	function spin(color, amount) {
+	    var hsl = tinycolor(color).toHsl();
+	    var hue = (mathRound(hsl.h) + amount) % 360;
+	    hsl.h = hue < 0 ? 360 + hue : hue;
+	    return tinycolor(hsl);
+	}
+	
+	// Combination Functions
+	// ---------------------
+	// Thanks to jQuery xColor for some of the ideas behind these
+	// <https://github.com/infusion/jQuery-xcolor/blob/master/jquery.xcolor.js>
+	
+	function complement(color) {
+	    var hsl = tinycolor(color).toHsl();
+	    hsl.h = (hsl.h + 180) % 360;
+	    return tinycolor(hsl);
+	}
+	
+	function triad(color) {
+	    var hsl = tinycolor(color).toHsl();
+	    var h = hsl.h;
+	    return [
+	        tinycolor(color),
+	        tinycolor({ h: (h + 120) % 360, s: hsl.s, l: hsl.l }),
+	        tinycolor({ h: (h + 240) % 360, s: hsl.s, l: hsl.l })
+	    ];
+	}
+	
+	function tetrad(color) {
+	    var hsl = tinycolor(color).toHsl();
+	    var h = hsl.h;
+	    return [
+	        tinycolor(color),
+	        tinycolor({ h: (h + 90) % 360, s: hsl.s, l: hsl.l }),
+	        tinycolor({ h: (h + 180) % 360, s: hsl.s, l: hsl.l }),
+	        tinycolor({ h: (h + 270) % 360, s: hsl.s, l: hsl.l })
+	    ];
+	}
+	
+	function splitcomplement(color) {
+	    var hsl = tinycolor(color).toHsl();
+	    var h = hsl.h;
+	    return [
+	        tinycolor(color),
+	        tinycolor({ h: (h + 72) % 360, s: hsl.s, l: hsl.l}),
+	        tinycolor({ h: (h + 216) % 360, s: hsl.s, l: hsl.l})
+	    ];
+	}
+	
+	function analogous(color, results, slices) {
+	    results = results || 6;
+	    slices = slices || 30;
+	
+	    var hsl = tinycolor(color).toHsl();
+	    var part = 360 / slices;
+	    var ret = [tinycolor(color)];
+	
+	    for (hsl.h = ((hsl.h - (part * results >> 1)) + 720) % 360; --results; ) {
+	        hsl.h = (hsl.h + part) % 360;
+	        ret.push(tinycolor(hsl));
+	    }
+	    return ret;
+	}
+	
+	function monochromatic(color, results) {
+	    results = results || 6;
+	    var hsv = tinycolor(color).toHsv();
+	    var h = hsv.h, s = hsv.s, v = hsv.v;
+	    var ret = [];
+	    var modification = 1 / results;
+	
+	    while (results--) {
+	        ret.push(tinycolor({ h: h, s: s, v: v}));
+	        v = (v + modification) % 1;
+	    }
+	
+	    return ret;
+	}
+	
+	// Utility Functions
+	// ---------------------
+	
+	tinycolor.mix = function(color1, color2, amount) {
+	    amount = (amount === 0) ? 0 : (amount || 50);
+	
+	    var rgb1 = tinycolor(color1).toRgb();
+	    var rgb2 = tinycolor(color2).toRgb();
+	
+	    var p = amount / 100;
+	    var w = p * 2 - 1;
+	    var a = rgb2.a - rgb1.a;
+	
+	    var w1;
+	
+	    if (w * a == -1) {
+	        w1 = w;
+	    } else {
+	        w1 = (w + a) / (1 + w * a);
+	    }
+	
+	    w1 = (w1 + 1) / 2;
+	
+	    var w2 = 1 - w1;
+	
+	    var rgba = {
+	        r: rgb2.r * w1 + rgb1.r * w2,
+	        g: rgb2.g * w1 + rgb1.g * w2,
+	        b: rgb2.b * w1 + rgb1.b * w2,
+	        a: rgb2.a * p  + rgb1.a * (1 - p)
+	    };
+	
+	    return tinycolor(rgba);
+	};
+	
+	
+	// Readability Functions
+	// ---------------------
+	// <http://www.w3.org/TR/2008/REC-WCAG20-20081211/#contrast-ratiodef (WCAG Version 2)
+	
+	// `contrast`
+	// Analyze the 2 colors and returns the color contrast defined by (WCAG Version 2)
+	tinycolor.readability = function(color1, color2) {
+	    var c1 = tinycolor(color1);
+	    var c2 = tinycolor(color2);
+	    return (Math.max(c1.getLuminance(),c2.getLuminance())+0.05) / (Math.min(c1.getLuminance(),c2.getLuminance())+0.05);
+	};
+	
+	// `isReadable`
+	// Ensure that foreground and background color combinations meet WCAG2 guidelines.
+	// The third argument is an optional Object.
+	//      the 'level' property states 'AA' or 'AAA' - if missing or invalid, it defaults to 'AA';
+	//      the 'size' property states 'large' or 'small' - if missing or invalid, it defaults to 'small'.
+	// If the entire object is absent, isReadable defaults to {level:"AA",size:"small"}.
+	
+	// *Example*
+	//    tinycolor.isReadable("#000", "#111") => false
+	//    tinycolor.isReadable("#000", "#111",{level:"AA",size:"large"}) => false
+	
+	tinycolor.isReadable = function(color1, color2, wcag2) {
+	    var readability = tinycolor.readability(color1, color2);
+	    var wcag2Parms, out;
+	
+	    out = false;
+	
+	    wcag2Parms = validateWCAG2Parms(wcag2);
+	    switch (wcag2Parms.level + wcag2Parms.size) {
+	        case "AAsmall":
+	        case "AAAlarge":
+	            out = readability >= 4.5;
+	            break;
+	        case "AAlarge":
+	            out = readability >= 3;
+	            break;
+	        case "AAAsmall":
+	            out = readability >= 7;
+	            break;
+	    }
+	    return out;
+	
+	};
+	
+	// `mostReadable`
+	// Given a base color and a list of possible foreground or background
+	// colors for that base, returns the most readable color.
+	// Optionally returns Black or White if the most readable color is unreadable.
+	// *Example*
+	//    tinycolor.mostReadable(tinycolor.mostReadable("#123", ["#124", "#125"],{includeFallbackColors:false}).toHexString(); // "#112255"
+	//    tinycolor.mostReadable(tinycolor.mostReadable("#123", ["#124", "#125"],{includeFallbackColors:true}).toHexString();  // "#ffffff"
+	//    tinycolor.mostReadable("#a8015a", ["#faf3f3"],{includeFallbackColors:true,level:"AAA",size:"large"}).toHexString(); // "#faf3f3"
+	//    tinycolor.mostReadable("#a8015a", ["#faf3f3"],{includeFallbackColors:true,level:"AAA",size:"small"}).toHexString(); // "#ffffff"
+	
+	
+	tinycolor.mostReadable = function(baseColor, colorList, args) {
+	    var bestColor = null;
+	    var bestScore = 0;
+	    var readability;
+	    var includeFallbackColors, level, size ;
+	    args = args || {};
+	    includeFallbackColors = args.includeFallbackColors ;
+	    level = args.level;
+	    size = args.size;
+	
+	    for (var i= 0; i < colorList.length ; i++) {
+	        readability = tinycolor.readability(baseColor, colorList[i]);
+	        if (readability > bestScore) {
+	            bestScore = readability;
+	            bestColor = tinycolor(colorList[i]);
+	        }
+	    }
+	
+	    if (tinycolor.isReadable(baseColor, bestColor, {"level":level,"size":size}) || !includeFallbackColors) {
+	        return bestColor;
+	    }
+	    else {
+	        args.includeFallbackColors=false;
+	        return tinycolor.mostReadable(baseColor,["#fff", "#000"],args);
+	    }
+	};
+	
+	
+	// Big List of Colors
+	// ------------------
+	// <http://www.w3.org/TR/css3-color/#svg-color>
+	var names = tinycolor.names = {
+	    aliceblue: "f0f8ff",
+	    antiquewhite: "faebd7",
+	    aqua: "0ff",
+	    aquamarine: "7fffd4",
+	    azure: "f0ffff",
+	    beige: "f5f5dc",
+	    bisque: "ffe4c4",
+	    black: "000",
+	    blanchedalmond: "ffebcd",
+	    blue: "00f",
+	    blueviolet: "8a2be2",
+	    brown: "a52a2a",
+	    burlywood: "deb887",
+	    burntsienna: "ea7e5d",
+	    cadetblue: "5f9ea0",
+	    chartreuse: "7fff00",
+	    chocolate: "d2691e",
+	    coral: "ff7f50",
+	    cornflowerblue: "6495ed",
+	    cornsilk: "fff8dc",
+	    crimson: "dc143c",
+	    cyan: "0ff",
+	    darkblue: "00008b",
+	    darkcyan: "008b8b",
+	    darkgoldenrod: "b8860b",
+	    darkgray: "a9a9a9",
+	    darkgreen: "006400",
+	    darkgrey: "a9a9a9",
+	    darkkhaki: "bdb76b",
+	    darkmagenta: "8b008b",
+	    darkolivegreen: "556b2f",
+	    darkorange: "ff8c00",
+	    darkorchid: "9932cc",
+	    darkred: "8b0000",
+	    darksalmon: "e9967a",
+	    darkseagreen: "8fbc8f",
+	    darkslateblue: "483d8b",
+	    darkslategray: "2f4f4f",
+	    darkslategrey: "2f4f4f",
+	    darkturquoise: "00ced1",
+	    darkviolet: "9400d3",
+	    deeppink: "ff1493",
+	    deepskyblue: "00bfff",
+	    dimgray: "696969",
+	    dimgrey: "696969",
+	    dodgerblue: "1e90ff",
+	    firebrick: "b22222",
+	    floralwhite: "fffaf0",
+	    forestgreen: "228b22",
+	    fuchsia: "f0f",
+	    gainsboro: "dcdcdc",
+	    ghostwhite: "f8f8ff",
+	    gold: "ffd700",
+	    goldenrod: "daa520",
+	    gray: "808080",
+	    green: "008000",
+	    greenyellow: "adff2f",
+	    grey: "808080",
+	    honeydew: "f0fff0",
+	    hotpink: "ff69b4",
+	    indianred: "cd5c5c",
+	    indigo: "4b0082",
+	    ivory: "fffff0",
+	    khaki: "f0e68c",
+	    lavender: "e6e6fa",
+	    lavenderblush: "fff0f5",
+	    lawngreen: "7cfc00",
+	    lemonchiffon: "fffacd",
+	    lightblue: "add8e6",
+	    lightcoral: "f08080",
+	    lightcyan: "e0ffff",
+	    lightgoldenrodyellow: "fafad2",
+	    lightgray: "d3d3d3",
+	    lightgreen: "90ee90",
+	    lightgrey: "d3d3d3",
+	    lightpink: "ffb6c1",
+	    lightsalmon: "ffa07a",
+	    lightseagreen: "20b2aa",
+	    lightskyblue: "87cefa",
+	    lightslategray: "789",
+	    lightslategrey: "789",
+	    lightsteelblue: "b0c4de",
+	    lightyellow: "ffffe0",
+	    lime: "0f0",
+	    limegreen: "32cd32",
+	    linen: "faf0e6",
+	    magenta: "f0f",
+	    maroon: "800000",
+	    mediumaquamarine: "66cdaa",
+	    mediumblue: "0000cd",
+	    mediumorchid: "ba55d3",
+	    mediumpurple: "9370db",
+	    mediumseagreen: "3cb371",
+	    mediumslateblue: "7b68ee",
+	    mediumspringgreen: "00fa9a",
+	    mediumturquoise: "48d1cc",
+	    mediumvioletred: "c71585",
+	    midnightblue: "191970",
+	    mintcream: "f5fffa",
+	    mistyrose: "ffe4e1",
+	    moccasin: "ffe4b5",
+	    navajowhite: "ffdead",
+	    navy: "000080",
+	    oldlace: "fdf5e6",
+	    olive: "808000",
+	    olivedrab: "6b8e23",
+	    orange: "ffa500",
+	    orangered: "ff4500",
+	    orchid: "da70d6",
+	    palegoldenrod: "eee8aa",
+	    palegreen: "98fb98",
+	    paleturquoise: "afeeee",
+	    palevioletred: "db7093",
+	    papayawhip: "ffefd5",
+	    peachpuff: "ffdab9",
+	    peru: "cd853f",
+	    pink: "ffc0cb",
+	    plum: "dda0dd",
+	    powderblue: "b0e0e6",
+	    purple: "800080",
+	    rebeccapurple: "663399",
+	    red: "f00",
+	    rosybrown: "bc8f8f",
+	    royalblue: "4169e1",
+	    saddlebrown: "8b4513",
+	    salmon: "fa8072",
+	    sandybrown: "f4a460",
+	    seagreen: "2e8b57",
+	    seashell: "fff5ee",
+	    sienna: "a0522d",
+	    silver: "c0c0c0",
+	    skyblue: "87ceeb",
+	    slateblue: "6a5acd",
+	    slategray: "708090",
+	    slategrey: "708090",
+	    snow: "fffafa",
+	    springgreen: "00ff7f",
+	    steelblue: "4682b4",
+	    tan: "d2b48c",
+	    teal: "008080",
+	    thistle: "d8bfd8",
+	    tomato: "ff6347",
+	    turquoise: "40e0d0",
+	    violet: "ee82ee",
+	    wheat: "f5deb3",
+	    white: "fff",
+	    whitesmoke: "f5f5f5",
+	    yellow: "ff0",
+	    yellowgreen: "9acd32"
+	};
+	
+	// Make it easy to access colors via `hexNames[hex]`
+	var hexNames = tinycolor.hexNames = flip(names);
+	
+	
+	// Utilities
+	// ---------
+	
+	// `{ 'name1': 'val1' }` becomes `{ 'val1': 'name1' }`
+	function flip(o) {
+	    var flipped = { };
+	    for (var i in o) {
+	        if (o.hasOwnProperty(i)) {
+	            flipped[o[i]] = i;
+	        }
+	    }
+	    return flipped;
+	}
+	
+	// Return a valid alpha value [0,1] with all invalid values being set to 1
+	function boundAlpha(a) {
+	    a = parseFloat(a);
+	
+	    if (isNaN(a) || a < 0 || a > 1) {
+	        a = 1;
+	    }
+	
+	    return a;
+	}
+	
+	// Take input from [0, n] and return it as [0, 1]
+	function bound01(n, max) {
+	    if (isOnePointZero(n)) { n = "100%"; }
+	
+	    var processPercent = isPercentage(n);
+	    n = mathMin(max, mathMax(0, parseFloat(n)));
+	
+	    // Automatically convert percentage into number
+	    if (processPercent) {
+	        n = parseInt(n * max, 10) / 100;
+	    }
+	
+	    // Handle floating point rounding errors
+	    if ((math.abs(n - max) < 0.000001)) {
+	        return 1;
+	    }
+	
+	    // Convert into [0, 1] range if it isn't already
+	    return (n % max) / parseFloat(max);
+	}
+	
+	// Force a number between 0 and 1
+	function clamp01(val) {
+	    return mathMin(1, mathMax(0, val));
+	}
+	
+	// Parse a base-16 hex value into a base-10 integer
+	function parseIntFromHex(val) {
+	    return parseInt(val, 16);
+	}
+	
+	// Need to handle 1.0 as 100%, since once it is a number, there is no difference between it and 1
+	// <http://stackoverflow.com/questions/7422072/javascript-how-to-detect-number-as-a-decimal-including-1-0>
+	function isOnePointZero(n) {
+	    return typeof n == "string" && n.indexOf('.') != -1 && parseFloat(n) === 1;
+	}
+	
+	// Check to see if string passed in is a percentage
+	function isPercentage(n) {
+	    return typeof n === "string" && n.indexOf('%') != -1;
+	}
+	
+	// Force a hex value to have 2 characters
+	function pad2(c) {
+	    return c.length == 1 ? '0' + c : '' + c;
+	}
+	
+	// Replace a decimal with it's percentage value
+	function convertToPercentage(n) {
+	    if (n <= 1) {
+	        n = (n * 100) + "%";
+	    }
+	
+	    return n;
+	}
+	
+	// Converts a decimal to a hex value
+	function convertDecimalToHex(d) {
+	    return Math.round(parseFloat(d) * 255).toString(16);
+	}
+	// Converts a hex value to a decimal
+	function convertHexToDecimal(h) {
+	    return (parseIntFromHex(h) / 255);
+	}
+	
+	var matchers = (function() {
+	
+	    // <http://www.w3.org/TR/css3-values/#integers>
+	    var CSS_INTEGER = "[-\\+]?\\d+%?";
+	
+	    // <http://www.w3.org/TR/css3-values/#number-value>
+	    var CSS_NUMBER = "[-\\+]?\\d*\\.\\d+%?";
+	
+	    // Allow positive/negative integer/number.  Don't capture the either/or, just the entire outcome.
+	    var CSS_UNIT = "(?:" + CSS_NUMBER + ")|(?:" + CSS_INTEGER + ")";
+	
+	    // Actual matching.
+	    // Parentheses and commas are optional, but not required.
+	    // Whitespace can take the place of commas or opening paren
+	    var PERMISSIVE_MATCH3 = "[\\s|\\(]+(" + CSS_UNIT + ")[,|\\s]+(" + CSS_UNIT + ")[,|\\s]+(" + CSS_UNIT + ")\\s*\\)?";
+	    var PERMISSIVE_MATCH4 = "[\\s|\\(]+(" + CSS_UNIT + ")[,|\\s]+(" + CSS_UNIT + ")[,|\\s]+(" + CSS_UNIT + ")[,|\\s]+(" + CSS_UNIT + ")\\s*\\)?";
+	
+	    return {
+	        rgb: new RegExp("rgb" + PERMISSIVE_MATCH3),
+	        rgba: new RegExp("rgba" + PERMISSIVE_MATCH4),
+	        hsl: new RegExp("hsl" + PERMISSIVE_MATCH3),
+	        hsla: new RegExp("hsla" + PERMISSIVE_MATCH4),
+	        hsv: new RegExp("hsv" + PERMISSIVE_MATCH3),
+	        hsva: new RegExp("hsva" + PERMISSIVE_MATCH4),
+	        hex3: /^([0-9a-fA-F]{1})([0-9a-fA-F]{1})([0-9a-fA-F]{1})$/,
+	        hex6: /^([0-9a-fA-F]{2})([0-9a-fA-F]{2})([0-9a-fA-F]{2})$/,
+	        hex8: /^([0-9a-fA-F]{2})([0-9a-fA-F]{2})([0-9a-fA-F]{2})([0-9a-fA-F]{2})$/
+	    };
+	})();
+	
+	// `stringInputToObject`
+	// Permissive string parsing.  Take in a number of formats, and output an object
+	// based on detected format.  Returns `{ r, g, b }` or `{ h, s, l }` or `{ h, s, v}`
+	function stringInputToObject(color) {
+	
+	    color = color.replace(trimLeft,'').replace(trimRight, '').toLowerCase();
+	    var named = false;
+	    if (names[color]) {
+	        color = names[color];
+	        named = true;
+	    }
+	    else if (color == 'transparent') {
+	        return { r: 0, g: 0, b: 0, a: 0, format: "name" };
+	    }
+	
+	    // Try to match string input using regular expressions.
+	    // Keep most of the number bounding out of this function - don't worry about [0,1] or [0,100] or [0,360]
+	    // Just return an object and let the conversion functions handle that.
+	    // This way the result will be the same whether the tinycolor is initialized with string or object.
+	    var match;
+	    if ((match = matchers.rgb.exec(color))) {
+	        return { r: match[1], g: match[2], b: match[3] };
+	    }
+	    if ((match = matchers.rgba.exec(color))) {
+	        return { r: match[1], g: match[2], b: match[3], a: match[4] };
+	    }
+	    if ((match = matchers.hsl.exec(color))) {
+	        return { h: match[1], s: match[2], l: match[3] };
+	    }
+	    if ((match = matchers.hsla.exec(color))) {
+	        return { h: match[1], s: match[2], l: match[3], a: match[4] };
+	    }
+	    if ((match = matchers.hsv.exec(color))) {
+	        return { h: match[1], s: match[2], v: match[3] };
+	    }
+	    if ((match = matchers.hsva.exec(color))) {
+	        return { h: match[1], s: match[2], v: match[3], a: match[4] };
+	    }
+	    if ((match = matchers.hex8.exec(color))) {
+	        return {
+	            a: convertHexToDecimal(match[1]),
+	            r: parseIntFromHex(match[2]),
+	            g: parseIntFromHex(match[3]),
+	            b: parseIntFromHex(match[4]),
+	            format: named ? "name" : "hex8"
+	        };
+	    }
+	    if ((match = matchers.hex6.exec(color))) {
+	        return {
+	            r: parseIntFromHex(match[1]),
+	            g: parseIntFromHex(match[2]),
+	            b: parseIntFromHex(match[3]),
+	            format: named ? "name" : "hex"
+	        };
+	    }
+	    if ((match = matchers.hex3.exec(color))) {
+	        return {
+	            r: parseIntFromHex(match[1] + '' + match[1]),
+	            g: parseIntFromHex(match[2] + '' + match[2]),
+	            b: parseIntFromHex(match[3] + '' + match[3]),
+	            format: named ? "name" : "hex"
+	        };
+	    }
+	
+	    return false;
+	}
+	
+	function validateWCAG2Parms(parms) {
+	    // return valid WCAG2 parms for isReadable.
+	    // If input parms are invalid, return {"level":"AA", "size":"small"}
+	    var level, size;
+	    parms = parms || {"level":"AA", "size":"small"};
+	    level = (parms.level || "AA").toUpperCase();
+	    size = (parms.size || "small").toLowerCase();
+	    if (level !== "AA" && level !== "AAA") {
+	        level = "AA";
+	    }
+	    if (size !== "small" && size !== "large") {
+	        size = "small";
+	    }
+	    return {"level":level, "size":size};
+	}
+	// Node: Export function
+	if (typeof module !== "undefined" && module.exports) {
+	    module.exports = tinycolor;
+	}
+	// AMD/requirejs: Define the module
+	else if (true) {
+	    !(__WEBPACK_AMD_DEFINE_RESULT__ = function () {return tinycolor;}.call(exports, __webpack_require__, exports, module), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+	}
+	// Browser: Expose to window
+	else {
+	    window.tinycolor = tinycolor;
+	}
+	
+	})();
+
+
+/***/ },
+/* 17 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(module) {/*
 	#
-	# Opentip v2.4.3
+	# Opentip v2.4.6
 	#
 	# More info at [www.opentip.org](http://www.opentip.org)
 	# 
@@ -3176,7 +4989,7 @@
 	  return _results;
 	};
 	
-	Opentip.version = "2.4.3";
+	Opentip.version = "2.4.6";
 	
 	Opentip.debug = false;
 	
@@ -3334,16 +5147,16 @@
 	  window.Opentip = Opentip;
 	}
 	
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(19)(module)))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(21)(module)))
 
 /***/ },
-/* 16 */
+/* 18 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var $, Adapter, _ref,
 	  __slice = [].slice;
 	
-	$ = (_ref = window.jQuery) != null ? _ref : __webpack_require__(20);
+	$ = (_ref = window.jQuery) != null ? _ref : __webpack_require__(22);
 	
 	module.exports = Adapter = (function() {
 	  function Adapter() {}
@@ -3506,7 +5319,28 @@
 
 
 /***/ },
-/* 17 */
+/* 19 */
+/***/ function(module, exports, __webpack_require__) {
+
+	module.exports = function() {
+		var list = [];
+		list.toString = function toString() {
+			var result = [];
+			for(var i = 0; i < this.length; i++) {
+				var item = this[i];
+				if(item[2]) {
+					result.push("@media " + item[2] + "{" + item[1] + "}");
+				} else {
+					result.push(item[1]);
+				}
+			}
+			return result.join("");
+		};
+		return list;
+	}
+
+/***/ },
+/* 20 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -9343,28 +11177,7 @@
 
 
 /***/ },
-/* 18 */
-/***/ function(module, exports, __webpack_require__) {
-
-	module.exports = function() {
-		var list = [];
-		list.toString = function toString() {
-			var result = [];
-			for(var i = 0; i < this.length; i++) {
-				var item = this[i];
-				if(item[2]) {
-					result.push("@media " + item[2] + "{" + item[1] + "}");
-				} else {
-					result.push(item[1]);
-				}
-			}
-			return result.join("");
-		};
-		return list;
-	}
-
-/***/ },
-/* 19 */
+/* 21 */
 /***/ function(module, exports, __webpack_require__) {
 
 	module.exports = function(module) {
@@ -9380,11 +11193,11 @@
 
 
 /***/ },
-/* 20 */
+/* 22 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*!
-	 * jQuery JavaScript Library v2.1.3
+	 * jQuery JavaScript Library v2.1.4
 	 * http://jquery.com/
 	 *
 	 * Includes Sizzle.js
@@ -9394,7 +11207,7 @@
 	 * Released under the MIT license
 	 * http://jquery.org/license
 	 *
-	 * Date: 2014-12-18T15:11Z
+	 * Date: 2015-04-28T16:01Z
 	 */
 	
 	(function( global, factory ) {
@@ -9452,7 +11265,7 @@
 		// Use the correct document accordingly with window argument (sandbox)
 		document = window.document,
 	
-		version = "2.1.3",
+		version = "2.1.4",
 	
 		// Define a local copy of jQuery
 		jQuery = function( selector, context ) {
@@ -9916,7 +11729,12 @@
 	});
 	
 	function isArraylike( obj ) {
-		var length = obj.length,
+	
+		// Support: iOS 8.2 (not reproducible in simulator)
+		// `in` check used to prevent JIT error (gh-2145)
+		// hasOwn isn't used here due to false negatives
+		// regarding Nodelist length in IE
+		var length = "length" in obj && obj.length,
 			type = jQuery.type( obj );
 	
 		if ( type === "function" || jQuery.isWindow( obj ) ) {
