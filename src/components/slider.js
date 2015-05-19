@@ -147,8 +147,7 @@ module.exports = React.createClass({
     var handleX = x - handleOffset;
     var handleY = y;
 
-    var ghostSizeModifier = 6;
-    var ghostSize = ghostSizeModifier * handleSize;
+    var ghostSize = this.props.ghostSize;
 
     var ghostX = this.restrictToGrid(x, ghostSize*2) + ghostSize;
     var ghostOpacity = 0;
