@@ -115,6 +115,12 @@ var ComponentMakerMixin = {
       }
     }
 
+    var stepWidth = this.props.barWidth / this.stepCount;
+
+    var startX = snapGrid[0].x - stepWidth*3;
+    var endX = snapGrid[snapGrid.length-1].x + stepWidth;
+
+
     var sliders = [];
 
     sliders.push(
@@ -127,6 +133,8 @@ var ComponentMakerMixin = {
         fontSize={this.consts.textSize}
         snapGrid={startSnapGrid}
         valueLookup={valueLookup}
+        startX={startX}
+        endX={rightX}
         onDrag={this.onDragRangeStart}
         onRelease={this.onReleaseRangeStart}/>
     );
@@ -140,6 +148,8 @@ var ComponentMakerMixin = {
         fontSize={this.consts.textSize}
         snapGrid={endSnapGrid}
         valueLookup={valueLookup}
+        startX={leftX}
+        endX={endX}
         valueOffset={-this.props.stepSize}
         onDrag={this.onDragRangeEnd}
         onRelease={this.onReleaseRangeEnd}/>
