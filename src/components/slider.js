@@ -65,8 +65,8 @@ module.exports = React.createClass({
     var thisLeft = midX - width/2;
     var thisRight = thisLeft + width;
 
-    var startX = this.props.snapGrid[0].x;
-    var endX = this.props.snapGrid[this.props.snapGrid.length - 1].x;
+    var startX = this.props.startX;
+    var endX = this.props.endX;
 
     var startRight = startX + width/2;
     var endLeft = endX - width/2;
@@ -147,18 +147,11 @@ module.exports = React.createClass({
     var handleX = x - handleOffset;
     var handleY = y;
 
-    var ghostSizeModifier = 4;
+    var ghostSizeModifier = 6;
     var ghostSize = ghostSizeModifier * handleSize;
-    var ghostXOffset = ghostSize;
 
-    var ghostYOffsetFactor = 0.65;
-    var ghostHeightOffsetFactor = 2 * ghostYOffsetFactor - 1;
-
-    var ghostX = x - ghostXOffset;
-    var ghostY = y - ghostYOffsetFactor * ghostSize;
+    var ghostX = this.restrictToGrid(x, ghostSize*2) + ghostSize;
     var ghostOpacity = 0;
-
-    var ghostBarOffset = 0;
 
     var label = this.makeLabel(x, handleY);
 
@@ -187,16 +180,16 @@ module.exports = React.createClass({
           className="rf-slider-handle"/>
         {label}
         <circle
-          cx={x} cy={handleY}
+          cx={ghostX} cy={handleY}
           r={ghostSize}
           opacity={ghostOpacity}/>
         <circle
-          cx={x} cy={handleY + height}
+          cx={ghostX} cy={handleY + height}
           r={ghostSize}
           opacity={ghostOpacity}/>
         <rect
-          x={x - ghostSize/2} y={handleY}
-          width={ghostSize} height={height}
+          x={ghostX - ghostSize} y={handleY}
+          width={ghostSize*2} height={height}
           opacity={ghostOpacity}/>
       </g>
     )
