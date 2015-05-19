@@ -116,8 +116,10 @@ var ComponentMakerMixin = {
     }
 
     var stepWidth = this.props.barWidth / this.stepCount;
+    var ghostSize = this.consts.ghostSize;
 
-    var startX = snapGrid[0].x - stepWidth*3;
+    //move the left side over more bcause that's where the content is
+    var startX = snapGrid[0].x - ghostSize;
     var endX = snapGrid[snapGrid.length-1].x + stepWidth;
 
 
@@ -135,6 +137,7 @@ var ComponentMakerMixin = {
         valueLookup={valueLookup}
         startX={startX}
         endX={rightX}
+        ghostSize={ghostSize}
         onDrag={this.onDragRangeStart}
         onRelease={this.onReleaseRangeStart}/>
     );
@@ -150,6 +153,7 @@ var ComponentMakerMixin = {
         valueLookup={valueLookup}
         startX={leftX}
         endX={endX}
+        ghostSize={ghostSize}
         valueOffset={-this.props.stepSize}
         onDrag={this.onDragRangeEnd}
         onRelease={this.onReleaseRangeEnd}/>
