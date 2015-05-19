@@ -150,7 +150,7 @@ module.exports = React.createClass({
     var ghostSize = this.props.ghostSize;
 
     var ghostX = this.restrictToGrid(x, ghostSize*2) + ghostSize;
-    var ghostOpacity = 0.2;
+    var ghostOpacity = 0;
 
     var label = this.makeLabel(x, handleY);
 
