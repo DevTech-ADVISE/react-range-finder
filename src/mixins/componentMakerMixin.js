@@ -297,7 +297,7 @@ var ComponentMakerMixin = {
   findColor: function(data) {
     var colorIndeces = data.colorIndeces;
 
-    var selectedColor = this.props.colors;
+    var selectedColor = this.props.colors || ["black", "gray"];
 
     var end = colorIndeces.length - 1;
 
@@ -333,7 +333,7 @@ var ComponentMakerMixin = {
   },
 
   truncateText: function(text, charLimit) {
-    if(text === null || text.length <= charLimit + 3) { // +3 for the dots.
+    if(!text || text.length <= charLimit + 3) { // +3 for the dots.
       return text;
     }
     return text.substring(0, charLimit) + "...";
