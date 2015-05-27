@@ -197,8 +197,6 @@ var ComponentMakerMixin = {
     var x = this.barX;
     var startY = Math.floor(this.consts.coverageBarMargin/2);
 
-    var dashSize = this.props.barWidth / this.stepCount;
-
     var colors = this.makeColors();
 
     var previousCategory = null;
@@ -244,7 +242,6 @@ var ComponentMakerMixin = {
           min={this.state.min}
           max={this.state.max}
           coverage={data.coverage}
-          dashSize={dashSize}
           stepSize={this.props.stepSize}
           textMargin={this.consts.textMargin}
           label={this.truncateText(label, this.consts.labelCharacterLimit)}
