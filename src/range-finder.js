@@ -63,10 +63,10 @@ var RangeFinder = React.createClass({
   mixins: [SetupMixin, MakerMixin, CalcMixin],
 
   consts: {
-    barMarginTop: 0,
-    barMarginLeft: 160,
-    barMarginRight: 25,
-    barMarginBottom: 40,
+    marginTop: 0,
+    marginLeft: 0,
+    marginRight: 40,
+    marginBottom: 40,
     coverageBarMargin: 10,
     labelCharacterLimit: 20,
     tickSize: 10,
@@ -86,8 +86,10 @@ var RangeFinder = React.createClass({
 
   getDefaultProps: function() {
     return {
-      barWidth: 700,
-      barHeight: 50,
+      width: 860,
+      height: 800,
+      headerBarHeight: 50,
+      labelColumnWidth: 160,
       coverageBarHeight: 20,
       maxCoverageHeight: 750,
       stepSize: 1,
@@ -106,10 +108,13 @@ var RangeFinder = React.createClass({
   },
 
   propTypes: {
-    barWidth: React.PropTypes.number,
-    barHeight: React.PropTypes.number,
-    coverageBarHeight: React.PropTypes.number,
+    width: React.PropTypes.number,
+    height: React.PropTypes.number,
+    headerBarHeight: React.PropTypes.number,
+    labelColumnWidth: React.PropTypes.number,
     maxCoverageHeight: React.PropTypes.number,
+
+    coverageBarHeight: React.PropTypes.number,
 
     min: React.PropTypes.number,
     max: React.PropTypes.number,
@@ -143,8 +148,8 @@ var RangeFinder = React.createClass({
       this.consts[key] = this.props.consts[key];
     }
 
-    this.barX = this.consts.barMarginLeft;
-    this.barY = this.consts.barMarginTop;
+    this.barX = this.props.labelColumnWidth;
+    this.barY = this.consts.marginTop;
   },
 
   //function for outputting tag/class guide
@@ -199,26 +204,26 @@ var RangeFinder = React.createClass({
     var gapFillers = this.makeGapFillers();
     var unselected = this.makeUnselectedOverlay();
 
-    var titleX = this.consts.barMarginLeft / 2;
+    var titleX = this.props.labelColumnWidth / 2;
 
-    var valueLabelY = this.barY + (this.props.barHeight - this.consts.tickSize) / 2 + this.consts.textSize / 2;
+    var valueLabelY = this.barY + (this.props.headerBarHeight - this.consts.tickSize) / 2 + this.consts.textSize / 2;
 
     var coverageDetails = null;
     var densityLabel = null;
 
     if(coverage.length > 0) {
-      var barBottom = this.barY + this.props.barHeight + this.consts.coverageGap;
+      var barBottom = this.barY + this.props.headerBarHeight + this.consts.coverageGap;
 
       coverageDetails = (
         <ScrollableSVG
           y={barBottom}
-          width={this.componentWidth} height={this.fullCoverageHeight}
-          maxDisplayedHeight={this.props.maxCoverageHeight}
+          width={this.props.width} height={this.fullCoverageHeight}
+          maxDisplayedHeight={this.coverageHeight}
           scrollWidth={this.consts.scrollWidth}
           className="rf-coverage-section">
           <rect
             x={0} y={0}
-            width={this.effectiveWidth}
+            width={this.props.width}
             height={this.fullCoverageHeight}
             className="rf-coverage-background"
             fill="#F4F4F4" />
@@ -231,7 +236,7 @@ var RangeFinder = React.createClass({
       densityLabel = 
         <text
           x={titleX}
-          y={this.barY + this.props.barHeight/2 + this.consts.textSize}
+          y={this.barY + this.props.headerBarHeight/2 + this.consts.textSize}
           fontSize={12}
           textAnchor="middle"
           className="rf-label rf-label-bold rf-density-label">
@@ -239,12 +244,8 @@ var RangeFinder = React.createClass({
         </text>;
     }
 
-    var topBarWidth = this.effectiveWidth;
-    var topBarHeight = this.props.barHeight + this.consts.borderRadius;
-
-    if(this.needsScrollBar) {
-      topBarWidth += this.consts.scrollWidth;
-    }
+    var topBarWidth = this.props.width;
+    var topBarHeight = this.props.headerBarHeight + this.consts.borderRadius;
 
     var offset = 100 - 100 * (this.consts.borderRadius / topBarHeight);
     offset += "%"
@@ -272,7 +273,7 @@ var RangeFinder = React.createClass({
           className="rf-range-bar"/>
         <text
           x={titleX}
-          y={this.barY + this.props.barHeight/2}
+          y={this.barY + this.props.headerBarHeight/2}
           textAnchor="middle"
           className="rf-label rf-label-bold rf-title-label">
           {this.props.title}
@@ -286,7 +287,7 @@ var RangeFinder = React.createClass({
           {this.state.min}
         </text>
         <text
-          x={this.effectiveWidth - this.consts.labelSideMargin}
+          x={this.props.width - this.consts.labelSideMargin}
           y={valueLabelY}
           fontSize={this.consts.textSize}
           textAnchor="end"

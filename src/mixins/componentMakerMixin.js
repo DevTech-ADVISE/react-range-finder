@@ -6,7 +6,7 @@ var tinyColor = require('tinycolor2');
 
 var ComponentMakerMixin = {
   makeTicks: function(snapGrid) {
-    var y1 = this.barY + this.props.barHeight;
+    var y1 = this.barY + this.props.headerBarHeight;
     var y2 = y1 - this.consts.tickSize;
 
     var ticks = [];
@@ -115,7 +115,7 @@ var ComponentMakerMixin = {
       }
     }
 
-    var stepWidth = this.props.barWidth / this.stepCount;
+    var stepWidth = this.coverageWidth / this.stepCount;
     var ghostSize = this.consts.ghostSize;
 
     //move the left side over more bcause that's where the content is
@@ -236,7 +236,7 @@ var ComponentMakerMixin = {
           key={"coverage" + id}
           x={x}
           y={y}
-          width={this.props.barWidth}
+          width={this.coverageWidth}
           height={this.props.coverageBarHeight}
           color={colors[id]}
           min={this.state.min}
@@ -358,7 +358,7 @@ var ComponentMakerMixin = {
         null :
         <line
           x1={0} y1={startY}
-          x2={this.effectiveWidth} y2={startY}
+          x2={this.props.width} y2={startY}
           strokeWidth="2"
           className="rf-category-divider"
           stroke="#B0B0B0" />
@@ -368,7 +368,7 @@ var ComponentMakerMixin = {
         <g key={"separator" + id}>
           <rect
             x={0} y={startY}
-            width={this.effectiveWidth} height={this.coverageBarSpacing}
+            width={this.props.width} height={this.coverageBarSpacing}
             className="rf-category-background"
             fill="#E2E2E2" />
             {separator}
@@ -389,7 +389,7 @@ var ComponentMakerMixin = {
     var startWidth = this.valueLookup.byValue[this.state.start];
 
     var endX = this.valueLookup.byValue[this.state.end + this.props.stepSize];
-    var endWidth = this.barX + this.props.barWidth - endX;
+    var endWidth = this.barX + this.coverageWidth - endX;
 
     if(this.needsScrollBar) {
       endWidth += this.consts.scrollWidth;
@@ -427,7 +427,7 @@ var ComponentMakerMixin = {
     var y = this.barBottom;
 
     var startWidth = this.valueLookup.byValue[this.state.start] - this.barX;
-    var endWidth = this.barX + this.props.barWidth - endX;
+    var endWidth = this.barX + this.coverageWidth - endX;
 
     var height = 
       Math.floor(this.consts.coverageBarMargin/2) +

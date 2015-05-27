@@ -2,42 +2,31 @@ var PropertyCalculatorMixin = {
   //The full height of the entire component
   calcComponentHeight: function(props, state) {
     return this.consts.barMarginTop +
-      this.consts.barMarginBottom +
-      props.barHeight +
-      this.calcCoverageHeight(props, state);
+      props.height +
+      this.consts.barMarginBottom;
   },
 
   //the full width of the entire component
   calcComponentWidth: function(props, state) {
-    return props.barWidth +
+    return props.width +
       this.consts.barMarginLeft +
-      this.consts.scrollWidth;
+      this.consts.barMarginRight;
   },
 
-  calcEffectiveHeight: function(props, state) {
-    return this.consts.barMarginTop +
-      props.barHeight +
-      this.consts.coverageBarMargin/2 +
-      this.calcCoverageHeight(props, state);
+  calcCoverageWidth: function(props, state) {
+    return props.width -
+      this.calcScrollBarWidth(props, state) -
+      this.props.labelColumnWidth;
   },
 
-  //the full width of the entire component
-  calcEffectiveWidth: function(props, state) {
-    return props.barWidth +
-      this.consts.barMarginLeft;
+  calcCoverageHeight: function(props, state) {
+    return Math.min(this.calcAllocatedHeight(props, state), this.calcFullCoverageHeight(props, state));
   },
 
   //The full height of the coverage bars
   calcFullCoverageHeight: function(props, state) {
     return (this.calcCoverageBarCount(props, state) + this.calcCoverageGroupingCount(props, state)) *
         (props.coverageBarHeight + this.consts.coverageBarMargin);
-  },
-
-  //the actual displayed height of the coverage bars
-  calcCoverageHeight: function(props, state) {
-    var fullHeight = this.calcFullCoverageHeight(props, state);
-
-    return Math.min(fullHeight, props.maxCoverageHeight);
   },
 
   //the starting Y position of the sliders
@@ -69,11 +58,23 @@ var PropertyCalculatorMixin = {
 
   calcBarBottom: function(props, state) {
     return this.consts.barMarginTop +
-      props.barHeight;
+      props.headerBarHeight;
+  },
+
+  calcAllocatedHeight: function(props, state) {
+    return props.height -
+      this.consts.barMarginTop - 
+      props.headerBarHeight -
+      this.consts.coverageBarMargin/2 -
+      this.consts.barMarginBottom;
   },
 
   calcNeedsScrollBar: function(props, state) {
-    return this.calcFullCoverageHeight(props, state) > props.maxCoverageHeight;
+    return this.calcFullCoverageHeight(props, state) > this.calcAllocatedHeight(props, state);
+  },
+
+  calcScrollBarWidth: function(props, state) {
+    return this.calcNeedsScrollBar(props, state) ? this.consts.scrollWidth : 0;
   },
 
   calcNeedsCoverage: function(props, state) {
@@ -106,12 +107,12 @@ var PropertyCalculatorMixin = {
 
     var stepCount = this.calcStepCount(props, state);
 
-    var stepWidth = props.barWidth / stepCount;
+    var stepWidth = this.calcCoverageWidth(props, state) / stepCount;
 
     var snapTargets = [];
 
     for(var i = 0; i <= stepCount; i++) {
-      var x = this.consts.barMarginLeft + i * stepWidth;
+      var x = props.labelColumnWidth + i * stepWidth;
       var value = start + i * props.stepSize;
 
       snapTargets.push({ x: x, value: value, isEndPoint: i === 0 || i === stepCount });
@@ -143,10 +144,9 @@ var PropertyCalculatorMixin = {
   updateCalculations: function(props, state) {
     this.componentHeight = this.calcComponentHeight(props, state);
     this.componentWidth = this.calcComponentWidth(props, state);
-    this.effectiveHeight = this.calcEffectiveHeight(props, state);
-    this.effectiveWidth = this.calcEffectiveWidth(props, state);
-    this.fullCoverageHeight = this.calcFullCoverageHeight(props, state);
+    this.coverageWidth = this.calcCoverageWidth(props, state);
     this.coverageHeight = this.calcCoverageHeight(props, state);
+    this.fullCoverageHeight = this.calcFullCoverageHeight(props, state);
     this.sliderY = this.calcSliderY(props, state);
     this.sliderHeight = this.calcSliderHeight(props, state);
     this.coverageBarSpacing = this.calcCoverageBarSpacing(props, state);
