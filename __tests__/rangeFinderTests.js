@@ -103,7 +103,6 @@ describe('Range Finder', function() {
   });
 
   it('Shows proper data density', function() {
-    console.log(data)
     var rangeFinder = TestUtils.renderIntoDocument(
       <RangeFinderRenderer 
         id="yearSelector"
