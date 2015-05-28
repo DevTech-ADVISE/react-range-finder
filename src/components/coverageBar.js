@@ -69,7 +69,6 @@ var CoverageBar = React.createClass({
 
   render: function() {
     var dataDensity = 0;
-    var dashSize = Math.max(this.props.dashSize, 1);
 
     var bars = this.props.coverage.map(function (item, id) {
         dataDensity += item.end - item.start + 1;
@@ -94,7 +93,7 @@ var CoverageBar = React.createClass({
           x2={x2} y2={y}
           strokeWidth="1"
           stroke={this.props.color}
-          strokeDasharray={dashSize + ", " + dashSize}
+          strokeDasharray={"5, 5"}
           className="rf-coverage-line"/>
 
         {bars}

@@ -27,8 +27,10 @@ Optional
 
 ### Sizing ###
 
-* **barWidth**: (Number, 300) The width of the main bar. Note that the actual svg element will be 100px wider than that to accommodate labels.
-* **barHeight**: (Number, 10) The height of the main bar.
+* **width**: (Number, 860) The width of the range finder, not including margins. 
+* **height**: (Number, 800) The height of the range finder, not including margins
+* **barHeight**: (Number, 50) The height of the main bar.
+* **labelColumnWidth**: (Number, 160) The width of the title and data label column on the left.
 * **stepSize**: (Number, 1) The increment each tick represents. Note that changing this value also changes the valid numbers (e.g. changing this to 5 with start of 0 would mean you can only select 0, 5, 10, etc.).
 
 ### Data-Coverage ###
