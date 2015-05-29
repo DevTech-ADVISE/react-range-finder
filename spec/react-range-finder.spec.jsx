@@ -1,14 +1,3 @@
-// jest.dontMock('../src/range-finder.js');
-// jest.dontMock('../src/mixins/calculatedPropertyMixin.js');
-// jest.dontMock('../src/mixins/componentMakerMixin.js');
-// jest.dontMock('../src/mixins/rangeFinderSetupMixin.js');
-// jest.dontMock('../src/components/coverageBar.js');
-// jest.dontMock('../src/components/scrollableSVG.js');
-// jest.dontMock('../src/components/slider.js');
-// jest.dontMock('interact.js');
-
-jest.autoMockOff();
-
 var data = [];
 
 var start = 1;
@@ -37,7 +26,7 @@ data = data.concat(makeRange("r1", start, end));
 data = data.concat(makeRange("r2", mid, end));
 
 var React = require('react/addons');
-var RangeFinder = require('../src/range-finder.js');
+var RangeFinder = require('../lib/react-range-finder.jsx');
 
 var controler = function(){};
 
@@ -103,7 +92,6 @@ describe('Range Finder', function() {
   });
 
   it('Shows proper data density', function() {
-    console.log(data)
     var rangeFinder = TestUtils.renderIntoDocument(
       <RangeFinderRenderer 
         id="yearSelector"

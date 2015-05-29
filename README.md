@@ -5,6 +5,13 @@ Range Finder is a tool that allows you to select a numeric range bewtween a star
 
 [Click here for a live demo](http://yeahbuthats.github.io/react-range-finder/)
 
+## Development
+
+* Development server `npm run dev`.
+* Continuously run tests on file changes `npm run watch-test`;
+* Run tests: `npm test`;
+* Build `npm run build`;
+
 Properties
 ==========
 

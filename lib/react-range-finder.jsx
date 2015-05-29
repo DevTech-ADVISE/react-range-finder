@@ -9,7 +9,7 @@ var ScrollableSVG = require('./components/scrollableSVG.js');
 var Opentip = require('opentip');
 require('opentip/css/opentip.css');
 
-require('../styles/rangeFinderStyles.css');
+require('./react-range-finder.scss');
 
 Opentip.styles.close = {
   extends: "standard",
