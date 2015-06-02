@@ -217,7 +217,7 @@ var RangeFinder = React.createClass({
       coverageDetails = (
         <ScrollableSVG
           y={barBottom}
-          width={this.props.width} height={this.fullCoverageHeight}
+          width={this.componentWidth} height={this.fullCoverageHeight}
           maxDisplayedHeight={this.coverageHeight}
           scrollWidth={this.consts.scrollWidth}
           className="rf-coverage-section">
@@ -244,7 +244,7 @@ var RangeFinder = React.createClass({
         </text>;
     }
 
-    var topBarWidth = this.props.width;
+    var topBarWidth = this.componentWidth;
     var topBarHeight = this.props.headerBarHeight + this.consts.borderRadius;
 
     var offset = 100 - 100 * (this.consts.borderRadius / topBarHeight);
@@ -253,8 +253,8 @@ var RangeFinder = React.createClass({
     return (
       <svg
         id={this.props.id}
-        width={this.componentWidth}
-        height={this.componentHeight}
+        width={this.fullComponentWidth}
+        height={this.fullComponentHeight}
         className="range-finder">
         <defs>
           <linearGradient id={this.consts.gradientId} x1="0%" x2="0%" y1="0%" y2="100%">
@@ -287,7 +287,7 @@ var RangeFinder = React.createClass({
           {this.state.min}
         </text>
         <text
-          x={this.props.width - this.consts.labelSideMargin}
+          x={this.componentWidth - this.consts.labelSideMargin}
           y={valueLabelY}
           fontSize={this.consts.textSize}
           textAnchor="end"
