@@ -1,6 +1,6 @@
 {
   "name": "react-range-finder",
-  "version": "3.0.4",
+  "version": "3.0.5",
   "description": "",
   "scripts": {
     "test": "eslint lib/ spec/ && ./node_modules/karma/bin/karma start karma.conf.js",
