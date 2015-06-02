@@ -31,6 +31,8 @@ Optional
 * **min**: (Number) The minimum number.
 * **max**: (Number) The maximum number.
 * **selectedRange**: ({start: Number, end: Number}) The initial selected range of the sliders (defaults to the entire range). `start` and `end` are both optional (i.e. you can pass in only one without the other).
+* **title**: (String, "Value Range") The title displayed at the upper left.
+
 
 ### Sizing ###
 
@@ -49,6 +51,29 @@ Optional
 * **colors**: (multidimensional array of strings which are CSS colors) This is your color scheme. Simplest case: You have series: "series_name" and colors: ["red", "blue"]. The first coverage bar will be red, the second blue, the third red, the fourth blue, etc. The colors will loop.  
 If you want to color each series separately but have a color scheme for each series set (e.g. series: ["series_category", "series_name"]) you can pass in a multidemensional color array.
 * **metadataProperty**: (String) This is an extra data field that can get tacked on in the tooltip.
+
+### Consts ###
+
+You can set the `consts` property to overwrite the default consts. Below is a list with their defaults:
+
+    marginTop: 0
+    marginLeft: 0
+    marginRight: 40
+    marginBottom: 40
+    coverageBarMargin: 10
+    labelCharacterLimit: 20
+    tickSize: 10
+    sliderMargin: 5
+    sliderRadius: 5
+    ghostSize: 30
+    labelSideMargin: 1
+    labelVertMargin: 2
+    textMargin: 20
+    textSize: 15
+    densityBadgeMargin: 45
+    scrollWidth: 10
+    borderRadius: 5
+    coverageGap: 4
 
 Example:
 
