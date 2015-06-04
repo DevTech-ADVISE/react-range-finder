@@ -42,14 +42,6 @@ var RangeFinderTester = React.createClass({
     return {};
   },
 
-  doThing: function() {
-    
-  },
-
-  componentDidMount: function() {
-    //setTimeout(this.doThing, 5000);
-  },
-
   render: function() {
     return (
       <RangeFinder 
