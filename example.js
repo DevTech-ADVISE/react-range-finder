@@ -37,18 +37,30 @@ function onDragEnd(start, end) {
   log("Date Range: " + start + "-" + end + ", " + (end - start + 1) + " years selected");
 }
 
+var RangeFinderTester = React.createClass({
+  getInitialState: function() {
+    return {};
+  },
+
+  render: function() {
+    return (
+      <RangeFinder 
+        id="yearSelector"
+        data={series}
+        rowLabelProperties={schema.series}
+        valueProperty={schema.value}
+        metadataProperty={schema.metadata}
+        colors={schema.colors}
+        onDrag={onDragMove}
+        onDragRangeStart={onStartDragMove}
+        onDragRangeEnd={onEndDragMove}
+        onRelease={onDragEnd}
+        onReleaseRangeStart={onStartDragEnd}
+        onReleaseRangeEnd={onEndDragEnd}/>
+    )
+  }
+});
+
 React.render(
-  <RangeFinder 
-    id="yearSelector"
-    data={series}
-    rowLabelProperties={schema.series}
-    valueProperty={schema.value}
-    metadataProperty={schema.metadata}
-    colors={schema.colors}
-    onDrag={onDragMove}
-    onDragRangeStart={onStartDragMove}
-    onDragRangeEnd={onEndDragMove}
-    onRelease={onDragEnd}
-    onReleaseRangeStart={onStartDragEnd}
-    onReleaseRangeEnd={onEndDragEnd}/>,
+  <RangeFinderTester/>,
   document.getElementById('content'));

@@ -35,7 +35,6 @@ var RangeFinder = React.createClass({
   },
 
   getInitialState: function() {
-
     var selectedRange = this.props.selectedRange || {};
 
     var valueRange = this.getValueRange(this.props.data);
@@ -70,14 +69,11 @@ var RangeFinder = React.createClass({
     coverageBarMargin: 10,
     labelCharacterLimit: 20,
     tickSize: 10,
-    sliderMargin: 5,
     sliderRadius: 5,
     ghostSize: 30,
     labelSideMargin: 1,
-    labelVertMargin: 2,
     textMargin: 20,
     textSize: 15,
-    densityBadgeMargin: 45,
     gradientId: "mainGradient",
     scrollWidth: 10,
     borderRadius: 5,
