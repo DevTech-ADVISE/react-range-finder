@@ -188,6 +188,10 @@ var RangeFinder = React.createClass({
     return sum / (end - start + 1);
   },
 
+  setScrollUpdater: function(func) {
+    this.scrollUpdaterFunc = func;
+  },
+
   render: function() {
     var snapGrid = this.snapGrid;
     var gradient = null; //this.makeGradient();
@@ -216,6 +220,7 @@ var RangeFinder = React.createClass({
           width={this.componentWidth} height={this.fullCoverageHeight}
           maxDisplayedHeight={this.coverageHeight}
           scrollWidth={this.consts.scrollWidth}
+          setScrollUpdater={this.setScrollUpdater}
           className="rf-coverage-section">
           <rect
             x={0} y={0}
