@@ -4,6 +4,7 @@ var path = require('path');
 
 module.exports = {
   context: path.join(__dirname),
+  devtool: 'source-map',
   entry: './example.js',
 
   output: {

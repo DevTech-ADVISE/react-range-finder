@@ -7,10 +7,6 @@ var CalcMixin = require('./mixins/calculatedPropertyMixin.js');
 var ScrollableSVG = require('./components/scrollableSVG.js');
 
 var Opentip = require('opentip');
-require('opentip/css/opentip.css');
-
-require('./react-range-finder.scss');
-
 Opentip.styles.close = {
   extends: "standard",
   offset: [-3,-3],
@@ -20,6 +16,10 @@ Opentip.styles.close = {
 };
 
 Opentip.defaultStyle = "close";
+require('opentip/css/opentip.css');
+
+require('./react-range-finder.scss');
+
 
 var RangeFinder = React.createClass({
   findValue: function() {
@@ -146,6 +146,18 @@ var RangeFinder = React.createClass({
 
     this.barX = this.props.labelColumnWidth;
     this.barY = this.consts.marginTop;
+  },
+
+  componentDidMount: function() {
+    this.refreshOpentip();
+  },
+
+  componentDidUpdate: function() {
+    this.refreshOpentip();
+  },
+
+  refreshOpentip: function() {
+    Opentip.findElements();
   },
 
   //function for outputting tag/class guide
