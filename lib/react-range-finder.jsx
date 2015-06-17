@@ -5,6 +5,7 @@ var MakerMixin = require('./mixins/componentMakerMixin.js');
 var CalcMixin = require('./mixins/calculatedPropertyMixin.js');
 
 var ScrollableSVG = require('./components/scrollableSVG.js');
+var DefaultCoverageLabel = require('./components/defaultCoverageLabel.jsx');
 
 var Opentip = require('opentip');
 Opentip.styles.close = {
@@ -91,6 +92,8 @@ var RangeFinder = React.createClass({
       stepSize: 1,
       data: [],
       title: "Value Range",
+      coverageLabel: DefaultCoverageLabel,
+      coverageLabelProps: {},
       densityLowColor: {r: 0, g: 0, b: 0},
       densityMidColor: null,
       densityHighColor: {r: 255, g: 255, b: 255},
@@ -100,6 +103,7 @@ var RangeFinder = React.createClass({
       onDragRangeEnd: function() {},
       onReleaseRangeEnd: function() {},
       onRelease: function() {},
+      onUpdateData: function() {},
     };
   },
 
@@ -125,21 +129,27 @@ var RangeFinder = React.createClass({
     title: React.PropTypes.string,
     consts: React.PropTypes.object,
 
-    data: React.PropTypes.arrayOf(React.PropTypes.object),
-    schema: React.PropTypes.shape({
-      data: React.PropTypes.oneOfType([React.PropTypes.arrayOf(React.PropTypes.string), React.PropTypes.string]).isRequired,
-      value: React.PropTypes.string.isRequired,
-      colorScheme: React.PropTypes.array,
-      metadata: React.PropTypes.string,
-    }),
+    //coverageLabel: React.PropTypes.element,
+    coverageLabelProps: React.PropTypes.object,
+
+    data: React.PropTypes.arrayOf(React.PropTypes.object).isRequired,
+    rowLabelProperties: React.PropTypes.oneOfType([React.PropTypes.arrayOf(React.PropTypes.string), React.PropTypes.string]).isRequired,
+    valueProperty: React.PropTypes.string.isRequired,
+    metadataProperty: React.PropTypes.string,
+    colors: React.PropTypes.array,
 
     onStartDragMove: React.PropTypes.func,
     onStartDragEnd: React.PropTypes.func,
     onEndDragMove: React.PropTypes.func,
     onEndDragEnd: React.PropTypes.func,
+    onUpdateData: React.PropTypes.func,
   },
 
   componentWillMount: function() {
+    if(this.props.data === null || this.props.data.length === 0) {
+      throw new Error("You must supply some data");
+    }
+
     for (var key in this.props.consts) {
       this.consts[key] = this.props.consts[key];
     }
