@@ -11,9 +11,10 @@ require('./react-range-finder.scss');
 
 
 var RangeFinder = React.createClass({
-  findValue: function() {
-    for(var key in arguments) {
-      var arg = arguments[key];
+  findValue: function(args) {
+
+    for(var key in args) {
+      var arg = args[key];
 
       if(arg || arg === 0) {
         return arg;
@@ -28,8 +29,8 @@ var RangeFinder = React.createClass({
 
     var valueRange = this.getValueRange(this.props.data);
 
-    var min = this.findValue(this.props.min, valueRange.min, selectedRange.start, 0);
-    var max = this.findValue(this.props.max, valueRange.max, selectedRange.end, 100);
+    var min = this.findValue([this.props.min, valueRange.min, selectedRange.start, 0]);
+    var max = this.findValue([this.props.max, valueRange.max, selectedRange.end, 100]);
 
     var start = selectedRange.start || min;
     var end = selectedRange.end || max;
@@ -77,6 +78,7 @@ var RangeFinder = React.createClass({
       coverageBarHeight: 20,
       maxCoverageHeight: 750,
       stepSize: 1,
+      selectedRange: null,
       data: [],
       title: 'Value Range',
       coverageLabel: DefaultCoverageLabel,
@@ -130,6 +132,27 @@ var RangeFinder = React.createClass({
     onEndDragMove: React.PropTypes.func,
     onEndDragEnd: React.PropTypes.func,
     onUpdateData: React.PropTypes.func,
+  },
+
+  componentWillReceiveProps: function(props) {
+    this.updateSelectedRange(props.selectedRange, this.props.selectedRange);
+  },
+
+  updateSelectedRange: function(newRange, oldRange) {
+    if(newRange === null) {
+      return;
+    }
+
+    if(oldRange === null) {
+      this.setState(newRange);
+      return;
+    }
+    
+    if(newRange.start === oldRange.start && newRange.end === oldRange.end) {
+      return;
+    }
+
+    this.setState(newRange);
   },
 
   componentWillMount: function() {
