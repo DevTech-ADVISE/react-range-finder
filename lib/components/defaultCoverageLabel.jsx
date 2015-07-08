@@ -20,18 +20,18 @@ var DefaultCoverageLabel = React.createClass({
     if(!text || text.length <= charLimit + 3) { // +3 for the dots.
       return text;
     }
-    return text.substring(0, charLimit) + "...";
+    return text.substring(0, charLimit) + '...';
   },
 
   render: function() {
     var label = this.truncateText(this.props.labelText, this.props.charLimit);
 
     return (
-      <text 
+      <text
         className={this.props.className}
         x={this.props.labelX}
         y={this.props.labelY}
-        data-ot={this.props.tooltip}>
+        data-tip={this.props.tooltip}>
         {label}
       </text>
     );

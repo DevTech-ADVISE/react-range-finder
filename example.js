@@ -73,7 +73,7 @@ var RemoveOnClickLabel = React.createClass({
         x={this.props.labelX}
         y={this.props.labelY}
         onClick={this.onClick}
-        data-ot={this.props.tooltip}>
+        data-tip={this.props.tooltip}>
         {label}
       </text>
     );
