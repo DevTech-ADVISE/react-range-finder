@@ -5,26 +5,16 @@ var MakerMixin = require('./mixins/componentMakerMixin.js');
 var CalcMixin = require('./mixins/calculatedPropertyMixin.js');
 
 var ScrollableSVG = require('./components/scrollableSVG.js');
-
-var Opentip = require('opentip');
-Opentip.styles.close = {
-  extends: "standard",
-  offset: [-3,-3],
-  background: "#CFCFCF",
-  borderColor: "#CFCFCF",
-  className: "rf-tooltip"
-};
-
-Opentip.defaultStyle = "close";
-require('opentip/css/opentip.css');
+var DefaultCoverageLabel = require('./components/defaultCoverageLabel.jsx');
 
 require('./react-range-finder.scss');
 
 
 var RangeFinder = React.createClass({
-  findValue: function() {
-    for(var key in arguments) {
-      var arg = arguments[key];
+  findValue: function(args) {
+
+    for(var key in args) {
+      var arg = args[key];
 
       if(arg || arg === 0) {
         return arg;
@@ -39,8 +29,8 @@ var RangeFinder = React.createClass({
 
     var valueRange = this.getValueRange(this.props.data);
 
-    var min = this.findValue(this.props.min, valueRange.min, selectedRange.start, 0);
-    var max = this.findValue(this.props.max, valueRange.max, selectedRange.end, 100);
+    var min = this.findValue([this.props.min, valueRange.min, selectedRange.start, 0]);
+    var max = this.findValue([this.props.max, valueRange.max, selectedRange.end, 100]);
 
     var start = selectedRange.start || min;
     var end = selectedRange.end || max;
@@ -54,8 +44,7 @@ var RangeFinder = React.createClass({
       min: min,
       max: max,
       start: start,
-      end: end,
-      coverageOffset: 0
+      end: end
     };
   },
 
@@ -74,7 +63,7 @@ var RangeFinder = React.createClass({
     labelSideMargin: 1,
     textMargin: 20,
     textSize: 15,
-    gradientId: "mainGradient",
+    gradientId: 'mainGradient',
     scrollWidth: 10,
     borderRadius: 5,
     coverageGap: 4,
@@ -89,8 +78,11 @@ var RangeFinder = React.createClass({
       coverageBarHeight: 20,
       maxCoverageHeight: 750,
       stepSize: 1,
+      selectedRange: null,
       data: [],
-      title: "Value Range",
+      title: 'Value Range',
+      coverageLabel: DefaultCoverageLabel,
+      coverageLabelProps: {},
       densityLowColor: {r: 0, g: 0, b: 0},
       densityMidColor: null,
       densityHighColor: {r: 255, g: 255, b: 255},
@@ -100,6 +92,7 @@ var RangeFinder = React.createClass({
       onDragRangeEnd: function() {},
       onReleaseRangeEnd: function() {},
       onRelease: function() {},
+      onUpdateData: function() {},
     };
   },
 
@@ -125,21 +118,48 @@ var RangeFinder = React.createClass({
     title: React.PropTypes.string,
     consts: React.PropTypes.object,
 
-    data: React.PropTypes.arrayOf(React.PropTypes.object),
-    schema: React.PropTypes.shape({
-      data: React.PropTypes.oneOfType([React.PropTypes.arrayOf(React.PropTypes.string), React.PropTypes.string]).isRequired,
-      value: React.PropTypes.string.isRequired,
-      colorScheme: React.PropTypes.array,
-      metadata: React.PropTypes.string,
-    }),
+    //coverageLabel: React.PropTypes.element,
+    coverageLabelProps: React.PropTypes.object,
+
+    data: React.PropTypes.arrayOf(React.PropTypes.object).isRequired,
+    rowLabelProperties: React.PropTypes.oneOfType([React.PropTypes.arrayOf(React.PropTypes.string), React.PropTypes.string]).isRequired,
+    valueProperty: React.PropTypes.string.isRequired,
+    metadataProperty: React.PropTypes.string,
+    colors: React.PropTypes.array,
 
     onStartDragMove: React.PropTypes.func,
     onStartDragEnd: React.PropTypes.func,
     onEndDragMove: React.PropTypes.func,
     onEndDragEnd: React.PropTypes.func,
+    onUpdateData: React.PropTypes.func,
+  },
+
+  componentWillReceiveProps: function(props) {
+    this.updateSelectedRange(props.selectedRange, this.props.selectedRange);
+  },
+
+  updateSelectedRange: function(newRange, oldRange) {
+    if(newRange === null) {
+      return;
+    }
+
+    if(oldRange === null) {
+      this.setState(newRange);
+      return;
+    }
+    
+    if(newRange.start === oldRange.start && newRange.end === oldRange.end) {
+      return;
+    }
+
+    this.setState(newRange);
   },
 
   componentWillMount: function() {
+    if(this.props.data === null || this.props.data.length === 0) {
+      throw new Error('You must supply some data');
+    }
+
     for (var key in this.props.consts) {
       this.consts[key] = this.props.consts[key];
     }
@@ -148,45 +168,11 @@ var RangeFinder = React.createClass({
     this.barY = this.consts.marginTop;
   },
 
-  componentDidMount: function() {
-    this.refreshOpentip();
-  },
-
-  componentDidUpdate: function() {
-    this.refreshOpentip();
-  },
-
-  refreshOpentip: function() {
-    Opentip.findElements();
-  },
-
-  //function for outputting tag/class guide
-  //Ignore this
-  reportCoverage: function(element, indent) {
-    var classPart = element.className && element.className.baseVal ? " class='" + element.className.baseVal + "'" : "";
-    if(!element.children || element.children.length === 0) {
-      if(!element.tagName) return "";
-      return indent + "<" + element.tagName + classPart + "/>\n";
-    }
-
-    var toReturn = indent + "<" + element.tagName + classPart + ">\n";
-    
-    for(var key in element.children) {
-      var child = element.children[key];
-      toReturn += this.reportCoverage(child, indent + "  ");
-    }
-    
-
-    toReturn += indent + "</" + element.tagName + ">\n";
-
-    return toReturn;
-  },
-
   calculateCoverage: function(start, end) {
     if(!this.needsCoverage) {
       return 0;
     }
-    
+
     var dataDensity = this.dataDensity;
 
     var sum = 0;
@@ -246,14 +232,14 @@ var RangeFinder = React.createClass({
       )
 
       var density = this.calculateCoverage(this.state.start, this.state.end);
-      densityLabel = 
+      densityLabel =
         <text
           x={titleX}
-          y={this.barY + this.props.headerBarHeight/2 + this.consts.textSize}
+          y={this.barY + this.props.headerBarHeight / 2 + this.consts.textSize}
           fontSize={12}
           textAnchor="middle"
           className="rf-label rf-label-bold rf-density-label">
-          {Math.floor(100 * density) + "% coverage"}
+          {Math.floor(100 * density) + '% coverage'}
         </text>;
     }
 
@@ -261,7 +247,7 @@ var RangeFinder = React.createClass({
     var topBarHeight = this.props.headerBarHeight + this.consts.borderRadius;
 
     var offset = 100 - 100 * (this.consts.borderRadius / topBarHeight);
-    offset += "%"
+    offset += '%'
 
     return (
       <svg
@@ -270,23 +256,23 @@ var RangeFinder = React.createClass({
         height={this.fullComponentHeight}
         className="range-finder">
         <defs>
-          <linearGradient id={this.consts.gradientId} x1="0%" x2="0%" y1="0%" y2="100%">
-            <stop offset="0%" stopColor="#CFCFCF" stopOpacity="100%"/>
-            <stop offset={offset} stopColor="#CFCFCF" stopOpacity="100%"/>
-            <stop offset={offset} stopColor="#CFCFCF" stopOpacity="0%"/>
-            <stop offset="100%" stopColor="#CFCFCF" stopOpacity="0%"/>
+          <linearGradient id={this.consts.gradientId} x1='0%' x2='0%' y1='0%' y2='100%'>
+            <stop offset='0%' stopColor='#CFCFCF' stopOpacity='100%'/>
+            <stop offset={offset} stopColor='#CFCFCF' stopOpacity='100%'/>
+            <stop offset={offset} stopColor='#CFCFCF' stopOpacity='0%'/>
+            <stop offset='100%' stopColor='#CFCFCF' stopOpacity='0%'/>
           </linearGradient>
         </defs>
         <rect
           x={0} y={this.barY}
           width={topBarWidth} height={topBarHeight}
           rx={this.consts.borderRadius} ry={this.consts.borderRadius}
-          stroke={"url(#" + this.consts.gradientId + ")"}
-          fill={"url(#" + this.consts.gradientId + ")"}
+          stroke={'url(#' + this.consts.gradientId + ')'}
+          fill={'url(#' + this.consts.gradientId + ')'}
           className="rf-range-bar"/>
         <text
           x={titleX}
-          y={this.barY + this.props.headerBarHeight/2}
+          y={this.barY + this.props.headerBarHeight / 2}
           textAnchor="middle"
           className="rf-label rf-label-bold rf-title-label">
           {this.props.title}

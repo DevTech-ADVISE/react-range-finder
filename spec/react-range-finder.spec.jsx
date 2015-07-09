@@ -58,6 +58,8 @@ describe('Range Finder', function() {
     var rangeFinder = TestUtils.renderIntoDocument(
       <RangeFinderRenderer 
         id="yearSelector"
+        min={start}
+        max={end}
         data={data}
         rowLabelProperties={series}
         valueProperty={value}
@@ -67,27 +69,27 @@ describe('Range Finder', function() {
     var newStart = start + 1;
     var newEnd = end - 1;
 
-    var indicators = scryClass(rangeFinder, 'rf-value-indeicators');
+    var indicators = scryClass(rangeFinder, 'rf-value-indicator');
     expect(indicators.length).toBe(0);
 
     var newRange = {start: newStart};
     controler({selectedRange: newRange});
-    indicators = scryClass(rangeFinder, 'rf-value-indeicators');
+    indicators = scryClass(rangeFinder, 'rf-value-indicator');
     expect(indicators.length).toBe(1);
 
     newRange = {start: newStart, end: newEnd};
     controler({selectedRange: newRange});
-    indicators = scryClass(rangeFinder, 'rf-value-indeicators');
+    indicators = scryClass(rangeFinder, 'rf-value-indicator');
     expect(indicators.length).toBe(2);
 
-    newRange = {end: newEnd};
+    newRange = {start: start, end: newEnd};
     controler({selectedRange: newRange});
-    indicators = scryClass(rangeFinder, 'rf-value-indeicators');
+    indicators = scryClass(rangeFinder, 'rf-value-indicator');
     expect(indicators.length).toBe(1);
 
-    newRange = {};
+    newRange = {start: start, end: end};
     controler({selectedRange: newRange});
-    indicators = scryClass(rangeFinder, 'rf-value-indeicators');
+    indicators = scryClass(rangeFinder, 'rf-value-indicator');
     expect(indicators.length).toBe(0);
   });
 
@@ -100,18 +102,19 @@ describe('Range Finder', function() {
         valueProperty={value}
         colors={colors}/>
     );
+    var density, newRange;
 
-    var density = findClass(rangeFinder, 'rf-density-label').props.children;
+    density = findClass(rangeFinder, 'rf-density-label').props.children;
     expect(density).toBe("75% coverage");
 
-    var newRange = {end: mid-1};
+    newRange = {end: mid-1};
     controler({selectedRange: newRange});
-    indicators = scryClass(rangeFinder, 'rf-value-indeicators');
+    density = findClass(rangeFinder, 'rf-density-label').props.children;
     expect(density).toBe("50% coverage");
 
-    var newRange = {start: mid};
+    newRange = {start: mid, end: end};
     controler({selectedRange: newRange});
-    indicators = scryClass(rangeFinder, 'rf-value-indeicators');
+    density = findClass(rangeFinder, 'rf-density-label').props.children;
     expect(density).toBe("100% coverage");
   });
 
