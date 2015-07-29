@@ -27,7 +27,7 @@ var RangeFinder = React.createClass({
   getInitialState: function() {
     var selectedRange = this.props.selectedRange || {};
 
-    var valueRange = this.getValueRange(this.props.data);
+    var valueRange = this.getValueRange(this.props);
 
     var min = this.findValue([this.props.min, valueRange.min, selectedRange.start, 0]);
     var max = this.findValue([this.props.max, valueRange.max, selectedRange.end, 100]);
