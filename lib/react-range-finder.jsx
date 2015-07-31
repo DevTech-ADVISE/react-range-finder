@@ -93,7 +93,22 @@ var RangeFinder = React.createClass({
       onReleaseRangeEnd: function() {},
       onRelease: function() {},
       onUpdateData: function() {},
+      toolTipText: this.toolTipText
     };
+  },
+
+  toolTipText: function(data) {
+    var dataText =
+    '<span class="rf-label-bold">' +
+    data.dataNames.join('<br/>');
+
+    if(data.metadata) {
+      dataText += '<br/><br/>' + data.metadata;
+    }
+
+    dataText += '</span>';
+
+    return dataText;
   },
 
   propTypes: {
