@@ -92,20 +92,7 @@ var RangeFinder = React.createClass({
       onDragRangeEnd: function() {},
       onReleaseRangeEnd: function() {},
       onRelease: function() {},
-      onUpdateData: function() {},
-      coverageLabelTooltipFunc: function(rowLabels, dataNames, metadata) {
-        var dataText =
-          '<span class="rf-label-bold">' +
-          dataNames.join('<br/>');
-
-        if(metadata) {
-          dataText += '<br/><br/>' + metadata;
-        }
-
-        dataText += '</span>';
-
-        return dataText
-      }
+      onUpdateData: function() {}
     };
   },
 
@@ -133,7 +120,6 @@ var RangeFinder = React.createClass({
 
     //coverageLabel: React.PropTypes.element,
     coverageLabelProps: React.PropTypes.object,
-    coverageLabelTooltipFunc: React.PropTypes.func,
 
     data: React.PropTypes.arrayOf(React.PropTypes.object).isRequired,
     rowLabelProperties: React.PropTypes.oneOfType([React.PropTypes.arrayOf(React.PropTypes.string), React.PropTypes.string]).isRequired,
