@@ -2,8 +2,7 @@ var React = require('react');
 var RangeFinder = require('./lib/react-range-finder.jsx');
 var dataGenerator = require('./sampleDataGenerator');
 
-
-var start = 1965;
+var start = 2065;
 var end = 2015;
 
 var series = dataGenerator.makeData(start, end);
@@ -93,6 +92,15 @@ var RangeFinderTester = React.createClass({
     this.setState({data: newData});
   },
 
+  update: function() {
+    var min = parseInt(React.findDOMNode(this.refs.min).value);
+    var max = parseInt(React.findDOMNode(this.refs.max).value);
+
+    var newData = dataGenerator.makeData(min, max);
+
+    this.setState({data: newData});
+  },
+
   render: function() {
     if(this.state.data.length === 0) {
       return <div>You must have data (i.e. refresh the page)</div>
@@ -102,21 +110,25 @@ var RangeFinderTester = React.createClass({
     var clickLabelProps = {removeData: this.removeData};
 
     return (
-      <RangeFinder 
-        id="yearSelector"
-        data={this.state.data}
-        rowLabelProperties={schema.series}
-        valueProperty={schema.value}
-        metadataProperty={schema.metadata}
-        colors={schema.colors}
-        coverageLabel={RemoveOnClickLabel}
-        coverageLabelProps={clickLabelProps}
-        onDrag={onDragMove}
-        onDragRangeStart={onStartDragMove}
-        onDragRangeEnd={onEndDragMove}
-        onRelease={onDragEnd}
-        onReleaseRangeStart={onStartDragEnd}
-        onReleaseRangeEnd={onEndDragEnd}/>
+      <div>
+        <input type="number" ref="min"/> --- <input type="number" ref="max"/> --- <button onClick={this.update}>Update Min/Max</button>
+        <br/><br/>
+        <RangeFinder 
+          id="yearSelector"
+          data={this.state.data}
+          rowLabelProperties={schema.series}
+          valueProperty={schema.value}
+          metadataProperty={schema.metadata}
+          colors={schema.colors}
+          coverageLabel={RemoveOnClickLabel}
+          coverageLabelProps={clickLabelProps}
+          onDrag={onDragMove}
+          onDragRangeStart={onStartDragMove}
+          onDragRangeEnd={onEndDragMove}
+          onRelease={onDragEnd}
+          onReleaseRangeStart={onStartDragEnd}
+          onReleaseRangeEnd={onEndDragEnd}/>
+      </div>
     )
   }
 });
