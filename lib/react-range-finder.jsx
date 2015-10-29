@@ -152,6 +152,9 @@ var RangeFinder = React.createClass({
       return;
     }
 
+    newRange.start = Math.max(newRange.start, this.state.min);
+    newRange.end = Math.min(newRange.end, this.state.max);
+
     this.setState(newRange);
   },
 
