@@ -95,7 +95,7 @@ var CoverageBar = React.createClass({
       return;
     }
 
-    component.tooltip = new Opentip(React.findDOMNode(component), tooltip, this.props.openTipOptions);
+    component.tooltip = new Opentip(component, tooltip, this.props.openTipOptions);
   },
 
   render: function() {

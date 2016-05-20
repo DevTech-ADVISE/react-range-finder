@@ -54,10 +54,10 @@ var ScrollableSVG = React.createClass({
 
     var self = this;
 
-    interact(this.refs.scrollBar.getDOMNode())
+    interact(this.refs.scrollBar)
       .draggable({
         restrict: {
-          restriction: self.refs.scrollArea.getDOMNode()
+          restriction: self.refs.scrollArea
         }
       })
       .on('dragmove', function (event) {

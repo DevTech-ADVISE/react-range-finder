@@ -24,7 +24,7 @@ var Slider = React.createClass({
   componentDidMount: function() {
     var self = this;
 
-    interact(self.getDOMNode())
+    interact(self)
       .draggable({
         snap: {
           targets: this.props.snapGrid,
@@ -56,7 +56,7 @@ var Slider = React.createClass({
   componentDidUpdate: function() {
     var self = this;
 
-    interact(self.getDOMNode())
+    interact(self)
       .draggable({
         snap: {
           targets: this.props.snapGrid,

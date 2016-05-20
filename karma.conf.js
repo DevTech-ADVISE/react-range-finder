@@ -11,11 +11,11 @@ module.exports = function(config) {
       'node_modules/es5-shim/es5-shim.js',
 
       // React is an external dependency of the component
-      'node_modules/react/dist/react-with-addons.js',
+      'node_modules/react/dist/react.js',
 
       'spec/spec-helper.js',
       'spec/**/*.spec.*',
-      { pattern: 'lib/**/*', watched: true, included: false }
+      { pattern: 'src/**/*', watched: true, included: false }
     ],
 
     preprocessors: {
