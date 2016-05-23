@@ -1,4 +1,5 @@
 var React = require('react');
+var ReactDOM = require('react-dom');
 var interact = require('interact.js');
 
 var Slider = React.createClass({
@@ -23,8 +24,8 @@ var Slider = React.createClass({
 
   componentDidMount: function() {
     var self = this;
-
-    interact(self)
+    
+    interact(ReactDOM.findDOMNode(self))
       .draggable({
         snap: {
           targets: this.props.snapGrid,
