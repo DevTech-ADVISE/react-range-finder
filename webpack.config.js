@@ -1,36 +1,50 @@
-/* jshint node: true */
+var webpack = require('webpack');
 var path = require('path');
 
-
 module.exports = {
-  context: path.join(__dirname),
-  devtool: 'source-map',
-  entry: './example.js',
-
-  output: {
-    path: path.join(__dirname),
-    filename: 'react-range-finder.js',
-    libraryTarget: 'umd',
-    library: 'ReactRangeFinder'
-  },
-
   module: {
     loaders: [
+      {
+        test: /\.js$/,
+        exclude: /node_modules/,
+        loader: 'babel-loader',
+        query: {presets:['react']},
+      },
       {
         test: /\.s?css$/,
         // Query parameters are passed to node-sass
         loader: 'style!css!sass?outputStyle=expanded&' +
           'includePaths[]=' + (path.resolve(__dirname, './node_modules'))
       },
-      {
-        test: /(\.js)|(\.jsx)$/,
-        exclude: /node_modules/,
-        loader: 'babel-loader',
-        query: {
-          optional: ['runtime'],
-          stage: 0
-        }
-      }
-    ]
-  }
+    ],
+  },
+
+  entry: './src/react-range-finder.js',
+
+  output: {
+    library: 'ReactRangeFinder',
+    libraryTarget: 'umd',
+    path: 'dist',
+    filename: 'react-range-finder.js',
+  },
+
+  externals: {
+    react: {
+      root: 'React',
+      commonjs: 'react',
+      commonjs2: 'react',
+      amd: 'react',
+    },
+    'react-dom': {
+      root: 'ReactDOM',
+      commonjs: 'react-dom',
+      commonjs2: 'react-dom',
+      amd: 'react-dom',
+    },
+  },
+
+  node: {
+    Buffer: false
+  },
+
 };

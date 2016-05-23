@@ -1,13 +1,14 @@
 var React = require('react');
-var RangeFinder = require('./lib/react-range-finder.jsx');
+var ReactDOM = require('react-dom');
+var RangeFinder = require('./src/react-range-finder.js');
 var dataGenerator = require('./sampleDataGenerator');
 
-var start = 2065;
+var start = 1990;
 var end = 2015;
 
 var series = dataGenerator.makeData(start, end);
 var schema = dataGenerator.makeSchema();
-
+console.log(series)
 function log(message) {
   console.log(message);
 }
@@ -67,7 +68,7 @@ var RemoveOnClickLabel = React.createClass({
     var label = this.truncateText(this.props.labelText, this.props.charLimit);
 
     return (
-      <text 
+      <text
         className={this.props.className}
         x={this.props.labelX}
         y={this.props.labelY}
@@ -93,8 +94,8 @@ var RangeFinderTester = React.createClass({
   },
 
   update: function() {
-    var min = parseInt(React.findDOMNode(this.refs.min).value);
-    var max = parseInt(React.findDOMNode(this.refs.max).value);
+    var min = parseInt(ReactDOM.findDOMNode(this.refs.min).value);
+    var max = parseInt(ReactDOM.findDOMNode(this.refs.max).value);
 
     var newData = dataGenerator.makeData(min, max);
 
@@ -113,7 +114,7 @@ var RangeFinderTester = React.createClass({
       <div>
         <input type="number" ref="min"/> --- <input type="number" ref="max"/> --- <button onClick={this.update}>Update Min/Max</button>
         <br/><br/>
-        <RangeFinder 
+        <RangeFinder
           id="yearSelector"
           data={this.state.data}
           rowLabelProperties={schema.series}
@@ -133,6 +134,6 @@ var RangeFinderTester = React.createClass({
   }
 });
 
-React.render(
+ReactDOM.render(
   <RangeFinderTester/>,
   document.getElementById('content'));

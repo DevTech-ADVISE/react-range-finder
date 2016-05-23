@@ -5,7 +5,7 @@ var MakerMixin = require('./mixins/componentMakerMixin.js');
 var CalcMixin = require('./mixins/calculatedPropertyMixin.js');
 
 var ScrollableSVG = require('./components/scrollableSVG.js');
-var DefaultCoverageLabel = require('./components/defaultCoverageLabel.jsx');
+var DefaultCoverageLabel = require('./components/defaultCoverageLabel.js');
 
 require('./react-range-finder.scss');
 
@@ -147,7 +147,7 @@ var RangeFinder = React.createClass({
       this.setState(newRange);
       return;
     }
-    
+
     if(newRange.start === oldRange.start && newRange.end === oldRange.end) {
       return;
     }
@@ -235,7 +235,7 @@ var RangeFinder = React.createClass({
       )
 
       var density = this.calculateCoverage(this.state.start, this.state.end);
-      densityLabel =
+      densityLabel = (
         <text
           x={titleX}
           y={this.barY + this.props.headerBarHeight / 2 + this.consts.textSize}
@@ -243,7 +243,8 @@ var RangeFinder = React.createClass({
           textAnchor="middle"
           className="rf-label rf-label-bold rf-density-label">
           {Math.floor(100 * density) + '% coverage'}
-        </text>;
+        </text>
+      );
     }
 
     var topBarWidth = this.componentWidth;
