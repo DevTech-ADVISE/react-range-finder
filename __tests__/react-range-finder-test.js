@@ -1,3 +1,4 @@
+jest.unmock('../dist/react-range-finder.js');
 var data = [];
 
 var start = 1;
@@ -26,6 +27,7 @@ data = data.concat(makeRange('r1', start, end));
 data = data.concat(makeRange('r2', mid, end));
 
 var React = require('react');
+var ReactDOM = require('react-dom');
 var TestUtils = require('react-addons-test-utils')
 var RangeFinder = require('../dist/react-range-finder');
 
@@ -103,17 +105,20 @@ describe('Range Finder', function() {
     );
     var density, newRange;
 
-    density = findClass(rangeFinder, 'rf-density-label').props.children;
+
+    var densityLabel = ReactDOM.findDOMNode(rangeFinder).getElementsByClassName('rf-density-label')[0];
+
+    density = densityLabel.innerHTML;
     expect(density).toBe('75% coverage');
 
     newRange = {end: mid-1};
     controler({selectedRange: newRange});
-    density = findClass(rangeFinder, 'rf-density-label').props.children;
+    density = densityLabel.innerHTML;
     expect(density).toBe('50% coverage');
 
     newRange = {start: mid, end: end};
     controler({selectedRange: newRange});
-    density = findClass(rangeFinder, 'rf-density-label').props.children;
+    density = densityLabel.innerHTML;
     expect(density).toBe('100% coverage');
   });
 
