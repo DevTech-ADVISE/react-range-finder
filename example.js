@@ -8,7 +8,7 @@ var end = 2015;
 
 var series = dataGenerator.makeData(start, end);
 var schema = dataGenerator.makeSchema();
-console.log(series)
+
 function log(message) {
   console.log(message);
 }
