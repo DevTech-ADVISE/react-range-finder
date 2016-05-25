@@ -1,4 +1,5 @@
 jest.unmock('../dist/react-range-finder.js');
+jest.unmock('interact.js');
 var data = [];
 
 var start = 1;

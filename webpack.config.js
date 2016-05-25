@@ -29,7 +29,7 @@ module.exports = {
   },
 
   externals: {
-    react: {
+    'react': {
       root: 'React',
       commonjs: 'react',
       commonjs2: 'react',
@@ -40,6 +40,24 @@ module.exports = {
       commonjs: 'react-dom',
       commonjs2: 'react-dom',
       amd: 'react-dom',
+    },
+    'opentip': {
+      root: 'Opentip',
+      commonjs: 'opentip',
+      commonjs2: 'opentip',
+      amd: 'opentip',
+    },
+    'interact.js': {
+      root: 'interact',
+      commonjs: 'interact.js',
+      commonjs2: 'interact.js',
+      amd: 'interact.js',
+    },
+    'tinycolor2': {
+      root: 'tinyColor',
+      commonjs: 'tinycolor2',
+      commonjs2: 'tinycolor2',
+      amd: 'tinycolor2',
     },
   },
 
