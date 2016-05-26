@@ -117,13 +117,11 @@ var ScrollableSVG = React.createClass({
     this.touchY = newTouch.pageY;
 
     event.preventDefault();
-    event.returnValue = false;
   },
 
   onWheel: function(event) {
     this.scrollElement(event.deltaY);
     event.preventDefault();
-    event.returnValue = false;
   },
 
   scrollElement: function(deltaY) {
