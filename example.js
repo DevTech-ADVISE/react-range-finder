@@ -1,3 +1,4 @@
+var PropTypes = require('prop-types');
 var React = require('react');
 var ReactDOM = require('react-dom');
 var RangeFinder = require('./src/react-range-finder.js');
@@ -39,18 +40,18 @@ function onDragEnd(start, end) {
 
 var RemoveOnClickLabel = React.createClass({
   propTypes: {
-    x: React.PropTypes.number.isRequired,
-    y: React.PropTypes.number.isRequired,
-    width: React.PropTypes.number.isRequired,
-    height: React.PropTypes.number.isRequired,
-    labelText: React.PropTypes.string.isRequired,
-    dataProperty: React.PropTypes.string.isRequired,
-    tooltip: React.PropTypes.string,
+    x: PropTypes.number.isRequired,
+    y: PropTypes.number.isRequired,
+    width: PropTypes.number.isRequired,
+    height: PropTypes.number.isRequired,
+    labelText: PropTypes.string.isRequired,
+    dataProperty: PropTypes.string.isRequired,
+    tooltip: PropTypes.string,
 
     //These props are suggested, mostly
-    labelX: React.PropTypes.number.isRequired,
-    labelY: React.PropTypes.number.isRequired,
-    charLimit: React.PropTypes.number.isRequired,
+    labelX: PropTypes.number.isRequired,
+    labelY: PropTypes.number.isRequired,
+    charLimit: PropTypes.number.isRequired,
   },
 
   truncateText: function(text, charLimit) {

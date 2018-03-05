@@ -1,3 +1,4 @@
+var PropTypes = require('prop-types');
 var React = require('react');
 var ReactDOM = require('react-dom');
 var interact = require('interact.js');
@@ -14,12 +15,12 @@ var Slider = React.createClass({
   },
 
   propTypes: {
-    handleSize: React.PropTypes.number,
-    height: React.PropTypes.number,
-    onDrag: React.PropTypes.func,
-    onRelease: React.PropTypes.func,
-    onScroll: React.PropTypes.func,
-    valueOffset: React.PropTypes.number
+    handleSize: PropTypes.number,
+    height: PropTypes.number,
+    onDrag: PropTypes.func,
+    onRelease: PropTypes.func,
+    onScroll: PropTypes.func,
+    valueOffset: PropTypes.number
   },
 
   componentDidMount: function() {
