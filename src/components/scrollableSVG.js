@@ -1,8 +1,11 @@
 var PropTypes = require('prop-types');
 var React = require('react');
+var createReactClass = require('create-react-class');
 var interact = require('interact.js');
 
-var ScrollableSVG = React.createClass({
+var ScrollableSVG = createReactClass({
+  displayName: 'ScrollableSVG',
+
   getInitialState: function() {
     return { offsetY: 0 };
   },
@@ -203,7 +206,7 @@ var ScrollableSVG = React.createClass({
           className="rf-scroll-bar"/>
       </g>
     );
-  }
+  },
 });
 
 module.exports = ScrollableSVG;

@@ -1,9 +1,12 @@
 var PropTypes = require('prop-types');
 var React = require('react');
+var createReactClass = require('create-react-class');
 var ReactDOM = require('react-dom');
 var interact = require('interact.js');
 
-var Slider = React.createClass({
+var Slider = createReactClass({
+  displayName: 'Slider',
+
   getInitialState: function() {
     var x = this.props.x;
 
@@ -222,7 +225,7 @@ var Slider = React.createClass({
           opacity={ghostOpacity}/>
       </g>
     );
-  }
+  },
 });
 
 module.exports = Slider;

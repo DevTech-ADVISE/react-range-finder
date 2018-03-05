@@ -1,4 +1,5 @@
 var PropTypes = require('prop-types');
+var createReactClass = require('create-react-class');
 var React = require('react');
 var ReactDOM = require('react-dom');
 var RangeFinder = require('./src/react-range-finder.js');
@@ -38,7 +39,7 @@ function onDragEnd(start, end) {
   log("Date Range: " + start + "-" + end + ", " + (end - start + 1) + " years selected");
 }
 
-var RemoveOnClickLabel = React.createClass({
+var RemoveOnClickLabel = createReactClass({
   propTypes: {
     x: PropTypes.number.isRequired,
     y: PropTypes.number.isRequired,
@@ -81,7 +82,7 @@ var RemoveOnClickLabel = React.createClass({
   }
 });
 
-var RangeFinderTester = React.createClass({
+var RangeFinderTester = createReactClass({
   getInitialState: function() {
     return {data: series};
   },

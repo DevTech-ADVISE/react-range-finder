@@ -1,4 +1,5 @@
 var PropTypes = require('prop-types');
+var createReactClass = require('create-react-class');
 var React = require('react');
 var Opentip = require('opentip');
 
@@ -16,7 +17,7 @@ Opentip.styles.close = {
 Opentip.defaultStyle = 'close';
 
 
-var CoverageBar = React.createClass({
+var CoverageBar = createReactClass({
   getInitialState: function() {
     return {};
   },

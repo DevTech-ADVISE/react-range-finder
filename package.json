@@ -6,7 +6,7 @@
     "pretest": "npm run build",
     "test": "jest",
     "watch-test": "jest --watch",
-    "build": "webpack -p",
+    "build": "webpack",
     "dev": "webpack-dev-server --inline --hot --config webpack.demo.config.js"
   },
   "main": "./dist/react-range-finder.js",

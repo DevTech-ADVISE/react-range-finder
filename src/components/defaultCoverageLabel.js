@@ -1,7 +1,8 @@
 var PropTypes = require('prop-types');
+var createReactClass = require('create-react-class');
 var React = require('react');
 
-var DefaultCoverageLabel = React.createClass({
+var DefaultCoverageLabel = createReactClass({
   propTypes: {
     x: PropTypes.number.isRequired,
     y: PropTypes.number.isRequired,
