@@ -1,3 +1,5 @@
+var PropTypes = require('prop-types');
+var createReactClass = require('create-react-class');
 var React = require('react');
 var Opentip = require('opentip');
 
@@ -15,33 +17,33 @@ Opentip.styles.close = {
 Opentip.defaultStyle = 'close';
 
 
-var CoverageBar = React.createClass({
+var CoverageBar = createReactClass({
   getInitialState: function() {
     return {};
   },
 
   propTypes: {
-    charLimit: React.PropTypes.number,
-    color: React.PropTypes.string,
-    coverage: React.PropTypes.arrayOf(
-      React.PropTypes.shape({
-        start: React.PropTypes.number,
-        end: React.PropTypes.number
+    charLimit: PropTypes.number,
+    color: PropTypes.string,
+    coverage: PropTypes.arrayOf(
+      PropTypes.shape({
+        start: PropTypes.number,
+        end: PropTypes.number
       })
     ).isRequired,
-    coverageLabelProps: React.PropTypes.object,
-    dataProperty: React.PropTypes.string,
-    height: React.PropTypes.number,
-    label: React.PropTypes.string,
-    labelWidth: React.PropTypes.number,
-    max: React.PropTypes.number.isRequired,
-    min: React.PropTypes.number.isRequired,
-    openTipOptions: React.PropTypes.object,
-    textMargin: React.PropTypes.number,
-    tooltip: React.PropTypes.string,
-    width: React.PropTypes.number.isRequired,
-    x: React.PropTypes.number.isRequired,
-    y: React.PropTypes.number.isRequired
+    coverageLabelProps: PropTypes.object,
+    dataProperty: PropTypes.string,
+    height: PropTypes.number,
+    label: PropTypes.string,
+    labelWidth: PropTypes.number,
+    max: PropTypes.number.isRequired,
+    min: PropTypes.number.isRequired,
+    openTipOptions: PropTypes.object,
+    textMargin: PropTypes.number,
+    tooltip: PropTypes.string,
+    width: PropTypes.number.isRequired,
+    x: PropTypes.number.isRequired,
+    y: PropTypes.number.isRequired
   },
 
   getDefaultProps: function() {

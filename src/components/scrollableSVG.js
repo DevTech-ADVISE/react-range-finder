@@ -1,7 +1,11 @@
+var PropTypes = require('prop-types');
 var React = require('react');
+var createReactClass = require('create-react-class');
 var interact = require('interact.js');
 
-var ScrollableSVG = React.createClass({
+var ScrollableSVG = createReactClass({
+  displayName: 'ScrollableSVG',
+
   getInitialState: function() {
     return { offsetY: 0 };
   },
@@ -20,13 +24,13 @@ var ScrollableSVG = React.createClass({
   },
 
   propTypes: {
-    height: React.PropTypes.number.isRequired,
-    maxDisplayedHeight: React.PropTypes.number.isRequired,
-    scrollWidth: React.PropTypes.number.isRequired,
-    setScrollUpdater: React.PropTypes.func,
-    width: React.PropTypes.number.isRequired,
-    x: React.PropTypes.number,
-    y: React.PropTypes.number
+    height: PropTypes.number.isRequired,
+    maxDisplayedHeight: PropTypes.number.isRequired,
+    scrollWidth: PropTypes.number.isRequired,
+    setScrollUpdater: PropTypes.func,
+    width: PropTypes.number.isRequired,
+    x: PropTypes.number,
+    y: PropTypes.number
   },
 
   componentWillMount: function() {
@@ -202,7 +206,7 @@ var ScrollableSVG = React.createClass({
           className="rf-scroll-bar"/>
       </g>
     );
-  }
+  },
 });
 
 module.exports = ScrollableSVG;

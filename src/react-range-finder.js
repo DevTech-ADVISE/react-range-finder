@@ -1,4 +1,7 @@
+var PropTypes = require('prop-types');
 var React = require('react');
+
+var createReactClass = require('create-react-class');
 
 var SetupMixin = require('./mixins/rangeFinderSetupMixin.js');
 var MakerMixin = require('./mixins/componentMakerMixin.js');
@@ -10,7 +13,9 @@ var DefaultCoverageLabel = require('./components/defaultCoverageLabel.js');
 require('./react-range-finder.scss');
 
 
-var RangeFinder = React.createClass({
+var RangeFinder = createReactClass({
+  displayName: 'RangeFinder',
+
   findValue: function(args) {
 
     for(var key in args) {
@@ -97,41 +102,41 @@ var RangeFinder = React.createClass({
   },
 
   propTypes: {
-    width: React.PropTypes.number,
-    height: React.PropTypes.number,
-    headerBarHeight: React.PropTypes.number,
-    labelColumnWidth: React.PropTypes.number,
-    maxCoverageHeight: React.PropTypes.number,
+    width: PropTypes.number,
+    height: PropTypes.number,
+    headerBarHeight: PropTypes.number,
+    labelColumnWidth: PropTypes.number,
+    maxCoverageHeight: PropTypes.number,
 
-    coverageBarHeight: React.PropTypes.number,
+    coverageBarHeight: PropTypes.number,
 
-    min: React.PropTypes.number,
-    max: React.PropTypes.number,
+    min: PropTypes.number,
+    max: PropTypes.number,
 
-    selectedRange: React.PropTypes.shape({
-      start: React.PropTypes.number,
-      end: React.PropTypes.number,
+    selectedRange: PropTypes.shape({
+      start: PropTypes.number,
+      end: PropTypes.number,
     }),
 
-    stepSize: React.PropTypes.number,
+    stepSize: PropTypes.number,
 
-    title: React.PropTypes.string,
-    consts: React.PropTypes.object,
+    title: PropTypes.string,
+    consts: PropTypes.object,
 
     //coverageLabel: React.PropTypes.element,
-    coverageLabelProps: React.PropTypes.object,
+    coverageLabelProps: PropTypes.object,
 
-    data: React.PropTypes.arrayOf(React.PropTypes.object).isRequired,
-    rowLabelProperties: React.PropTypes.oneOfType([React.PropTypes.arrayOf(React.PropTypes.string), React.PropTypes.string]).isRequired,
-    valueProperty: React.PropTypes.string.isRequired,
-    metadataProperty: React.PropTypes.string,
-    colors: React.PropTypes.array,
+    data: PropTypes.arrayOf(PropTypes.object).isRequired,
+    rowLabelProperties: PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.string), PropTypes.string]).isRequired,
+    valueProperty: PropTypes.string.isRequired,
+    metadataProperty: PropTypes.string,
+    colors: PropTypes.array,
 
-    onStartDragMove: React.PropTypes.func,
-    onStartDragEnd: React.PropTypes.func,
-    onEndDragMove: React.PropTypes.func,
-    onEndDragEnd: React.PropTypes.func,
-    onUpdateData: React.PropTypes.func,
+    onStartDragMove: PropTypes.func,
+    onStartDragEnd: PropTypes.func,
+    onEndDragMove: PropTypes.func,
+    onEndDragEnd: PropTypes.func,
+    onUpdateData: PropTypes.func,
   },
 
   componentWillReceiveProps: function(props) {
@@ -305,7 +310,7 @@ var RangeFinder = React.createClass({
         {sliders}
       </svg>
     )
-  }
+  },
 });
 
 module.exports = RangeFinder

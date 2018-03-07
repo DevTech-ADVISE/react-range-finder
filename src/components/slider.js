@@ -1,8 +1,12 @@
+var PropTypes = require('prop-types');
 var React = require('react');
+var createReactClass = require('create-react-class');
 var ReactDOM = require('react-dom');
 var interact = require('interact.js');
 
-var Slider = React.createClass({
+var Slider = createReactClass({
+  displayName: 'Slider',
+
   getInitialState: function() {
     var x = this.props.x;
 
@@ -14,12 +18,12 @@ var Slider = React.createClass({
   },
 
   propTypes: {
-    handleSize: React.PropTypes.number,
-    height: React.PropTypes.number,
-    onDrag: React.PropTypes.func,
-    onRelease: React.PropTypes.func,
-    onScroll: React.PropTypes.func,
-    valueOffset: React.PropTypes.number
+    handleSize: PropTypes.number,
+    height: PropTypes.number,
+    onDrag: PropTypes.func,
+    onRelease: PropTypes.func,
+    onScroll: PropTypes.func,
+    valueOffset: PropTypes.number
   },
 
   componentDidMount: function() {
@@ -221,7 +225,7 @@ var Slider = React.createClass({
           opacity={ghostOpacity}/>
       </g>
     );
-  }
+  },
 });
 
 module.exports = Slider;
